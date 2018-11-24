@@ -1,0 +1,807 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/layout/default.xhtml">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink styleClass="voltar">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<a href="#{facesContext.externalContext.requestContextPath}">#{appBean.nomeBreadcrumbinicial}</a>
+		</li>   
+		<li>
+			<h:commandLink action="/pages/gestor/desempenho/gestao-metas.xhtml" value="Gestão de Metas de Desempenho" />
+		</li>
+		<!-- <li>
+			<h:commandLink action="/pages/gestor/desempenho/filtro-nome.xhtml" value="Filtro Nome" />
+		</li> -->
+		<li>
+			<a href="#">Validação de Meta de Desempenho</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+		 #{gestorValidacaoDesempenhoBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+		 
+		 <div class="content">
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Validação de Meta de Desempenho</p>
+                        </div>
+                    </div>
+                  	<h:form styleClass="form-horizontal" role="form" id="form_validacao_meta" >
+                        <div class="row marginT20px">
+                            <div class="col-xs-16">
+                                <div class="form-group">
+                                    <div class="col-xs-8">
+                                        <label for="codigo">Código</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:inputText disabled="true" id="codigo" value="#{gestorValidacaoDesempenhoBean.meta.codigo}" styleClass="form-control"/>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <label for="status">Status</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:inputText disabled="true" id="status" value="#{gestorValidacaoDesempenhoBean.meta.statusAtual.value}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-8">
+                                        <label for="unidadeVinculada">Unidade Vinculada</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:inputText disabled="true" id="unidadeVinculada" value="#{gestorValidacaoDesempenhoBean.meta.unidade.unidadePK.uf}" styleClass="form-control"/>
+                                    </div>
+                                     <div class="col-xs-8">
+                                        <label for="nomeDoColaborador">Nome do Colaborador</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:inputText disabled="true" id="nomeDoColaborador" value="#{gestorValidacaoDesempenhoBean.meta.colaborador.nome}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-8">
+                                        <label for="resultadosEsperados">Resultados Esperados(Descrição)*</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:inputTextarea rows="3" styleClass="form-control" id="resultadosEsperados" placeholder="Resultados Esperados" 
+                                        value="#{gestorValidacaoDesempenhoBean.meta.resultadosEsperados}" label="Resultados Esperados" required="true"
+                                        disabled="true"/>
+                                        <p:message for="resultadosEsperados"/>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <label for="evidenciaDeEntrega">Evidência de Entrega*</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'EE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'EE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:inputTextarea id="evidenciaDeEntrega" label="Evidência de Entrega" required="true" rows="3" styleClass="form-control" placeholder="Evidência de Entrega" value="#{gestorValidacaoDesempenhoBean.meta.evidenciaEntrega}"
+                                        data-toggle="tooltip" title="Tipo de evidência ou critério de cálculo que demonstra a forma pela qual a meta será apurada. É necessário descrever de forma específica as características da entrega a ser feita, necessárias para que a meta seja considerada alcançada."
+                                        disabled="true"/>
+                                        <p:message for="evidenciaDeEntrega"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-8">
+                                        <label for="quantidadePrevista">Quantidade Prevista*</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <pe:inputNumber value="#{gestorValidacaoDesempenhoBean.meta.quantidadePrevista}" placeholder="Quantidade Prevista"
+                                			id="quantidadePrevista" label="Quantidade Prevista" required="true" decimalPlaces="0" styleClass="form-control2" 
+                                			disabled="true"/>
+                                        <p:message for="quantidadePrevista"/>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <label for="unidadeDeMedida">Unidade de Medida*</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:inputText id="unidadeDeMedida" value="#{gestorValidacaoDesempenhoBean.meta.unidadeMedida}" styleClass="form-control" placeholder="Unidade de Medida" data-toggle="tooltip" 
+                                        title="Métrica ou grandeza que será utilizada para mensuração (R$, numero de unidades, % de satisfação)"
+                                        label="Unidade de Medida" required="true" disabled="true"/>
+                                        <p:message for="unidadeDeMedida"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-8">
+                                        <label for="tipoDeDado">Tipo de Dado*</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <h:selectOneMenu id="tipoDeDado" value="#{gestorValidacaoDesempenhoBean.meta.tipoDado}" styleClass="form-control"
+                                        	data-toggle="tooltip" title="É a expressão do valor previsto em formato de número percentual, inteiro ou decimal."
+                                        	label="Tipo de Dado" required="true" disabled="true">
+											<f:selectItem itemLabel="Selecione"/>
+											<f:selectItems value="#{gestorValidacaoDesempenhoBean.tiposDado}" var="td" 
+												itemLabel="#{td.value}" itemValue="#{td}"/>
+										</h:selectOneMenu>
+										<p:message for="tipoDeDado"/>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <label for="formaDeCalculo">Forma de Cálculo*</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <h:selectOneMenu id="formaDeCalculo" value="#{gestorValidacaoDesempenhoBean.meta.formaCalculo}" styleClass="form-control"
+                                        	data-toggle="tooltip" title="As metas apresentam três formas para contabilização: Cumulativo, Não  cumulativo e Média. "
+                                        	label="Forma de Cálculo" required="true" disabled="true">
+											<f:selectItem itemLabel="Selecione"/>
+											<f:selectItems value="#{gestorValidacaoDesempenhoBean.formasCalculo}" var="fc" 
+												itemLabel="#{fc.value}" itemValue="#{fc}"/>
+										</h:selectOneMenu>
+										<p:message for="formaDeCalculo"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-8">
+                                        <label for="prazoDeConclusao">Prazo de Conclusão*</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <h:selectOneMenu id="prazoDeConclusao" value="#{gestorValidacaoDesempenhoBean.meta.mesConclusao}" styleClass="form-control"
+                                        	data-toggle="tooltip" title="Mês/ano considerado para o alcance da meta"
+                                        	label="Prazo de Conclusão" required="true" disabled="true">
+											<f:selectItem itemLabel="Selecione"/>
+											<f:selectItems value="#{gestorValidacaoDesempenhoBean.meses}" var="m" 
+												itemLabel="#{m.value}" itemValue="#{m}"/>
+										</h:selectOneMenu>
+										<p:message for="prazoDeConclusao"/>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <label for="indicadorAssociado">Indicador Associado*</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                         <h:selectOneMenu id="indicadorAssociado" value="#{gestorValidacaoDesempenhoBean.meta.indicador}" styleClass="form-control"
+                                        	data-toggle="tooltip" title="Indicador associado" converter="IndicadorConverter"
+                                        	label="Indicador Associado" required="true" disabled="true">
+											<f:selectItem itemLabel="Selecione o Indicador"/>
+											<f:selectItems value="#{gestorValidacaoDesempenhoBean.indicadores}" var="i" 
+												itemLabel="#{i.nome}" itemValue="#{i}"/>
+										</h:selectOneMenu>
+										<p:message for="indicadorAssociado"/>
+                                    </div>
+                                </div>
+                                 <div class="form-group">
+                                    <div class="col-xs-16">
+                                        <label for="observacaoEJustificativa">Observação e Justificativa</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:inputTextarea id="observacaoEJustificativa" rows="3" styleClass="form-control" placeholder="Observação e Justificativa" value="#{gestorValidacaoDesempenhoBean.meta.justificativa}"
+                                        data-toggle="tooltip" title="Descrever neste campo todas as observações que considerar pertinente"
+                                        label="Observação e Justificativa" disabled="true"/>
+                                        <p:message for="observacaoEJustificativa"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-16">
+                                        <label for="btModalVinculoComProjeto">Vínculo com o Projeto </label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-16">
+                                        <div class="titulo-tabela bgCorPadrao cinzaFonte">Projetos Vinculados</div>
+											<p:dataTable var="p" value="#{gestorValidacaoDesempenhoBean.meta.projetosVinculados}" 
+											    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+						                   		id="tblProjetosVinculados" paginator="false" 
+						                   		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+						                   		emptyMessage="Nenum projeto vinculado" rowIndexVar="index">
+										        <p:column headerText="Projeto" styleClass="text-center">
+										           #{p.nome}
+										        </p:column>
+										    </p:dataTable>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="col-xs-16">
+                                        <label for="btmodalUnidadesAssociadas">Unidades Associadas</label>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-16">
+                                        <div class="titulo-tabela bgCorPadrao cinzaFonte">Unidades Associadas</div>
+										<p:dataTable var="p" value="#{gestorValidacaoDesempenhoBean.meta.unidadesVinculadas}" 
+											    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+						                   		id="tblUnidadesVinculadas" 
+						                   		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+						                   		emptyMessage="Nenhuma unidade vinculada" rowIndexVar="index">
+										        
+										        <p:column headerText="Unidades Associadas" styleClass="text-center">
+										            #{p.descricao}
+										        </p:column>
+										 
+										    </p:dataTable>
+                                    </div>
+                                </div>
+                                
+                                <ui:fragment rendered="#{gestorValidacaoDesempenhoBean.podeInserirMarcoCriticoCicloAtual}">
+	                                <div class="form-group">
+	                                    <div class="col-xs-16">
+	                                        <label for="btmodalMarcoCritico">Marco Crítico</label>
+	                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+	                                    </div>
+	                                </div>
+	                                <div class="form-group">
+	                                    <div class="col-xs-16"> 
+	                                       <div class="titulo-tabela bgCorPadrao cinzaFonte bgCorPadraoFraco">Marcos Críticos</div>
+												<p:dataTable var="mc" value="#{gestorValidacaoDesempenhoBean.meta.marcosCriticos}" 
+												    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							                   		id="tblMarcosCriticosVinculados" 
+							                   		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							                   		emptyMessage="Nenhum marco crítico vinculado" rowIndexVar="index">
+											        
+											        <p:column headerText="#" styleClass="text-center width-col-peq">
+											            #{index+1}
+											        </p:column>
+											 
+											        <p:column headerText="Quantidade" styleClass="text-center">
+											            <h:outputText value="#{mc.quantidade}" />
+											        </p:column>
+											 
+											        <p:column headerText="Evidência de Entrega"  styleClass="text-center">
+											            <h:outputText value="#{mc.evidenciaEntrega}" />
+											        </p:column>
+											 
+											        <p:column headerText="Prazo de Conclusão"  styleClass="text-center">
+											            <h:outputText value="#{mc.prazoConclusao.value}"/>
+											        </p:column>
+											    </p:dataTable>
+	                                    </div>
+	                                </div>
+                                </ui:fragment>
+                                
+                               <div class="row marginT10px">
+			                        <div class="col-xs-16">
+			                             <label for="obsAuditor">Observações do Gestor*</label>
+			                             <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObs').modal('show');" process="@this" update=":form_obs_campo">
+                                        	<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+                                        <p:commandLink rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}" styleClass="text-obs" 
+                                        	oncomplete="jQuery('#modalObservacao').modal('show');" process="@this" update=":frmObservacao"
+                                        	actionListener="#{gestorValidacaoDesempenhoBean.prepararEnvioObservacaoCampo()}">
+                                        	<i class="fa fa-plus-circle obs-icon-add"></i> adicionar observação
+                                        	<f:setPropertyActionListener value="#{'RE'}" target="#{gestorValidacaoDesempenhoBean.tipoCampoObservacao}" />
+                                        	<f:param name="cid" value="#{gestorValidacaoDesempenhoBean.conversation.id}"/>
+                                        </p:commandLink>
+			                             <p:inputTextarea id="txObservacao" styleClass="form-control" placeholder="Observações do Gestor" rows="3" 
+			                             	value="#{gestorValidacaoDesempenhoBean.textoObservacao}"/>
+			                             <p:message for="txObservacao"/>
+			                        </div>
+			                    </div>
+			                    <div class="row marginT10px">
+			                        <div class="col-xs-3">
+			                            <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+			                        </div>
+			                        
+			                    <ui:fragment rendered="#{not gestorValidacaoDesempenhoBean.verificarStatusByFase()}">  
+							        <div class="row marginT20px">
+				                        <div class="col-xs-13 col-xs-offset-3">
+				                            <h:commandLink action="#{gestorValidacaoDesempenhoBean.enviarCorrecao()}" 
+				                            	value="Gravar Observações sem Enviar Pendência" styleClass="btn btn-azul floatR marginL10px"/>
+				                        	<h:commandLink action="#{gestorValidacaoDesempenhoBean.salvarSemValidar()}" 
+				                        		value="Enviar Pendência" styleClass="btn btn-azul floatR marginL10px"/>
+				                        	<h:commandLink action="#{gestorValidacaoDesempenhoBean.naoValidar()}" 
+				                        		value="Não Validar Resultado da Meta" styleClass="btn btn-azul floatR marginL10px"/>
+				                        	<h:commandLink action="#{gestorValidacaoDesempenhoBean.validarResultado()}" 
+				                        		value="Validar Resultado da Meta" styleClass="btn btn-azul floatR marginL10px"/>
+				                        </div>
+	                   			 	</div>
+                   			 	</ui:fragment>
+                   			 	
+                   			 	<ui:fragment rendered="#{gestorValidacaoDesempenhoBean.verificarStatusByFase()}">
+	                   			 	<div class="row marginT20px">
+				                        <div class="col-xs-11 col-xs-offset-5">
+				                        	<h:commandLink action="#{gestorValidacaoDesempenhoBean.enviarObservacaoComite()}" 
+				                        		value="Enviar Observação para Comitê" styleClass="btn btn-azul floatR marginL10px"/>
+				                        	<h:commandLink action="#{gestorValidacaoDesempenhoBean.enviarObservacaoColaborador()}" 
+				                        		value="Enviar Observação para Colaborador" styleClass="btn btn-azul floatR marginL10px"/>
+				                            <h:commandLink action="#{gestorValidacaoDesempenhoBean.cancelarMeta()}" 
+				                            	value="Cancelar Meta" styleClass="btn btn-azul floatR marginL10px"/>
+				                        	<h:commandLink action="#{gestorValidacaoDesempenhoBean.aprovarMeta()}" 
+				                        		value="Aprova Meta" styleClass="btn btn-azul floatR marginL10px"/>
+				                        </div>
+	                   			 	</div> 
+                   			 	</ui:fragment> 
+                   			 	
+			                    </div>
+			                    
+			                    <div class="row marginT20px">
+									<div class="col-xs-16">
+										<label>Histórico das Análises da Metas</label>
+										<table class="table table-striped table-bordered" id="tbUnidades">
+											<thead class="bgCorPadraoFraco">
+												<tr>
+													<th class="width-col-peq">#</th>
+													<th>Descrição da Observação</th>
+													<th class="width-col-peq">Data</th>
+												</tr>
+											</thead>
+											<tbody>
+												<!-- <ui:repeat var="obs" value="#{comiteValidacaoDesempenhoBean.meta.getObservacoesByTipo('G','ROLE_COLABORADOR')}"  -->
+												<ui:repeat var="obs" value="#{gestorValidacaoDesempenhoBean.meta.getObservacoesByTipo('G','ROLE_COLABORADOR')}" 
+													varStatus="status">
+													<tr>
+														<td>#{status.index}</td>
+														<td>#{obs.descricao}</td>
+														<td>
+															<h:outputText value="#{obs.dataHora}">
+																<f:convertDateTime pattern="dd/MM/yyyy"/>
+															</h:outputText>
+														</td>
+													</tr>
+												</ui:repeat>
+											</tbody>
+										</table>
+									</div>
+								</div>
+                                
+                                <ui:fragment rendered="#{not empty gestorValidacaoDesempenhoBean.meta.id}">
+	                                <div class="form-group marginT10px">
+	                                    <div class="col-xs-16">
+	                                        <label>
+	                                            <p:commandLink process="@this" oncomplete="jQuery('#modalLog').modal('show');"
+	                                            	actionListener="#{gestorValidacaoDesempenhoBean.obterRegistrosLog()}" update=":form_registros_log">
+	                                            	Visualizar LOG de alterações <i class="fa fa-search azul"></i>
+	                                            </p:commandLink>
+	                                        </label>
+	                                    </div>
+	                                </div>
+                                </ui:fragment>
+                            </div>
+                        </div>
+                  	</h:form>
+                </div>
+        
+        <div class="modal fade" id="modalLog" tabindex="-1" role="dialog" aria-labelledby="modalLog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <h:form id="form_registros_log">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                        	<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+                        </button>
+                        <h4 class="modal-title">Visualizando LOG</h4>
+                    </div>
+                    <div class="modal-body">
+                    	<ui:repeat var="audit" value="#{gestorValidacaoDesempenhoBean.registrosLog}" varStatus="status">
+	                        <div class="row marginT20px">
+	                            <div class="col-xs-16">
+	                                <table class="table table-bordered log">
+	                                    <tbody>
+	                                        <tr>
+	                                            <td class="tituloLog">Código da Meta</td>
+	                                            <td class="repostaLog">#{audit[0].codigo}</td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Tipo de Meta</td>
+	                                            <td class="repostaLog">#{audit[0].tipo.value}</td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Nome do Usuário</td>
+	                                            <td class="repostaLog">#{audit[0].colaborador.nome}</td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">CPF</td>
+	                                            <td class="repostaLog">#{audit[1].usuario}</td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Data do Log</td>
+	                                            <td class="repostaLog">
+	                                            	 <h:outputText value="#{audit[1].dataAlteracao}">
+														<f:convertDateTime pattern="dd/MM/yyyy"/>
+													</h:outputText>
+	                                            </td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Hora do Log</td>
+	                                            <td class="repostaLog">
+	                                            	<h:outputText value="#{audit[1].dataAlteracao}">
+														<f:convertDateTime pattern="HH:mm"/>
+													</h:outputText>
+	                                            </td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Operação</td>
+	                                            <td class="repostaLog">
+	                                            	<h:outputText value="#{audit[1].tipoLog.value}"/>
+	                                            </td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Dados Antigos</td>
+	                                            <td class="repostaLog">
+	                                            	<ui:fragment rendered="#{status.index lt (gestorValidacaoDesempenhoBean.registrosLog.size() -1)}">
+		                                        		Descrição: #{gestorValidacaoDesempenhoBean.registrosLog.get(status.index+1)[0].resultadosEsperados}
+		                                        	</ui:fragment>
+	                                            </td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Dados Atuais</td>
+	                                            <td>
+	                                            	Descrição: #{audit[0].resultadosEsperados}
+	                                            </td>
+	                                        </tr>
+	                                    </tbody>
+	                                </table>
+	                            </div>
+	                        </div>
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <hr />
+	                            </div>
+	                        </div>
+                        </ui:repeat>
+                    </div>
+	                    <div class="modal-footer">
+                            <div class="row">
+                                <div class="col-xs-8 col-xs-offset-8">
+                                    <button type="button" class="btn btn-azul" data-dismiss="modal">Fechar</button>
+                                </div>  
+                            </div>
+                        </div>
+	                </h:form>
+	               </div>
+                </div>
+            </div>
+         
+         <div class="modal fade" id="modalObs" tabindex="-1" role="dialog" aria-labelledby="modalObs" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="form_obs_campo">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Observações do Campo</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <label for="quantidade">Observação Gerente*</label>
+                                <ui:fragment rendered="#{not empty gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('G',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}">
+                                	<ui:repeat value="#{gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('G',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}" var="obs" varStatus="status">
+                                		<p>
+                                			<span class="hora">(
+                                           	<h:outputText value="#{obs.dataHora}">
+                                           		<f:convertDateTime pattern="dd/MM/yyyy"/>
+                                           	</h:outputText> 
+                                           	as 
+                                           	<h:outputText value="#{obs.dataHora}">
+                                           		<f:convertDateTime pattern="HH:mm:ss"/>
+                                           	</h:outputText> 
+                                           	)</span> -
+                                           	#{obs.descricao}
+                                		</p>
+                                	</ui:repeat>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('G',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}">
+                                	<p>Sem observações!</p>
+                                </ui:fragment>
+                                <hr />
+                                <label for="quantidade">Observação Comitê*</label>
+                                <ui:fragment rendered="#{not empty gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('C',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}">
+                                	<ui:repeat value="#{gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('C',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}" var="obs" varStatus="status">
+                                		<p>
+                                			<span class="hora">(
+                                           	<h:outputText value="#{obs.dataHora}">
+                                           		<f:convertDateTime pattern="dd/MM/yyyy"/>
+                                           	</h:outputText> 
+                                           	as 
+                                           	<h:outputText value="#{obs.dataHora}">
+                                           		<f:convertDateTime pattern="HH:mm:ss"/>
+                                           	</h:outputText> 
+                                           	)</span> -
+                                           	#{obs.descricao}
+                                		</p>
+                                	</ui:repeat>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('C',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}">
+                                	<p>Sem observações!</p>
+                                </ui:fragment>
+                                <hr />
+                                <label for="quantidade">Observação UGP*</label>
+                                <ui:fragment rendered="#{not empty gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('U',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}">
+                                	<ui:repeat value="#{gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('U',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}" var="obs" varStatus="status">
+                                		<p>
+                                			<span class="hora">(
+                                           	<h:outputText value="#{obs.dataHora}">
+                                           		<f:convertDateTime pattern="dd/MM/yyyy"/>
+                                           	</h:outputText> 
+                                           	as 
+                                           	<h:outputText value="#{obs.dataHora}">
+                                           		<f:convertDateTime pattern="HH:mm:ss"/>
+                                           	</h:outputText> 
+                                           	)</span> -
+                                           	#{obs.descricao}
+                                		</p>
+                                	</ui:repeat>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('U',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}">
+                                	<p>Sem observações!</p>
+                                </ui:fragment>
+                                <hr />
+                                <label for="quantidade">Observação Auditor*</label>
+                                <ui:fragment rendered="#{not empty gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('A',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}">
+                                	<ui:repeat value="#{gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('A',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}" var="obs" varStatus="status">
+                                		<p>
+                                			<span class="hora">(
+                                           	<h:outputText value="#{obs.dataHora}">
+                                           		<f:convertDateTime pattern="dd/MM/yyyy"/>
+                                           	</h:outputText> 
+                                           	as 
+                                           	<h:outputText value="#{obs.dataHora}">
+                                           		<f:convertDateTime pattern="HH:mm:ss"/>
+                                           	</h:outputText> 
+                                           	)</span> -
+                                           	#{obs.descricao}
+                                		</p>
+                                	</ui:repeat>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty gestorValidacaoDesempenhoBean.meta.getObservacoesCampoByTipoAndCampo('A',gestorValidacaoDesempenhoBean.tipoCampoObservacao)}">
+                                	<p>Sem observações!</p>
+                                </ui:fragment>
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-xs-8 col-xs-offset-8">
+                                <button type="button" class="btn btn-azul floatR" data-dismiss="modal">Fechar</button>
+                            </div>  
+                        </div>
+                    </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="modalObservacao" tabindex="-1" role="dialog" aria-labelledby="lerDescricao" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+	                <h:form id="frmObservacao">
+	                    <div class="modal-header">
+	                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+	                        <h4 class="modal-title">Observação*</h4>
+	                    </div>
+	                    <div class="modal-body">
+	                    	<p:messages for="frmObservacao"/>
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <p:inputTextarea id="txObservacao" label="Observação" 
+	                                	value="#{gestorValidacaoDesempenhoBean.textoObservacaoCampo}"  
+	                                	rows="3" styleClass="form-control" required="true"/>
+	                                <p:message for="txObservacao"/>
+	                            </div>
+	                        </div>
+	                    </div>
+	                    <div class="modal-footer">
+							<div class="row">
+								<div class="col-xs-8">
+									<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+								</div>
+								<div class="col-xs-8">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+									<p:commandLink styleClass="btn btn-primary"
+										value="Enviar"
+										actionListener="#{gestorValidacaoDesempenhoBean.adicioanrObservacaoCampo()}"
+										update=":frmObservacao"
+										oncomplete="fecharPnlObservacao()">
+									</p:commandLink>
+								</div>
+							</div>
+						</div>
+						
+						 <h:panelGroup id="panelMessages">
+                            	<script type="text/javascript">
+
+                            	$(document).ready(function() {
+                            		setField();
+                            	});
+                            	function setField() {
+                            	     document.getElementById('form_validacao_meta:txObservacao').value = '';
+                            	}
+
+                            	var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+									function fecharPnlObservacao(){
+										if(!maximunSeverity || maximunSeverity != '2'){
+											jQuery('#modalObservacao').modal('hide');
+										}
+								}
+                            	</script>
+                            </h:panelGroup>
+	                </h:form>
+                </div>
+            </div>
+        </div>
+				    	
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,419 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="#{appBean.back()}">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}"/>
+		</li>
+		<li><a href="#">Validação de Metas</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		#{comiteValidacaoDesenvolvimentoBean.init()}
+		<p:messages autoUpdate="true" globalOnly="true" />
+		<div class="content">
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Validação de Meta de Desenvolvimento</p>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16 tabs-padrao">
+                            <ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+                                <li class="active"><a href="#analise-metodologica">Analise Metodológica</a></li>
+                                <li><a href="#validacao-comprovacao">Validação de Comprovação</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="analise-metodologica" class="tab-pane active">
+                                	<h:form id="form_meta_validacao">
+                                    <div class="row">
+                                        <div class="col-xs-8">
+                                            <label>Colaborador</label>
+                                            <input class="form-control" placeholder="#{comiteValidacaoDesenvolvimentoBean.metaGerenciar.usuario.nome}" disabled="disabled" />
+                                        </div>
+                                    </div>
+                                    <div class="row marginT20px">
+                                        <div class="col-xs-16">
+                                            <div class="panel-group" id="accordion">
+                                            	<ui:repeat var="meta" value="#{comiteValidacaoDesenvolvimentoBean.metaGerenciar.metasComiteDesenvolvimento}" varStatus="status" >
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">
+                                                        <h4 class="panel-title">
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse#{meta.codigo}">
+                                                                <i class="fa fa-plus-square-o marginR10px"></i>#{meta.resultadosEsperados}
+                                                            </a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="collapse#{meta.codigo}" class="panel-collapse collapse">
+                                                        <div class="panel-body">
+                                                            <div class="row marginT10px">
+                                                                <div class="col-xs-16"> 
+                                                                    <label for="nomeColaborador">Descrição da Meta</label>
+                                                                    <table class="table table-striped table-bordered" id="tbUnidades">
+                                                                        <thead class="bgCorPadraoFraco">
+                                                                            <tr>
+                                                                                <th class="width-col-peq">#</th>                                                    
+                                                                                <th>Solução Educacional</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                        	<ui:repeat var="ms" value="#{meta.solucoesEducacionais}">
+	                                                                            <tr>
+	                                                                                <td><input type="checkbox"/></td>
+	                                                                                <td>#{ms.solucaoEducacional.nome}</td>
+	                                                                            </tr>
+                                                                           </ui:repeat>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-xs-8"> 
+                                                                    <label>Data</label>
+                                                                    <h:inputText value="#{appBean.data}" styleClass="form-control text-center" disabled="true">
+                                                                    	<f:convertDateTime pattern="dd/MM/yyyy"/>
+                                                                    </h:inputText>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row marginT10px">
+                                                                <div class="col-xs-16">
+                                                                     <label for="obsComite">Observações do Comitê*</label>
+                                                                     <p:inputTextarea id="obsComite" styleClass="form-control" placeholder="Observações do Comitê" rows="3" 
+                                                                     	value="#{meta.observacaoTemp}"/>
+                                                                     <p:message for="obsComite"/>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row marginT10px">
+                                                                <div class="col-xs-8">
+                                                                    <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                                                                </div>
+                                                                <div class="col-xs-8">
+                                                                    <p:commandLink value="Inserir Parâmetro" 
+                                                                    	styleClass="btn btn-azul floatR marginL10px"
+                                                                    	action="#{comiteValidacaoDesenvolvimentoBean.inserirObservacao()}"
+                                                                    	update=":form_meta_validacao,:form_meta_validacao2">
+                                                                    	<f:setPropertyActionListener value="#{status.index}" 
+                                                                    		target="#{comiteValidacaoDesenvolvimentoBean.indiceMeta}" />
+                                                                    </p:commandLink>
+                                                                    <p:commandLink styleClass="btn btn-azul floatR" value="Cancelar"
+                                                                    	action="#{comiteValidacaoDesenvolvimentoBean.cancelarObservacao()}"
+                                                                    	update=":form_meta_validacao">
+                                                                    	<f:setPropertyActionListener value="#{status.index}" 
+                                                                    		target="#{comiteValidacaoDesenvolvimentoBean.indiceMeta}" />
+                                                                    </p:commandLink>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row marginT10px">
+                                                                <div class="col-xs-16"> 
+                                                                    <label>Histórico das Análises da Metas</label>
+                                                                    <table class="table table-striped table-bordered" jsf:id="tbObservacoes">
+                                                                        <thead class="bgCorPadraoFraco">
+                                                                            <tr>
+                                                                                <th class="width-col-peq">#</th>
+                                                                                <th>Descrição da Observação</th>
+                                                                                <th class="width-col-peq">Data</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                        	<ui:repeat var="obs" value="#{meta.getObservacaoByUsuario(appBean.usuarioAutenticado)}" varStatus="status">
+	                                                                            <tr>
+	                                                                                <td>#{status.index+1}</td>
+	                                                                                <td>#{obs.descricao} </td>
+	                                                                                <td>
+	                                                                                	<h:outputText value="#{obs.dataHora}">
+	                                                                                		<f:convertDateTime pattern="dd/MM/yyyy"/>
+	                                                                                	</h:outputText>
+	                                                                                </td>
+	                                                                            </tr>
+                                                                            </ui:repeat>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </ui:repeat>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </h:form>
+                                </div>
+                                <div id="validacao-comprovacao" class="tab-pane">
+                                	<h:form id="form_meta_validacao2">
+                                    <div class="row">
+                                        <div class="col-xs-8">
+                                            <label>Colaborador</label>
+                                            <input type="text" class="form-control" disabled="disabled" placeholder="#{comiteValidacaoDesenvolvimentoBean.metaGerenciar.usuario.nome}"/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-16">
+                                            <hr />
+                                        </div>
+                                    </div>
+                                    
+                                    <ui:repeat var="meta" value="#{comiteValidacaoDesenvolvimentoBean.metaGerenciar.metasComiteDesenvolvimento}">
+	                                    <div class="row">
+	                                        <div class="col-xs-12">
+	                                            <label>Meta</label>
+	                                            <input type="text" class="form-control" disabled="disabled" placeholder="#{meta.resultadosEsperados}" />
+	                                        </div>
+	                                        <div class="col-xs-4">
+	                                            <label>Vigência</label>
+	                                            <input type="text" class="form-control" disabled="disabled" placeholder="#{meta.cicloConfiguracao.ciclo.vigencia}" />
+	                                        </div>
+	                                    </div>
+	                                    <div class="row marginT10px">
+	                                        <div class="col-xs-16"> 
+	                                            <table jsf:id="tbl_solucoes" class="table table-striped table-bordered" id="tbUnidades">
+	                                                <thead class="bgCorPadraoFraco">
+	                                                    <tr>
+	                                                        <th>Forma de Aquisição</th>
+	                                                        <th>Solução Educacional</th>
+	                                                        <th>Vínculo Ocupacional</th>
+	                                                        <th>Carga Horária</th>
+	                                                        <th>Carga horária Alterada</th>
+	                                                        <th>Pontuação</th>
+	                                                        <th>Status da Validação</th>
+	                                                        <th>Validar</th>
+	                                                    </tr>
+	                                                </thead>
+	                                                <tbody>
+	                                                	<ui:repeat var="se" value="#{meta.solucoesEducacionais}">
+		                                                    <tr>
+		                                                        <td>#{se.solucaoEducacional.formaAquisicao.nome}</td>
+		                                                        <td>#{se.solucaoEducacional.nome}</td>
+		                                                        <td>#{se.vinculoOcupacional.value}</td>
+		                                                        <td>#{se.quantidadeAntigaAlterada}</td>
+		                                                        <td>#{se.quantidadeAlterada}</td>
+		                                                        <td>#{se.pontuacaoPrevista}</td>
+		                                                        <td>#{se.status.value}</td>
+		                                                        <td>
+		                                                        	<p:commandLink process="@this" oncomplete="jQuery('#modalSolucao').modal('show');" 
+		                                                        		update=":form_aprovar_solucao">
+		                                                        		<i class="fa fa-thumbs-o-up"></i>
+		                                                        		<f:setPropertyActionListener value="#{se}" target="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada}"/>
+		                                                        		<f:setPropertyActionListener value="#{meta}" target="#{comiteValidacaoDesenvolvimentoBean.metaSelecionada}" />
+		                                                        	</p:commandLink>
+		                                                        </td>
+		                                                    </tr>
+	                                                    </ui:repeat>
+	                                                </tbody>
+	                                            </table>
+	                                        </div>
+	                                    </div>
+	                                    <div class="row">
+	                                        <div class="col-xs-16">
+	                                            <hr />
+	                                        </div>
+	                                    </div>
+                                    </ui:repeat>
+                                    </h:form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <script type="text/javascript">
+						// <![CDATA[
+							jQuery(document).ready(function(){
+								$('.collapse').collapse('hide');
+							});
+						// ]]>
+					</script>
+			
+		</div>
+		
+		
+		 <div class="modal fade" id="modalSolucao" tabindex="-1" role="dialog" aria-labelledby="modalSolucao" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="form_aprovar_solucao">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Detalhes da Solução Educacional</h4>
+                    </div>
+                    <div class="modal-body">
+                    	<p:messages for="form_aprovar_solucao"/>
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <label for="categoria">Categoria</label>
+                                <input type="text" id="categoria" disabled="disabled" class="form-control width100" placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.solucaoEducacional.formaAquisicao.categoria.nome}" />
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label for="formaAquisicao">Forma de Aquisição</label>
+                                <input type="text" id="formaAquisicao" disabled="disabled" class="form-control width100" placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.solucaoEducacional.formaAquisicao.nome}" />
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label for="solucaoEducacional">Solução Educacional</label>
+                                <input type="text" id="solucaoEducacional" disabled="disabled" class="form-control width100" placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.solucaoEducacional.nome}" />
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label for="tipoSolucao">Tipo de Solução</label>
+                                <input type="text" id="tipoSolucao" disabled="disabled" class="form-control width100" placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.solucaoEducacional.medidaBase}" />
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label for="vinculoOcupacional">Vínculo Ocupacional</label>
+                                <input type="text" id="vinculoOcupacional" disabled="disabled" class="form-control width100" placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.vinculoOcupacional.value}" />
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label for="validacao">Validação</label>
+                                <input type="text" id="validacao" disabled="disabled" class="form-control width100" placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.solucaoEducacional.formaAquisicao.validacao.nome}" />
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-8">
+                                <label for="cargaHoraria">Carga Horária</label>
+                                <input type="text" id="cargaHoraria" disabled="disabled" class="form-control width100" placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.quantidadePrevista}" />
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="pontuacao">Pontuação</label>
+                                <input type="text" id="pontuacao" disabled="disabled" class="form-control width100" placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.pontuacaoPrevista}" />
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-8">
+                                <label for="novaCargaHoraria">Nova Carga Horária</label>
+                                <pe:inputNumber value="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.novaCargaHoraria}" 
+                                	placeholder="Nova Carga Horária"
+                                    id="novaCargaHoraria" label="Nova Carga Horária" 
+                                    required="true" decimalPlaces="2" minValue="0" maxValue="999" 
+                                    converter="javax.faces.BigDecimal"
+                                    styleClass="form-control2">
+                                    <p:ajax event="change" update="novaPontuacao" process="@this"/>
+                                </pe:inputNumber>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="novaPontuacao">Nova Pontuação</label>
+                                <input type="text" disabled="disabled" 
+                                	class="form-control width100" jsf:id="novaPontuacao"
+                                	placeholder="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.novaPontuacao}" />
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-16">
+                                <label for="selecioneComprovacao">Validação</label>
+                                <p:dataTable var="anexo" value="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.anexos}" 
+	                            	tableStyleClass="table table-striped table-bordered bgCorPadraoFraco" rowIndexVar="index"
+			                   		id="tbl_anexos" emptyMessage="Nenhum anexo adicionado">
+							        
+							        <p:column headerText="Arquivo" styleClass="text-center">
+							        	<h:outputText value="#{anexo.nomeExibicao}" />
+							        </p:column>
+							        
+							        <p:column headerText="Tipo" styleClass="text-center">
+							            <h:outputText value="#{anexo.tipoDescricao}" />
+							        </p:column>
+							        
+							        <p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+										<p:commandLink styleClass="btn btn-mini" id="downloadLink" process="@this" 
+												oncomplete="jQuery('#form-download-link\\:downloadLink').click();">
+												<i class="fa fa-eye"></i>
+										    	<f:setPropertyActionListener target="#{comiteValidacaoDesenvolvimentoBean.indiceAnexo}" 
+										    		value="#{index}"/>  
+										</p:commandLink>
+							        </p:column>
+							    </p:dataTable>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <label for="evidenciaDeEntregaModal">Endereço de publicação do Comprovante*</label>
+                                <p:inputTextarea styleClass="form-control" rows="3" placeholder="Endereço de publicação do Comprovante*"
+                                	disabled="true" value="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.enderecoPublicacaoComprovante}"/>
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label>Status*</label>
+                                <h:selectOneMenu id="statusValidacao"
+									value="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.status}"
+									required="true" styleClass="form-control" label="Status da Validação">
+									<f:selectItem itemLabel="Selecione" />
+									<f:selectItems
+										value="#{comiteValidacaoDesenvolvimentoBean.statusSolucaoEducacional}"
+										var="ss" itemLabel="#{ss.value}" itemValue="#{ss}" />
+									<p:ajax event="change" process="@this" update="justificativaPendencia"/>
+								</h:selectOneMenu>
+								<p:message for="statusValidacao" />
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label for="justPendencia">Justificativa de Pendência</label>
+                                <p:inputTextarea id="justificativaPendencia" styleClass="form-control" rows="3" 
+                                	placeholder="Justificativa de Pendência"
+                                	disabled="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.status ne 'P'}" 
+                                	value="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.justificativaPendencia}"/>
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label for="obsAnexo">Observação</label>
+                               <p:inputTextarea styleClass="form-control" rows="3" 
+                                	placeholder="Observação"
+                                	value="#{comiteValidacaoDesenvolvimentoBean.solucaoEducacionalSelecionada.observacao}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                            </div>
+                            <div class="col-xs-8">
+                                <button type="button" class="btn btn-azul" data-dismiss="modal">Cancelar</button>
+                                <p:commandLink styleClass="btn btn-azul" actionListener="#{comiteValidacaoDesenvolvimentoBean.salvarSolucao()}"
+                                	value="Salvar" update=":form_aprovar_solucao,:form_meta_validacao2" oncomplete="fecharAprovacaoSolucao();">
+                                </p:commandLink>
+                            </div>  
+                        </div>
+                    </div>
+                    
+                     <script type="text/javascript">
+							var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+							function fecharAprovacaoSolucao(){
+								if(!maximunSeverity || maximunSeverity != '2'){
+									jQuery('#modalSolucao').modal('hide');
+								}
+							}
+                     </script>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        <h:form id="form-download-link">
+         	<p:commandLink id="downloadLink" ajax="false" style="display:none;">
+				<p:fileDownload value="#{comiteValidacaoDesenvolvimentoBean.arquivo}"/>  
+			</p:commandLink>
+        </h:form>
+	</ui:define>
+</ui:composition>

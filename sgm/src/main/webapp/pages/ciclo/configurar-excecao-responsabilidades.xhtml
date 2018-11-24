@@ -1,0 +1,853 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><h:commandLink action="/pages/ciclo/listar.xhtml"
+				value="Ciclo de Avaliação" /></li>
+		<li><h:commandLink action="/pages/ciclo/manter.xhtml"
+				value="Manter Ciclo de Avaliação" /></li>
+		<li><a href="#">Configurar Exceção de Responsabilidades de
+				Metas de Desempenho</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{cicloConfigurarExcecaoMetasMonitoramentoBean.init()}
+		 #{cicloConfigurarExcecaoMetasResultadosBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<p class="titulo-sem-marcador">Configurar Exceção de
+						Responsabilidades de Metas de Desempenho</p>
+				</div>
+			</div>
+
+			<div class="row marginT30px">
+				<div class="col-xs-16 tabs-padrao">
+					<ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+						<li class="active"><a href="#metasMonitoramento"
+							class="bold600">Inserir Metas e Monitoramento</a></li>
+						<li><a href="#metasResultados" class="bold600">Validar Metas e Resultados</a></li>
+					</ul>
+					<div class="tab-content">
+						<div id="metasMonitoramento" class="tab-pane active">
+							<h:form id="form-metas-monitoramento">
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="tipoMetaTrabalhar">Tipo de Meta*</label>
+										<h:selectOneMenu id="tipoMetaTrabalhar"
+											value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.tipoMeta}"
+											required="true" styleClass="form-control"
+											label="Tipo de Meta">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.tiposMeta}"
+												var="tm" itemLabel="#{tm.value}" itemValue="#{tm}" />
+											<p:ajax event="change" update=":form-metas-monitoramento"
+												listener="#{cicloConfigurarExcecaoMetasMonitoramentoBean.alterouTipoMeta()}"
+												process="@this" />
+										</h:selectOneMenu>
+										<p:message for="tipoMetaTrabalhar" />
+									</div>
+								</div>
+
+								<p:outputPanel id="pnlDadosEquipe" style="display:block"
+									styleClass="dados-equipe"
+									rendered="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.tipoMeta eq 'E'}">
+									<div class="row marginT20px">
+										<div class="col-xs-16">
+											<label class="azul">Responsável pela Meta de Equipe</label>
+										</div>
+									</div>
+									<div class="row marginT10px">
+										<div class="col-xs-8">
+											<label for="unidadeEquipe">Unidade*</label>
+											<p:autoComplete id="unidadeEquipe" 
+													value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.unidade}" 
+													styleClass="form-control2" style="width:100%;"
+													completeMethod="#{cicloConfigurarExcecaoMetasMonitoramentoBean.completeUnidade}"
+								                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+								                	converter="UnidadeConverter" forceSelection="true">
+								                	<p:ajax event="itemSelect" process="@this" update="usuarioResponsavel,usuarioResponsavelMonitoramento"/>
+								             </p:autoComplete>
+										</div>
+									</div>
+								</p:outputPanel>
+
+								<p:outputPanel id="pnlDadosIndividual" style="display:block"
+									styleClass="dados-individual"
+									rendered="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.tipoMeta eq 'I'}">
+									<div class="row marginT20px">
+										<div class="col-xs-16">
+											<label class="azul">Responsável pela Meta de Individual</label>
+										</div>
+									</div>
+									<div class="row marginT10px">
+										<div class="col-xs-8">
+											<label for="unidadeIndividual">Unidade*</label>
+											<p:autoComplete id="unidadeIndividual" 
+													value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.unidade}" 
+													styleClass="form-control2" style="width:100%;"
+													completeMethod="#{cicloConfigurarExcecaoMetasMonitoramentoBean.completeUnidade}"
+								                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+								                	converter="UnidadeConverter" forceSelection="true">
+								                	<p:ajax event="itemSelect" process="@this" update="usuarioResponsavel,responsavelAtual"/>
+								             </p:autoComplete>
+										</div>
+									</div>
+									
+									<div class="row marginT10px">
+										<div class="col-xs-8">
+											<p:outputLabel id="responsavelAtual">Nome do Responsável Atual (<span
+													class="azul"> #{not empty cicloConfigurarExcecaoMetasMonitoramentoBean.responsavelAtual ? cicloConfigurarExcecaoMetasMonitoramentoBean.responsavelAtual.nome : '-'} </span>)</p:outputLabel>
+										</div>
+									</div>
+									<div class="row marginT10px">
+										<div class="col-xs-16">
+											<h:selectOneRadio
+												value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.inativarResponsavelAtual}"
+												converter="javax.faces.Boolean">
+												<f:selectItem itemLabel="Ativo" itemValue="false" />
+												<f:selectItem itemLabel="Inativo" itemValue="true" />
+											</h:selectOneRadio>
+										</div>
+									</div>
+									
+									<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="usuarioResponsavel">Nome do Responsável*</label>
+										<h:selectOneMenu id="usuarioResponsavel"
+											value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.usuarioResponsavel}"
+											required="true" styleClass="form-control"
+											converter="UsuarioConverter" label="Nome do Responsável">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.usuariosResponsaveis}"
+												var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+										</h:selectOneMenu>
+										<p:message for="usuarioResponsavel" />
+									</div>
+								</div>
+
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="tipoAcao">Tipo de Ação*</label>
+										<h:selectOneMenu id="tipoAcao"
+											value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.tipoAcao}"
+											required="true" styleClass="form-control"
+											label="Tipo de Ação">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.tiposAcao}"
+												var="ta" itemLabel="#{ta.value}" itemValue="#{ta}" />
+										</h:selectOneMenu>
+										<p:message for="tipoAcao" />
+									</div>
+								</div>
+									
+									<div class="row marginT10px">
+										<div class="col-xs-16">
+											<label for="btmodalUnidade">Colaborador*</label>
+											<p:commandLink id="btmodalUsuario"
+												styleClass="btn btn-azul marginL15px" value="Adicionar"
+												onsuccess="jQuery('#modalUsuarioMonitoramento').modal('show');"
+												rendered="#{not cicloConfigurarExcecaoMetasMonitoramentoBean.visualizando}"
+												actionListener="#{cicloConfigurarExcecaoMetasMonitoramentoBean.prepararModalVincularUsuarios()}"
+												update=":formUsuarioMonitoramento" process="@this" />
+										</div>
+									</div>
+
+									<div class="row marginT10px">
+										<div class="col-xs-16">
+											<div class="titulo-tabela bgCorPadrao cinzaFonte">Colaboradores*</div>
+											<p:message for="tblUsuariosSelecionados" />
+											<p:dataTable var="obj"
+												value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.usuarios}"
+												tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+												id="tblUsuariosSelecionados"
+												paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+												emptyMessage="Nenhum usuário selecionado"
+												rowIndexVar="index">
+
+												<p:column headerText="#"
+													styleClass="text-center width-col-peq">
+											            #{index+1}
+											        </p:column>
+
+												<p:column headerText="Usuário Adicionado"
+													styleClass="text-center">
+											            #{obj.nome}
+											        </p:column>
+
+												<p:column headerText="Editar"
+													styleClass="text-center width-col-peq">
+													<p:commandLink
+														actionListener="#{cicloConfigurarExcecaoMetasMonitoramentoBean.prepararModalVincularUsuarioEditar()}"
+														oncomplete="jQuery('#modalUsuarioMonitoramento').modal('show');"
+														update=":formUsuarioMonitoramento" process="@this">
+														<i class="fa fa-pencil-square-o"></i>
+														<f:param name="cid"
+															value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.conversation.id}" />
+													</p:commandLink>
+												</p:column>
+
+												<p:column headerText="Excluir"
+													styleClass="text-center width-col-peq">
+													<p:commandLink
+														oncomplete="jQuery('#modalConfirmacaoExcluirUsuarioMonitoramento').modal('show');"
+														process="@this">
+														<i class="fa fa-trash-o"></i>
+														<f:param name="cid"
+															value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.conversation.id}" />
+														<f:setPropertyActionListener value="#{obj}"
+															target="#{cicloConfigurarExcecaoMetasMonitoramentoBean.usuarioSelecionado}" />
+													</p:commandLink>
+												</p:column>
+											</p:dataTable>
+										</div>
+									</div>
+								</p:outputPanel>
+								<p:outputPanel rendered="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.tipoMeta ne 'I'}"> 
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="usuarioResponsavelMonitoramento">Nome do Responsável*</label>
+										<h:selectOneMenu id="usuarioResponsavelMonitoramento"
+											value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.usuarioResponsavel}"
+											required="true" styleClass="form-control"
+											converter="UsuarioConverter" label="Nome do Responsável">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.usuariosResponsaveis}"
+												var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+										</h:selectOneMenu>
+										<p:message for="usuarioResponsavelMonitoramento" />
+									</div>
+								</div>
+
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="tipoAcaoMonitoramento">Tipo de Ação*</label>
+										<h:selectOneMenu id="tipoAcaoMonitoramento"
+											value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.tipoAcao}"
+											required="true" styleClass="form-control"
+											label="Tipo de Ação">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.tiposAcao}"
+												var="ta" itemLabel="#{ta.value}" itemValue="#{ta}" />
+										</h:selectOneMenu>
+										<p:message for="tipoAcaoMonitoramento" />
+									</div>
+								</div>
+								</p:outputPanel> 
+
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left">*Campos
+											Obrigatórios</p>
+									</div>
+									<div class="col-xs-8">
+										<p:commandLink value="Inserir Parâmetro"
+											styleClass="btn btn-azul floatR marginL10px"
+											actionListener="#{cicloConfigurarExcecaoMetasMonitoramentoBean.inserirParametro()}"
+											update=":form-metas-monitoramento"
+											rendered="#{empty cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.id and not cicloConfigurarExcecaoMetasMonitoramentoBean.visualizando}" />
+
+										<p:commandLink value="Salvar Parâmetro"
+											styleClass="btn btn-azul floatR marginL10px"
+											style="margin-left:10px;"
+											actionListener="#{cicloConfigurarExcecaoMetasMonitoramentoBean.alterarParametro()}"
+											update=":form-metas-monitoramento"
+											rendered="#{not empty cicloConfigurarExcecaoMetasMonitoramentoBean.excecao.id and not cicloConfigurarExcecaoMetasMonitoramentoBean.visualizando}" />
+									</div>
+								</div>
+
+								<div class="row marginT30px">
+									<div class="col-xs-16">
+										<p class="titulo-sem-marcador">Configurações Salvas</p>
+									</div>
+								</div>
+
+								<div class="row marginT20px">
+									<div class="col-xs-16">
+										<p:dataTable var="obj"
+											value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.cicloConfiguracao.excecoesResponsabilidadesMetasMonitoramento}"
+											tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+											id="tblParametrosInseridos"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhum parâmetro adicionado"
+											rowIndexVar="index">
+
+											<p:column headerText="Tipo de Meta" styleClass="text-center">
+												<h:outputText value="#{obj.tipoMeta.value}" />
+											</p:column>
+
+											<p:column headerText="Nome/Unidade" styleClass="text-center">
+												<ui:fragment rendered="#{not empty obj.usuarios}">
+													<dl>
+														<ui:repeat var="u" value="#{obj.usuarios}">
+															<dd>#{u.nome}</dd>
+														</ui:repeat>
+													</dl>
+												</ui:fragment>
+												<ui:fragment rendered="#{empty obj.usuarios}">
+											        		#{obj.unidade.descricao}
+											        	</ui:fragment>
+											</p:column>
+
+											<p:column headerText="Tipo de Ação" styleClass="text-center">
+												<h:outputText value="#{obj.tipoAcao.value}" />
+											</p:column>
+
+											<p:column headerText="Responsável Designado"
+												styleClass="text-center">
+												<h:outputText value="#{obj.usuarioResponsavel.nome}" />
+											</p:column>
+
+											<p:column headerText="Editar"
+												styleClass="text-center width-col-peq"
+												rendered="#{not cicloConfigurarExcecaoMetasMonitoramentoBean.visualizando}">
+												<p:commandLink
+													oncomplete="irPara();"
+													actionListener="#{cicloConfigurarExcecaoMetasMonitoramentoBean.editar(obj)}"
+													update=":form-metas-monitoramento" process="@this">
+													<i class="fa fa-pencil-square-o"></i>
+													<f:param name="cid"
+														value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Excluir"
+												styleClass="text-center width-col-peq"
+												rendered="#{not cicloConfigurarExcecaoMetasMonitoramentoBean.visualizando}">
+												<p:commandLink
+													oncomplete="jQuery('#modalConfirmacaoExcluirMetasMonitoramento').modal('show');"
+													process="@this">
+													<i class="fa fa-trash-o"></i>
+													<f:setPropertyActionListener value="#{obj}"
+														target="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excecao}" />
+													<f:param name="cid"
+														value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+							</h:form>
+
+
+							<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+								modalTitulo="ATENÇÃO"
+								simAction="#{cicloConfigurarExcecaoMetasMonitoramentoBean.excluir()}"
+								modalMensagem="O parâmetro será excluído. Deseja continuar?"
+								onComplete="$('#modalConfirmacaoExcluirMetasMonitoramento').modal('hide')"
+								modalId="modalConfirmacaoExcluirMetasMonitoramento"
+								update=":form-metas-monitoramento" />
+
+							<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+								modalTitulo="ATENÇÃO"
+								simAction="#{cicloConfigurarExcecaoMetasMonitoramentoBean.desvincularUsuario()}"
+								modalMensagem="O Usuário será desvinculado. Deseja continuar?"
+								onComplete="$('#modalConfirmacaoExcluirUsuarioMonitoramento').modal('hide')"
+								modalId="modalConfirmacaoExcluirUsuarioMonitoramento"
+								update=":form-metas-monitoramento:tblUsuariosSelecionados" />
+
+							<div class="modal fade" id="modalUsuarioMonitoramento"
+								tabindex="-1" role="dialog"
+								aria-labelledby="modalUsuarioMonitoramento" aria-hidden="true">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<h:form id="formUsuarioMonitoramento">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal">
+													<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+												</button>
+												<h4 class="modal-title">Adicionar Usuário</h4>
+											</div>
+											<div class="modal-body">
+												<p:messages for="formUsuarioMonitoramento" autoUpdate="true" />
+												<div class="row">
+						                    		<div class="col-xs-8">
+						                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+						                    				onclick="selecioanarTodosListaUsuario();" styleClass="btn"/>  
+						                    		</div>
+						                    	</div>
+												<div class="row marginT10px">
+													<div class="col-xs-16">
+														<p:selectManyMenu id="listaVincular" value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.usuariosSelecionadasVincular}"
+					                               			converter="UsuarioConverter"
+					                         				var="t" filter="true" filterMatchMode="contains" showCheckbox="true" styleClass="ui-selectlistbox-item input_100P" 
+					                         				style="width: 100% !important" ondblclick="jQuery('.btn_add_usuario').click();">
+					          						 			<f:selectItems
+																value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.usuariosDisponiveis}"
+																var="uv" itemLabel="#{uv.nome}" itemValue="#{uv}" />
+					            							 <p:column>
+					                							<h:outputText value="#{t.nome}" style="float:left;white-space:nowrap;text-align:left;"/>
+					            							 </p:column>                      	
+					                              		</p:selectManyMenu>
+														<p:message for="listaVincular" />
+														
+														<SCRIPT type="text/javascript">
+															function selecioanarTodosListaUsuario(){
+																if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+																	$('#modalConfirmacaoSelecaoLista').modal('show');
+																}else{
+																	 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+																}
+															}
+							                             </SCRIPT>
+														<p:message for="listaVincular" />
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<div class="row">
+													<div class="col-xs-8">
+														<p class="campos-obrigatorios text-left"></p>
+													</div>
+													<div class="col-xs-8">
+														<button type="button" class="btn btn-default"
+															data-dismiss="modal">Cancelar</button>
+														<p:commandLink styleClass="btn btn-primary btn_add_usuario"
+															value="Incluir"
+															actionListener="#{cicloConfigurarExcecaoMetasMonitoramentoBean.vincularUsuarios()}"
+															update=":form-metas-monitoramento:tblUsuariosSelecionados"
+															oncomplete="jQuery('#modalUsuarioMonitoramento').modal('hide');">
+															<f:param name="cid"
+																value="#{cicloConfigurarExcecaoMetasMonitoramentoBean.conversation.id}" />
+														</p:commandLink>
+													</div>
+												</div>
+											</div>
+										</h:form>
+									</div>
+								</div>
+							</div>
+							
+							<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+								modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+								modalId="modalConfirmacaoSelecaoLista"/>
+
+						</div>
+
+
+						<div id="metasResultados" class="tab-pane">
+							<h:form id="form-metas-resultados">
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="tipoMetaTrabalhar">Tipo de Meta*</label>
+										<h:selectOneMenu id="tipoMetaTrabalhar"
+											value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.tipoMeta}"
+											required="true" styleClass="form-control"
+											label="Tipo de Meta">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasResultadosBean.tiposMeta}"
+												var="tm" itemLabel="#{tm.value}" itemValue="#{tm}" />
+											<p:ajax event="change" update=":form-metas-resultados"
+												listener="#{cicloConfigurarExcecaoMetasResultadosBean.alterouTipoMeta()}"
+												process="@this" />
+										</h:selectOneMenu>
+										<p:message for="tipoMetaTrabalhar" />
+									</div>
+								</div>
+								<p:outputPanel id="pnlDadosEquipe" style="display:block"
+									styleClass="dados-equipe"
+									rendered="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.tipoMeta eq 'E'}">
+									<div class="row marginT20px">
+										<div class="col-xs-16">
+											<label class="azul">Responsável pela Meta de Equipe</label>
+										</div>
+									</div>
+									<div class="row marginT10px">
+										<div class="col-xs-8">
+											<label for="unidadeEquipe">Unidade*</label>
+											<p:autoComplete id="unidadeEquipe" 
+													value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.unidade}" 
+													styleClass="form-control2" style="width:100%;"
+													completeMethod="#{cicloConfigurarExcecaoMetasResultadosBean.completeUnidade}"
+								                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+								                	converter="UnidadeConverter" forceSelection="true">
+								                	<p:ajax event="itemSelect" process="@this" update="usuarioResponsavel,usuarioResponsavelMetasResultados"/>
+								             </p:autoComplete>
+										</div>
+									</div>
+								</p:outputPanel>
+
+								<p:outputPanel id="pnlDadosIndividual" style="display:block"
+									styleClass="dados-individual"
+									rendered="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.tipoMeta eq 'I'}">
+									<div class="row marginT20px">
+										<div class="col-xs-16">
+											<p:outputLabel styleClass="azul">Responsável pela Meta de Individual</p:outputLabel>
+										</div>
+									</div>
+									<div class="row marginT10px">
+										<div class="col-xs-8">
+											<label for="unidadeIndividual">Unidade*</label>
+											<p:autoComplete id="unidadeIndividual" 
+													value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.unidade}" 
+													styleClass="form-control2" style="width:100%;"
+													completeMethod="#{cicloConfigurarExcecaoMetasResultadosBean.completeUnidade}"
+								                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+								                	converter="UnidadeConverter" forceSelection="true">
+								                	<p:ajax event="itemSelect" process="@this" update="usuarioResponsavel,responsavelAtual"/>
+								             </p:autoComplete>
+										</div>
+									</div>
+									<div class="row marginT10px">
+										<div class="col-xs-8">
+											<p:outputLabel id="responsavelAtual">Nome do Responsável Atual (<span
+													class="azul"> #{not empty cicloConfigurarExcecaoMetasResultadosBean.responsavelAtual ? cicloConfigurarExcecaoMetasResultadosBean.responsavelAtual.nome : '-'} </span>)</p:outputLabel>
+										</div>
+									</div>
+									<div class="row marginT10px">
+										<div class="col-xs-16">
+											<h:selectOneRadio
+												value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.inativarResponsavelAtual}"
+												converter="javax.faces.Boolean">
+												<f:selectItem itemLabel="Ativo" itemValue="false" />
+												<f:selectItem itemLabel="Inativo" itemValue="true" />
+											</h:selectOneRadio>
+										</div>
+									</div>
+									
+									<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="tipoAcao">Nome do Responsável*</label>
+										<h:selectOneMenu id="usuarioResponsavel"
+											value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.usuarioResponsavel}"
+											required="true" styleClass="form-control"
+											converter="UsuarioConverter" label="Nome do Responsável">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasResultadosBean.usuariosResponsaveis}"
+												var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+										</h:selectOneMenu>
+										<p:message for="usuarioResponsavel" />
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="tipoAcao">Tipo de Ação*</label>
+										<h:selectOneMenu id="tipoAcao"
+											value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.tipoAcao}"
+											required="true" styleClass="form-control"
+											label="Tipo de Ação">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasResultadosBean.tiposAcao}"
+												var="ta" itemLabel="#{ta.value}" itemValue="#{ta}" />
+										</h:selectOneMenu>
+										<p:message for="tipoAcao" />
+									</div>
+								</div>
+									
+									<div class="row marginT10px">
+										<div class="col-xs-16">
+											<label for="btmodalUnidade">Colaborador*</label>
+											<p:commandLink id="btmodalUsuario"
+												styleClass="btn btn-azul marginL15px" value="Adicionar"
+												onsuccess="jQuery('#modalUsuarioResultados').modal('show');"
+												rendered="#{not cicloConfigurarExcecaoMetasResultadosBean.visualizando}"
+												actionListener="#{cicloConfigurarExcecaoMetasResultadosBean.prepararModalVincularUsuarios()}"
+												update=":formUsuarioResultados" process="@this" />
+										</div>
+									</div>
+									<div class="row marginT10px">
+										<div class="col-xs-16">
+											<div class="titulo-tabela bgCorPadrao cinzaFonte">Colaboradores</div>
+											<p:message for="tblUsuariosSelecionados" />
+											<p:dataTable var="obj"
+												value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.usuarios}"
+												tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+												id="tblUsuariosSelecionados"
+												paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+												emptyMessage="Nenhum usuário selecionado"
+												rowIndexVar="index">
+
+												<p:column headerText="#"
+													styleClass="text-center width-col-peq">
+											            #{index+1}
+											        </p:column>
+
+												<p:column headerText="Usuário Adicionado"
+													styleClass="text-center">
+											            #{obj.nome}
+											        </p:column>
+
+												<p:column headerText="Editar"
+													styleClass="text-center width-col-peq">
+													<p:commandLink
+														actionListener="#{cicloConfigurarExcecaoMetasResultadosBean.prepararModalVincularUsuarioEditar()}"
+														oncomplete="jQuery('#modalUsuarioResultados').modal('show');"
+														update=":formUsuarioResultados" process="@this">
+														<i class="fa fa-pencil-square-o"></i>
+														<f:param name="cid"
+															value="#{cicloConfigurarExcecaoMetasResultadosBean.conversation.id}" />
+													</p:commandLink>
+												</p:column>
+
+												<p:column headerText="Excluir"
+													styleClass="text-center width-col-peq">
+													<p:commandLink
+														oncomplete="jQuery('#modalConfirmacaoExcluirUsuarioResultados').modal('show');"
+														process="@this">
+														<i class="fa fa-trash-o"></i>
+														<f:param name="cid"
+															value="#{cicloConfigurarExcecaoMetasResultadosBean.conversation.id}" />
+														<f:setPropertyActionListener value="#{obj}"
+															target="#{cicloConfigurarExcecaoMetasResultadosBean.usuarioSelecionado}" />
+													</p:commandLink>
+												</p:column>
+											</p:dataTable>
+										</div>
+									</div>
+								</p:outputPanel>
+								
+								<p:outputPanel rendered="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.tipoMeta ne 'I'}"> 
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="tipoAcaoMetasResultados">Nome do Responsável*</label>
+										<h:selectOneMenu id="usuarioResponsavelMetasResultados"
+											value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.usuarioResponsavel}"
+											required="true" styleClass="form-control"
+											converter="UsuarioConverter" label="Nome do Responsável">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasResultadosBean.usuariosResponsaveis}"
+												var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+										</h:selectOneMenu>
+										<p:message for="usuarioResponsavelMetasResultados" />
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="tipoAcaoMetasResultados">Tipo de Ação*</label>
+										<h:selectOneMenu id="tipoAcaoMetasResultados"
+											value="#{cicloConfigurarExcecaoMetasResultadosBean.excecao.tipoAcao}"
+											required="true" styleClass="form-control"
+											label="Tipo de Ação">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarExcecaoMetasResultadosBean.tiposAcao}"
+												var="ta" itemLabel="#{ta.value}" itemValue="#{ta}" />
+										</h:selectOneMenu>
+										<p:message for="tipoAcaoMetasResultados" />
+									</div>
+								</div>
+								</p:outputPanel>
+								
+								
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left">*Campos
+											Obrigatórios</p>
+									</div>
+									<div class="col-xs-8">
+										<p:commandLink value="Inserir Parâmetro"
+											styleClass="btn btn-azul floatR marginL10px"
+											actionListener="#{cicloConfigurarExcecaoMetasResultadosBean.inserirParametro()}"
+											update=":form-metas-resultados"
+											rendered="#{empty cicloConfigurarExcecaoMetasResultadosBean.excecao.id and not cicloConfigurarExcecaoMetasResultadosBean.visualizando}" />
+
+										<p:commandLink value="Salvar Parâmetro"
+											styleClass="btn btn-azul floatR marginL10px"
+											style="margin-left:10px;"
+											actionListener="#{cicloConfigurarExcecaoMetasResultadosBean.alterarParametro()}"
+											update=":form-metas-resultados"
+											rendered="#{not empty cicloConfigurarExcecaoMetasResultadosBean.excecao.id and not cicloConfigurarExcecaoMetasResultadosBean.visualizando}" />
+									</div>
+								</div>
+								<div class="row marginT30px">
+									<div class="col-xs-16">
+										<p class="titulo-sem-marcador">Configurações Salvas</p>
+									</div>
+								</div>
+								<div class="row marginT20px">
+									<div class="col-xs-16">
+										<p:dataTable var="obj"
+											value="#{cicloConfigurarExcecaoMetasResultadosBean.cicloConfiguracao.excecoesResponsabilidadesValidarResultados}"
+											tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+											id="tblParametrosInseridos"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhum parâmetro adicionado"
+											rowIndexVar="index">
+
+											<p:column headerText="Tipo de Meta" styleClass="text-center">
+												<h:outputText value="#{obj.tipoMeta.value}" />
+											</p:column>
+
+											<p:column headerText="Nome/Unidade" styleClass="text-center">
+												<ui:fragment rendered="#{not empty obj.usuarios}">
+													<dl>
+														<ui:repeat var="u" value="#{obj.usuarios}">
+															<dd>#{u.nome}</dd>
+														</ui:repeat>
+													</dl>
+												</ui:fragment>
+												<ui:fragment rendered="#{empty obj.usuarios}">
+											        		#{obj.unidade.descricao}
+											        	</ui:fragment>
+											</p:column>
+
+											<p:column headerText="Tipo de Ação" styleClass="text-center">
+												<h:outputText value="#{obj.tipoAcao.value}" />
+											</p:column>
+
+											<p:column headerText="Responsável Designado"
+												styleClass="text-center">
+												<h:outputText value="#{obj.usuarioResponsavel.nome}" />
+											</p:column>
+
+											<p:column headerText="Editar"
+												styleClass="text-center width-col-peq"
+												rendered="#{not cicloConfigurarExcecaoMetasResultadosBean.visualizando}">
+												<p:commandLink
+													actionListener="#{cicloConfigurarExcecaoMetasResultadosBean.editar(obj)}"
+													update=":form-metas-resultados" process="@this">
+													<i class="fa fa-pencil-square-o"></i>
+													<f:param name="cid"
+														value="#{cicloConfigurarExcecaoMetasResultadosBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Excluir"
+												styleClass="text-center width-col-peq"
+												rendered="#{not cicloConfigurarExcecaoMetasResultadosBean.visualizando}">
+												<p:commandLink
+													oncomplete="jQuery('#modalConfirmacaoExcluirMetasResultados').modal('show');"
+													process="@this">
+													<i class="fa fa-trash-o"></i>
+													<f:setPropertyActionListener value="#{obj}"
+														target="#{cicloConfigurarExcecaoMetasResultadosBean.excecao}" />
+													<f:param name="cid"
+														value="#{cicloConfigurarExcecaoMetasResultadosBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+							</h:form>
+
+							<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+								modalTitulo="ATENÇÃO"
+								simAction="#{cicloConfigurarExcecaoMetasResultadosBean.excluir()}"
+								modalMensagem="O parâmetro será excluído. Deseja continuar?"
+								onComplete="$('#modalConfirmacaoExcluirMetasResultados').modal('hide')"
+								modalId="modalConfirmacaoExcluirMetasResultados"
+								update=":form-metas-resultados" />
+
+							<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+								modalTitulo="ATENÇÃO"
+								simAction="#{cicloConfigurarExcecaoMetasResultadosBean.desvincularUsuario()}"
+								modalMensagem="O Usuário será desvinculado. Deseja continuar?"
+								onComplete="$('#modalConfirmacaoExcluirUsuarioResultados').modal('hide')"
+								modalId="modalConfirmacaoExcluirUsuarioResultados"
+								update=":form-metas-resultados:tblUsuariosSelecionados" />
+
+							<div class="modal fade" id="modalUsuarioResultados" tabindex="-1"
+								role="dialog" aria-labelledby="modalUsuarioResultados"
+								aria-hidden="true">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<h:form id="formUsuarioResultados">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal">
+													<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+												</button>
+												<h4 class="modal-title">Adicionar Usuário</h4>
+											</div>
+											<div class="modal-body">
+												<p:messages for="formUsuarioResultados" autoUpdate="true" />
+												<div class="row">
+						                    		<div class="col-xs-8">
+						                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+						                    				onclick="selecioanarTodosListaUsuarioResultados();" styleClass="btn"/>  
+						                    		</div>
+						                    	</div>
+												<div class="row marginT10px">
+													<div class="col-xs-16">
+														<p:selectManyMenu id="listaVincular" value="#{cicloConfigurarExcecaoMetasResultadosBean.usuariosSelecionadasVincular}"
+					                               			converter="UsuarioConverter"
+					                         				var="t" filter="true" filterMatchMode="contains" showCheckbox="true" styleClass="ui-selectlistbox-item input_100P" 
+					                         				style="width: 100% !important" ondblclick="jQuery('.btn_add_usuario2').click();">
+					          						 		 <f:selectItems
+																value="#{cicloConfigurarExcecaoMetasResultadosBean.usuariosDisponiveis}"
+																var="uv" itemLabel="#{uv.nome}" itemValue="#{uv}" />
+					            							 <p:column>
+					                							<h:outputText value="#{t.nome}" style="float:left;white-space:nowrap;text-align:left;"/>
+					            							 </p:column>                      	
+					                              		</p:selectManyMenu>
+														<p:message for="listaVincular" />
+														
+														<SCRIPT type="text/javascript">
+															function selecioanarTodosListaUsuarioResultados(){
+																if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+																	$('#modalConfirmacaoSelecaoLista').modal('show');
+																}else{
+																	 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+																}
+															}
+							                             </SCRIPT>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<div class="row">
+													<div class="col-xs-8">
+														<p class="campos-obrigatorios text-left"></p>
+													</div>
+													<div class="col-xs-8">
+														<button type="button" class="btn btn-default"
+															data-dismiss="modal">Cancelar</button>
+														<p:commandLink styleClass="btn btn-primary btn_add_usuario2"
+															value="Incluir"
+															actionListener="#{cicloConfigurarExcecaoMetasResultadosBean.vincularUsuarios()}"
+															update=":form-metas-resultados:tblUsuariosSelecionados"
+															oncomplete="jQuery('#modalUsuarioResultados').modal('hide');">
+															<f:param name="cid"
+																value="#{cicloConfigurarExcecaoMetasResultadosBean.conversation.id}" />
+														</p:commandLink>
+													</div>
+												</div>
+											</div>
+										</h:form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<h:form>
+						<h:commandLink styleClass="btn btn-azul floatR marginL10px"
+							immediate="true" action="#{configuracaoMetasService.mensagemSucesso()}">Continuar Configuração</h:commandLink>
+					</h:form>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>

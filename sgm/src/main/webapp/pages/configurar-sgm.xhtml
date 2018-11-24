@@ -1,0 +1,63 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/index.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<a href="#">Configurar SGM</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+			#{configurarAdmistradorSgmBean.init()}
+			#{configurarPerfilSgmBean.init()}
+			#{configurarSgmAlterarSenhaBean.init()}
+			#{configurarSgmUsuarioExternoBean.init()}
+			<div class="content" id="content_config_sgm">
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Configurar SGM</p>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16 tabs-padrao">
+                            <ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+                                <li class="active"><a href="#config-admin" class="bold600">Configurar Administrador</a></li>
+                                <li><a href="#config-perfil" class="bold600">Configurar Perfil</a></li>
+                                <li><a href="#alterar-senha" class="bold600">Alterar Senha / Email</a></li>
+                                <li><a href="#config-externo" class="bold600">Configurar Usuário Externo</a></li>       
+                            </ul>
+                            <div class="tab-content">
+                                <div id="config-admin" class="tab-pane active">
+                                	<ui:include src="/pages/configurar-sgm-administrador.xhtml"/>
+                                </div>
+                                <div id="config-perfil" class="tab-pane">
+                                	<ui:include src="/pages/configurar-sgm-perfil.xhtml"/>
+                                </div>
+                                <div id="alterar-senha" class="tab-pane">
+                                   <ui:include src="/pages/configurar-sgm-alterar-senha.xhtml"/>
+                                </div>
+                                <div id="config-externo" class="tab-pane">
+                                   <ui:include src="/pages/configurar-sgm-usuario-externo.xhtml"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+	</ui:define>
+</ui:composition>

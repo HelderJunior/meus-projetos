@@ -1,0 +1,260 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:func="http://br.gov.sebrae/funcoes">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/index.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><a href="#">Indicadores Associados</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+	
+	#{manterIndicadorBean.init()}
+						
+	<p:messages autoUpdate="true" globalOnly="true" />
+
+		<h:form id="form-auxIndicadores">
+
+			<div class="content">
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Indicadores Associados</p>
+					</div>
+				</div>
+
+				<div class="row marginT15px">
+					<div class="col-xs-8">
+						<label for="nomeIndicadores">Nome do Indicador*</label><br></br>
+						<p:inputText id="nomeIndicadores"
+							value="#{manterIndicadorBean.indicador.nome}"
+							label="Nome do Indicador" required="true"
+							styleClass="form-control" size="63" maxlength="100"
+							disabled="#{manterIndicadorBean.visualizando}" />
+						<p:message for="nomeIndicadores" />
+					</div>
+
+					<div class="col-xs-8">
+						<label for="status">Status*</label>
+						<h:selectOneMenu id="status" 
+							value="#{manterIndicadorBean.indicador.ativo}"
+							styleClass="form-control select-status" converter="javax.faces.Boolean"
+							disabled="#{manterIndicadorBean.visualizando}"
+							>
+							<f:selectItem itemLabel="Ativo" itemValue="true" />
+							<f:selectItem itemLabel="Inativo" itemValue="false" />
+						</h:selectOneMenu>
+						<p:message for="status" />
+					</div>
+				</div>
+				<div class="row marginT15px">
+				  <div class="col-xs-8">
+						<label for="nomeDescricao">Descrição*</label><br></br>
+						<p:inputText id="nomeDescricao"
+							value="#{manterIndicadorBean.indicador.descricao}"
+							label="Descrição" required="true"  maxlength="250"
+							styleClass="form-control" size="63" disabled="#{manterIndicadorBean.visualizando}"
+							 />
+						<p:message for="nomeDescricao" />
+					</div>
+					<div class="col-xs-8">
+						<label for="ufUsuario">UF*</label>
+						<h:selectOneMenu id="ufUsuario"
+							value="#{manterIndicadorBean.indicador.uf}"
+							styleClass="form-control"
+							disabled="#{manterIndicadorBean.visualizando}"
+							required="true" label="UF do Usuário">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems value="#{cicloConfigurarAuditoriaBean.ufs}"
+								var="uf" itemLabel="#{uf}" itemValue="#{uf}" />
+						</h:selectOneMenu>
+						<p:message for="ufUsuario" />
+					</div>
+				</div>
+				<div class="row marginT15px">
+					<div class="col-xs-8">
+						
+					</div>
+					<div class="col-xs-8 marginT15px">
+						<p:commandLink value="Inserir Parâmetro"
+							styleClass="btn btn-azul floatR"
+							actionListener="#{manterIndicadorBean.salvarIndicador()}"
+							update=":form-auxIndicadores"
+							rendered="#{not manterIndicadorBean.visualizando and empty manterIndicadorBean.indicador.id}" />
+
+						<p:commandLink value="Salvar Parâmetro"
+							styleClass="btn btn-azul floatR"
+							actionListener="#{manterIndicadorBean.salvarIndicador()}"
+							update=":form-auxIndicadores"
+							rendered="#{not manterIndicadorBean.visualizando and not empty manterIndicadorBean.indicador.id}" />
+
+						<p:commandLink value="Cancelar" styleClass="btn btn-azul floatR"
+							actionListener="#{manterIndicadorBean.cancelarVisualizacao()}"
+							update=":form-auxIndicadores"
+							rendered="#{manterIndicadorBean.visualizando}" />
+					</div>
+				</div>
+			    <div class="row">
+			    	<div class="col-xs-8">
+			    		<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+			    	</div>
+			    </div>
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurações Salvas</p>
+					</div>
+				</div>
+				<div class="row marginT15px">
+					<div class="col-xs-16">
+						<p:dataTable var="ind"
+							value="#{manterIndicadorBean.listIndicadores}"
+							tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+							id="tblIndicadoresAdicionados" paginator="true" rows="20"
+							paginatorPosition="bottom"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhum parâmetro adicionado">
+
+							<p:column headerText="Nome do Indicador" styleClass="text-center input-width" sortBy="#{ind.nome}" filterBy="#{ind.nome}">
+						        #{ind.nome}
+						    </p:column>
+						    
+						    <p:column headerText="UF" styleClass="text-center width-col-peq">
+								#{ind.uf}  
+							</p:column>
+
+							<p:column headerText="Status" styleClass="text-center"
+								width="100" sortBy="#{ind.ativo ? 'Ativo':'Inativo'}">
+								<h:outputText value="#{ind.ativo ? 'Ativo':'Inativo'}" />
+							</p:column>
+							
+							<p:column headerText="Visualizar"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									actionListener="#{manterIndicadorBean.visualizarIndicador()}"
+									update=":form-auxIndicadores" process="@this">
+									<i class="fa fa-eye"></i>
+									<f:setPropertyActionListener
+										target="#{manterIndicadorBean.indicador}" value="#{ind}" />
+									<f:param name="cid"
+										value="#{manterIndicadorBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+							
+							<p:column headerText="Editar"
+								styleClass="text-center width-col-peq"
+								rendered="#{not manterIndicadorBean.visualizando}">
+								<p:commandLink
+									actionListener="#{manterIndicadorBean.editarIndicador(ind)}"
+									update=":form-auxIndicadores" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{manterIndicadorBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								styleClass="text-center width-col-peq"
+								rendered="#{not manterIndicadorBean.visualizando}">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirIndicadores').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:setPropertyActionListener
+										target="#{manterIndicadorBean.indicador}" value="#{ind}" />
+									<f:param name="cid"
+										value="#{manterIndicadorBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</div>
+		</h:form>
+		
+		 <div class="modal fade" id="modalJustificativa" tabindex="-1"
+            role="dialog" aria-labelledby="lerJustificativa" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <h:form id="frmJustificativa">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">×</span><span class="sr-only">Close</span>
+                            </button>
+                            <h4 class="modal-title">Justificativa*</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-xs-16">
+                                    <p:inputTextarea id="txJustificativa" label="Justificativa"
+                                        value="#{manterIndicadorBean.textoJustificativa}" rows="3"
+                                        styleClass="form-control" required="true" maxlength="250"/>
+                                    <p:message for="txJustificativa" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="row">
+                                <div class="col-xs-8">
+                                    <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                                </div>
+                                <div class="col-xs-8">
+                                    <button type="button" class="btn btn-default"
+                                        data-dismiss="modal">Cancelar</button>
+ 
+                                    <p:commandLink styleClass="btn btn-primary" value="Enviar" update=":frmJustificativa"
+                                        oncomplete="fecharPnlJustificativa()">
+                                       <f:param name="cid" value="#{manterIndicadorBean.conversation.id}" /> 
+                                    </p:commandLink>
+                                </div>
+                            </div>
+                        </div>
+ 
+                        <h:panelGroup id="panelMessages">
+                            <script type="text/javascript">
+                                    var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+                                    function fecharPnlJustificativa() {
+                                        if(!maximunSeverity || maximunSeverity != '2'){
+                                            jQuery('#modalJustificativa').modal('hide');
+                                        } 
+                                    }
+                                    
+                                    $('.geral').on('change', '.select-status', function() {
+                						ativaDesativaJustificativa();
+                					});
+                					
+                					function ativaDesativaJustificativa() {
+                						if ( $('.select-status').val() == 'false') {
+                							$('#modalJustificativa').modal('show');
+                						} 
+                					}
+                                </script>
+                        </h:panelGroup>
+                    </h:form>
+                </div>
+            </div>
+        </div> 
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{manterIndicadorBean.excluirIndicador()}"
+			modalMensagem="O parâmetro será excluído. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoExcluirIndicadores').modal('hide')"
+			modalId="modalConfirmacaoExcluirIndicadores"
+			update=":form-auxIndicadores" />
+	</ui:define>
+	
+</ui:composition>

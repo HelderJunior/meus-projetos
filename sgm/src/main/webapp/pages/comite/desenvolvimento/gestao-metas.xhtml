@@ -1,0 +1,230 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="#{appBean.back()}">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><a href="#">Gestão de Metas de Desenvolvimento</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		#{comiteGestaoMetasDesenvolvimentoBean.init()}
+		<p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<p class="titulo-sem-marcador">Gestão de Metas de Desenvolvimento - Comitê</p>
+				</div>
+			</div>
+
+			<h:form id="form_pesquisar">
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label for="ciclo">Escolha o Ciclo*</label>
+						<h:selectOneMenu id="ciclo"
+							value="#{comiteGestaoMetasDesenvolvimentoBean.ciclo}"
+							label="Ciclo" styleClass="form-control"
+							converter="CicloConverter">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{comiteGestaoMetasDesenvolvimentoBean.ciclos}" var="c"
+								itemLabel="#{c.descricao}" itemValue="#{c}" />
+							<p:ajax event="change" process="@this" />
+						</h:selectOneMenu>
+						<p:message for="ciclo" />
+					</div>
+					<div class="col-xs-2">
+						<label for="unidade">UF*</label>
+						<h:selectOneMenu id="uf" value="#{comiteGestaoMetasDesenvolvimentoBean.uf}" 
+                       		styleClass="form-control">
+							<f:selectItem itemLabel="UF"/>
+							<f:selectItems value="#{comiteGestaoMetasDesenvolvimentoBean.ufs}" var="uf" 
+								itemLabel="#{uf}" itemValue="#{uf}"/>
+							<p:ajax event="change" process="@this" 
+								listener="#{comiteGestaoMetasDesenvolvimentoBean.alterouUf()}" update="unidade"/>
+						</h:selectOneMenu>
+						<p:message for="uf"/>
+					</div>
+					<div class="col-xs-6">
+						<label for="unidade">Unidade*</label>
+						<p:autoComplete id="unidade" 
+								value="#{comiteGestaoMetasDesenvolvimentoBean.unidade}" 
+								styleClass="form-control2" style="width:100%;"
+								completeMethod="#{comiteGestaoMetasDesenvolvimentoBean.completeUnidade}"
+			                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+			                	converter="UnidadeConverter" forceSelection="true">
+			                	<p:ajax event="itemSelect" process="@this" update=":form_pesquisar"
+			                		listener="#{comiteGestaoMetasDesenvolvimentoBean.alterouUnidade()}"/>
+			            </p:autoComplete>
+						<p:message for="unidade" />
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label for="faseCiclo">Fase do Ciclo*</label>
+						<h:selectOneMenu id="faseCiclo"
+							value="#{comiteGestaoMetasDesenvolvimentoBean.faseCiclo}"
+							styleClass="form-control" label="Fase do Ciclo">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{comiteGestaoMetasDesenvolvimentoBean.fasesCiclo}"
+								var="fc" itemLabel="#{fc.value}" itemValue="#{fc}" />
+							<p:ajax event="change" process="@this" />
+						</h:selectOneMenu>
+						<p:message for="faseCiclo" />
+					</div>
+					<div class="col-xs-8">
+						<label for="colaborador">Colaborador*</label> 
+						<p:autoComplete id="colaborador"
+							value="#{comiteGestaoMetasDesenvolvimentoBean.colaborador}"
+							styleClass="form-control2" style="width:100%;"
+							completeMethod="#{comiteGestaoMetasDesenvolvimentoBean.completeUsuariosInterno}"
+							var="us" itemLabel="#{us.nome}" itemValue="#{us}"
+							converter="UsuarioConverter" forceSelection="true">
+							<p:ajax event="itemSelect" process="@this"/>
+						</p:autoComplete>
+						<p:message for="colaborador" />
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label for="categoria">Categoria*</label> 
+						<h:selectOneMenu id="categoria"
+							value="#{comiteGestaoMetasDesenvolvimentoBean.categoria}"
+							label="Categoria" styleClass="form-control" 
+							converter="CategoriaConverter">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{comiteGestaoMetasDesenvolvimentoBean.categorias}"
+								var="c" itemLabel="#{c.nome}" itemValue="#{c}" />
+							<p:ajax event="change" process="@this" update=":form_pesquisar" 
+								listener="#{comiteGestaoMetasDesenvolvimentoBean.alterouCategoria()}"/>
+						</h:selectOneMenu>
+						<p:message for="categoria" />
+					</div>
+					<div class="col-xs-8">
+						<label for="categoria">Forma de Aquisição*</label> 
+						<h:selectOneMenu id="formaAquisicao"
+							value="#{comiteGestaoMetasDesenvolvimentoBean.formaAquisicao}"
+							label="Forma de Aquisição" styleClass="form-control" 
+							converter="FormaAquisicaoConverter">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{comiteGestaoMetasDesenvolvimentoBean.formasAquisicao}"
+								var="fa" itemLabel="#{fa.nome}" itemValue="#{fa}" />
+							<p:ajax event="change" process="@this"/>
+						</h:selectOneMenu>
+						<p:message for="formaAquisicao" />
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label for="vinculoOcupacional">Vínculo Ocupacional*</label> 
+						<h:selectOneMenu id="vinculoOcupacional"
+							value="#{comiteGestaoMetasDesenvolvimentoBean.vinculoOcupacional}"
+							styleClass="form-control" label="Vínculo Ocupacional">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{comiteGestaoMetasDesenvolvimentoBean.vinculosOcupacionais}"
+								var="vo" itemLabel="#{vo.value}" itemValue="#{vo}" />
+							<p:ajax event="change" process="@this" />
+						</h:selectOneMenu>
+						<p:message for="vinculoOcupacional" />
+					</div>
+					<div class="col-xs-8">
+						<label for="statusValidacao">Status da Validação*</label> 
+						<h:selectOneMenu id="statusValidacao"
+							value="#{comiteGestaoMetasDesenvolvimentoBean.statusSolucao}"
+							styleClass="form-control" label="Status da Validação">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{comiteGestaoMetasDesenvolvimentoBean.statusSolucaoEducacional}"
+								var="ss" itemLabel="#{ss.value}" itemValue="#{ss}" />
+							<p:ajax event="change" process="@this" />
+						</h:selectOneMenu>
+						<p:message for="statusValidacao" />
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-2 marginT25px">
+						<p:commandLink id="btnPesquisar"
+							styleClass="btn btn-azul width100"
+							update=":form_listar_metas,:form_pesquisar"
+							actionListener="#{comiteGestaoMetasDesenvolvimentoBean.pesquisar()}">
+                            	Buscar
+                       </p:commandLink>
+					</div>
+				</div>
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Resultados da Busca</p>
+					</div>
+				</div>
+			</h:form>
+
+			<h:form id="form_listar_metas">
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<p:dataTable var="u"
+							value="#{comiteGestaoMetasDesenvolvimentoBean.metasGerencia}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tbl_listar_metas" paginator="true" rows="20"
+							paginatorPosition="bottom" widgetVar="tbl_listar_metas"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhum resultado a ser exibido">
+							
+							<f:facet name="header">
+					            <p:outputPanel styleClass="text-left">
+					                <span>Busca Rápida: </span>
+					                <p:inputText id="globalFilter" onkeyup="PF('tbl_listar_metas').filter()" placeholder="Entre com o valor para pesquisa." styleClass="width300px" />
+					            </p:outputPanel>
+					        </f:facet>
+
+							<p:column headerText="Nome do Colaborador"
+								styleClass="text-center no-input" filterBy="#{u.usuario.nome}">
+								<h:outputText value="#{u.usuario.nome}" />
+							</p:column>
+
+							<p:column headerText="Unidade"
+								styleClass="text-center">
+								<h:outputText value="#{u.usuario.unidade.descricaoComCodigo}" />
+							</p:column>
+
+							<p:column headerText="Validar" styleClass="text-center width-col-peq">
+								<h:commandLink action="/pages/comite/desenvolvimento/validacao-desenvolvimento.xhtml">
+									<i class="fa fa-check-square-o"></i>
+									<f:setPropertyActionListener value="#{u}" target="#{comiteValidacaoDesenvolvimentoBean.metaGerenciar}" />
+									<f:setPropertyActionListener value="/pages/comite/desenvolvimento/gestao-metas" target="#{appBean.back}" />
+								</h:commandLink>
+							</p:column>
+						</p:dataTable>
+
+						<p:blockUI block="tbl_listar_metas"
+							trigger="tbl_listar_metas,:form_pesquisar:btnPesquisar">
+						        Carregando...<br />
+						</p:blockUI>
+					</div>
+				</div>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

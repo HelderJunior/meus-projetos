@@ -1,0 +1,491 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><h:commandLink action="/pages/ciclo/listar.xhtml"
+				value="Ciclo de Avaliação" /></li>
+		<li><h:commandLink action="/pages/ciclo/manter.xhtml"
+				value="Manter Ciclo de Avaliação" /></li>
+		<li><a href="#">Configurar Exceção de Responsabilidades de
+				Metas de Desenvolvimento</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{cicloConfigurarExcecaoDesenvolvimentoBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<h:form id="form-metas-resultados">
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurar Exceção de Responsabilidades de Metas de Desenvolvimento</p>
+					</div>
+				</div>
+
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<p:outputLabel styleClass="azul">Responsável pela Meta de Desenvolvimento</p:outputLabel>
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						   <label for="btmodalUnidade">Unidade</label>
+                            <p:commandLink id="btmodalUnidade" styleClass="btn btn-azul marginL15px" value="Adicionar"
+								onsuccess="jQuery('#modalUnidade').modal('show');"
+								rendered="#{not cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}"
+								actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.prepararModalVincularUnidades()}"
+								update=":formUnidade" process="@this" />
+					</div>
+				</div>
+				
+				 <div class="row marginT10px">
+                        <div class="col-xs-16"> 
+                            <div class="titulo-tabela bgCorPadrao cinzaFonte">Unidades</div>
+                            <p:message for="tblUnidadesSelecionadas"/>
+	                        <p:dataTable var="un"
+								value="#{cicloConfigurarExcecaoDesenvolvimentoBean.excecao.unidades}"
+								tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+								id="tblUnidadesSelecionadas"
+								paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+								emptyMessage="Nenhuma unidade selecionada"
+								rowIndexVar="index">
+	
+								<p:column headerText="#" styleClass="text-center width-col-peq">
+							            #{index+1}
+							    </p:column>
+	
+								<p:column headerText="Unidade" styleClass="text-center">
+							            #{un.descricaoComCodigo}
+							    </p:column>
+	
+								<p:column headerText="Editar" rendered="#{not cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}"
+									styleClass="text-center width-col-peq">
+									<p:commandLink
+										actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.prepararModalVincularUnidadesEditar()}"
+										oncomplete="jQuery('#modalUnidade').modal('show');" update=":formUnidade" process="@this">
+										<i class="fa fa-pencil-square-o"></i>
+										<f:param name="cid" value="#{cicloConfigurarExcecaoDesenvolvimentoBean.conversation.id}" />
+									</p:commandLink>
+								</p:column>
+	
+								<p:column headerText="Excluir" rendered="#{not cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}"
+									styleClass="text-center width-col-peq">
+									<p:commandLink 
+										oncomplete="jQuery('#modalConfirmacaoExcluirUnidade').modal('show');" process="@this">
+										<i class="fa fa-trash-o"></i>
+										<f:param name="cid"	value="#{cicloConfigurarExcecaoDesenvolvimentoBean.conversation.id}" />
+										<f:setPropertyActionListener value="#{un}" target="#{cicloConfigurarExcecaoDesenvolvimentoBean.unidadeSelecionada}" />
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+                        </div>
+                    </div>
+                    
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<p:outputLabel id="responsavelAtual">Nome do Responsável Atual (<span
+													class="azul"> #{not empty cicloConfigurarExcecaoDesenvolvimentoBean.responsavelAtual ? cicloConfigurarExcecaoDesenvolvimentoBean.responsavelAtual.nome : '-'} </span>)</p:outputLabel>
+					</div>
+				</div>
+				<div class="row marginT10px">
+					<div class="col-xs-16">
+						<h:selectOneRadio
+							value="#{cicloConfigurarExcecaoDesenvolvimentoBean.excecao.inativarResponsavelAtual}"
+							converter="javax.faces.Boolean">
+							<f:selectItem itemLabel="Ativo" itemValue="false" />
+							<f:selectItem itemLabel="Inativo" itemValue="true" />
+						</h:selectOneRadio>
+					</div>
+				</div>
+				<div class="row marginT10px">
+					<div class="col-xs-16">
+						<label for="btmodalUnidade">Colaborador*</label>
+						<p:commandLink id="btmodalUsuario"
+							styleClass="btn btn-azul marginL15px" value="Adicionar"
+							onsuccess="jQuery('#modalUsuarioResultados').modal('show');"
+							rendered="#{not cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}"
+							actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.prepararModalVincularUsuarios()}"
+							update=":formUsuarioResultados" process="@this" />
+					</div>
+				</div>
+				<div class="row marginT10px">
+					<div class="col-xs-16">
+						<div class="titulo-tabela bgCorPadrao cinzaFonte">Colaboradores</div>
+						<p:message for="tblUsuariosSelecionados" />
+						<p:dataTable var="obj"
+							value="#{cicloConfigurarExcecaoDesenvolvimentoBean.excecao.usuarios}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblUsuariosSelecionados"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhum usuário selecionado" rowIndexVar="index">
+
+							<p:column headerText="#" styleClass="text-center width-col-peq">
+											            #{index+1}
+											        </p:column>
+
+							<p:column headerText="Usuário Adicionado"
+								styleClass="text-center">
+											            #{obj.nome}
+											        </p:column>
+
+							<p:column headerText="Editar"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.prepararModalVincularUsuarioEditar()}"
+									oncomplete="jQuery('#modalUsuarioResultados').modal('show');"
+									update=":formUsuarioResultados" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarExcecaoDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirUsuarioResultados').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarExcecaoDesenvolvimentoBean.conversation.id}" />
+									<f:setPropertyActionListener value="#{obj}"
+										target="#{cicloConfigurarExcecaoDesenvolvimentoBean.usuarioSelecionado}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+                        <label for="tipoAcaoResultados" class="displayBlock marginB10px">Tipo de Ação*</label>
+                        <h:selectBooleanCheckbox id="tipoAcaoResultados0" value="#{cicloConfigurarExcecaoDesenvolvimentoBean.excecao.validarTextoMeta}" styleClass="marginR10px"/>
+                        	Aprova texto de Meta
+                        <h:selectBooleanCheckbox id="tipoAcaoResultados" value="#{cicloConfigurarExcecaoDesenvolvimentoBean.excecao.validarResultadoMeta}" styleClass="marginR10px"/>
+                        	Aprova Solução Educacional
+                        <p:message for="tipoAcaoResultados" />
+                    </div>
+					<div class="col-xs-8">
+						<label for="tipoAcao">Nome do Responsável*</label>
+						<h:selectOneMenu id="usuarioResponsavel"
+							value="#{cicloConfigurarExcecaoDesenvolvimentoBean.excecao.usuarioResponsavel}"
+							required="true" styleClass="form-control"
+							converter="UsuarioConverter" label="Nome do Responsável">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{cicloConfigurarExcecaoDesenvolvimentoBean.usuariosResponsaveis}"
+								var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+						</h:selectOneMenu>
+						<p:message for="usuarioResponsavel" />
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+					</div>
+					<div class="col-xs-8">
+						<p:commandLink value="Inserir Parâmetro"
+							styleClass="btn btn-azul floatR marginL10px"
+							actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.inserirParametro()}"
+							update=":form-metas-resultados"
+							rendered="#{empty cicloConfigurarExcecaoDesenvolvimentoBean.excecao.id and not cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}" />
+
+						<p:commandLink value="Salvar Parâmetro"
+							styleClass="btn btn-azul floatR marginL10px"
+							style="margin-left:10px;"
+							actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.alterarParametro()}"
+							update=":form-metas-resultados"
+							rendered="#{not empty cicloConfigurarExcecaoDesenvolvimentoBean.excecao.id and not cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}" />
+					</div>
+				</div>
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurações Salvas</p>
+					</div>
+				</div>
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<p:dataTable var="obj"
+							value="#{cicloConfigurarExcecaoDesenvolvimentoBean.cicloConfiguracao.excecoesResponsabilidades}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblParametrosInseridos"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhum parâmetro adicionado" rowIndexVar="index">
+
+							<p:column headerText="Unidade" styleClass="text-center">
+								<dl>
+									<ui:repeat var="u" value="#{obj.unidades}">
+										<dd>#{u.descricaoComCodigo}</dd>
+									</ui:repeat>
+								</dl>
+							</p:column>
+
+							<p:column headerText="Colaborador" styleClass="text-center">
+								<dl>
+									<ui:repeat var="u" value="#{obj.usuarios}">
+										<dd>#{u.nome}</dd>
+									</ui:repeat>
+								</dl>
+							</p:column>
+
+							<p:column headerText="Tipos de Ação" styleClass="text-center">
+								<dl>
+									<ui:fragment rendered="#{obj.validarResultadoMeta}">
+										<dd>Validar Resultado da Meta</dd>
+									</ui:fragment>
+									<ui:fragment rendered="#{obj.validarTextoMeta}">
+										<dd>Validar Texto da Meta</dd>
+									</ui:fragment>
+								</dl>
+							</p:column>
+
+							<p:column headerText="Responsável Designado"
+								styleClass="text-center">
+								<h:outputText value="#{obj.usuarioResponsavel.nome}" />
+							</p:column>
+
+							<p:column headerText="Editar"
+								styleClass="text-center width-col-peq"
+								rendered="#{not cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}">
+								<p:commandLink
+									oncomplete="irPara();"
+									actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.editar(obj)}"
+									update=":form-metas-resultados" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarExcecaoDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								styleClass="text-center width-col-peq"
+								rendered="#{not cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirMetasResultados').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:setPropertyActionListener value="#{obj}"
+										target="#{cicloConfigurarExcecaoDesenvolvimentoBean.excecao}" />
+									<f:param name="cid"
+										value="#{cicloConfigurarExcecaoDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloConfigurarExcecaoDesenvolvimentoBean.excluir()}"
+				modalMensagem="O parâmetro será excluído. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirMetasResultados').modal('hide')"
+				modalId="modalConfirmacaoExcluirMetasResultados"
+				update=":form-metas-resultados" />
+
+			
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloConfigurarExcecaoDesenvolvimentoBean.desvincularUnidade()}"
+				modalMensagem="A Unidade será desvinculada. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirUnidade').modal('hide')"
+				modalId="modalConfirmacaoExcluirUnidade"
+				update=":form-metas-resultados:tblUnidadesSelecionadas,:form-metas-resultados:responsavelAtual" />
+	
+				<div class="modal fade" id="modalUnidade" tabindex="-1"	role="dialog" aria-labelledby="modalUnidade" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<h:form id="formUnidade">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">
+										<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+									</button>
+									<h4 class="modal-title">Adicionar Unidade Associada</h4>
+								</div>
+								<div class="modal-body">
+									<p:messages for="formUnidade" autoUpdate="true" />
+									<div class="row">
+			                    		<div class="col-xs-8">
+			                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+			                    				onclick="selecioanarTodosLista();" styleClass="btn"/>  
+			                    		</div>
+			                    		<div class="col-xs-8">
+			                    			<h:selectOneMenu id="uf" value="#{cicloConfigurarExcecaoDesenvolvimentoBean.ufUnidades}" 
+												styleClass="form-control" label="UF">
+												<f:selectItem itemLabel="Filtro por UF"/>
+												<f:selectItems value="#{appBean.ufs}" var="uf" itemLabel="#{uf}" itemValue="#{uf}"/>
+												<p:ajax event="change" update="nomeBusca" process="@this" 
+													listener="#{cicloConfigurarExcecaoDesenvolvimentoBean.alterouUfFiltroUnidade()}"/>
+											</h:selectOneMenu> 
+			                    		</div>
+			                    	</div>
+									<div class="row marginT05px">
+										<div class="col-xs-16">
+											<p:selectManyMenu id="nomeBusca"
+												value="#{cicloConfigurarExcecaoDesenvolvimentoBean.unidadesSelecionadasVincular}"
+												converter="UnidadeAutocompleteConverter" var="t" filter="true"
+												filterMatchMode="contains" showCheckbox="true"
+												styleClass="ui-selectlistbox-item input_100P"
+												style="width: 100% !important"
+												ondblclick="jQuery('.btn_add_unidades').click();">
+												<f:selectItems
+													value="#{cicloConfigurarExcecaoDesenvolvimentoBean.unidadesDisponiveis}" var="uv"
+													itemLabel=" #{uv.descricaoComCodigo}" itemValue="#{uv}" />
+												<p:column>
+													<h:outputText value=" #{t.descricaoComCodigo}" style="float:left;white-space:nowrap;text-align:left;" />
+												</p:column>
+											</p:selectManyMenu>
+											<p:message for="nomeBusca" />
+		
+											<SCRIPT type="text/javascript">
+												function selecioanarTodosLista(){
+													if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+														$('#modalConfirmacaoSelecaoLista').modal('show');
+													}else{
+														 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+													}
+												}
+				                             </SCRIPT>
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<div class="row">
+										<div class="col-xs-8">
+											<p class="campos-obrigatorios text-left"></p>
+										</div>
+										<div class="col-xs-8">
+											<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+											<p:commandLink styleClass="btn btn-primary btn_add_unidades"
+												value="Incluir"
+												actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.vincularUnidades()}"
+												update=":form-metas-resultados:tblUnidadesSelecionadas,:form-metas-resultados:responsavelAtual"
+												oncomplete="jQuery('#modalUnidade').modal('hide');">
+												<f:param name="cid"	value="#{cicloConfigurarExcecaoDesenvolvimentoBean.conversation.id}" />
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+							</h:form>
+						</div>
+					</div>
+				</div>
+				
+				 <div class="row marginT30px">
+                  <div class="col-xs-16">
+                  	  <h:form>
+                  		<h:commandLink styleClass="btn btn-azul floatR marginL10px" immediate="true"
+												action="#{configuracaoMetasService.mensagemSucesso()}">Continuar Configuração</h:commandLink>
+                      </h:form>
+                  </div>
+              </div>
+              
+              <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+			modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+			modalId="modalConfirmacaoSelecaoLista"/>
+
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloConfigurarExcecaoDesenvolvimentoBean.desvincularUsuario()}"
+				modalMensagem="O Usuário será desvinculado. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirUsuarioResultados').modal('hide')"
+				modalId="modalConfirmacaoExcluirUsuarioResultados"
+				update=":form-metas-resultados:tblUsuariosSelecionados" />
+
+			<div class="modal fade" id="modalUsuarioResultados" tabindex="-1"
+				role="dialog" aria-labelledby="modalUsuarioResultados"
+				aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<h:form id="formUsuarioResultados">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+								</button>
+								<h4 class="modal-title">Adicionar Usuário</h4>
+							</div>
+							<div class="modal-body">
+								<p:messages for="formUsuarioResultados" autoUpdate="true" />
+								<div class="row">
+		                    		<div class="col-xs-8">
+		                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+		                    				onclick="selecioanarTodosListaUsuarioResultados();" styleClass="btn"/>  
+		                    		</div>
+		                    	</div>
+								<div class="row marginT10px">
+									<div class="col-xs-16">
+										<p:selectManyMenu id="listaVincular" value="#{cicloConfigurarExcecaoDesenvolvimentoBean.usuariosSelecionadasVincular}"
+	                               			converter="UsuarioConverter"
+	                         				var="t" filter="true" filterMatchMode="contains" showCheckbox="true" styleClass="ui-selectlistbox-item input_100P" 
+	                         				style="width: 100% !important" ondblclick="jQuery('.btn_add_usuario2').click();">
+	          						 		 <f:selectItems
+												value="#{cicloConfigurarExcecaoDesenvolvimentoBean.usuariosDisponiveis}"
+												var="uv" itemLabel="#{uv.nome}" itemValue="#{uv}"/>
+	            							 <p:column>
+	                							<h:outputText value="#{t.nome}" style="float:left;white-space:nowrap;text-align:left;"/>
+	            							 </p:column>                      	
+	                              		</p:selectManyMenu>
+										<p:message for="listaVincular" />
+										
+										<SCRIPT type="text/javascript">
+											function selecioanarTodosListaUsuarioResultados(){
+												if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+													$('#modalConfirmacaoSelecaoLista').modal('show');
+												}else{
+													 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+												}
+											}
+			                             </SCRIPT>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<div class="row">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left"></p>
+									</div>
+									<div class="col-xs-8">
+										<button type="button" class="btn btn-default"
+											data-dismiss="modal">Cancelar</button>
+										<p:commandLink styleClass="btn btn-primary btn_add_usuario2" value="Incluir"
+											actionListener="#{cicloConfigurarExcecaoDesenvolvimentoBean.vincularUsuarios()}"
+											update=":form-metas-resultados:tblUsuariosSelecionados"
+											oncomplete="jQuery('#modalUsuarioResultados').modal('hide');">
+											<f:param name="cid"
+												value="#{cicloConfigurarExcecaoDesenvolvimentoBean.conversation.id}" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+			</div>
+			
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+								modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+								modalId="modalConfirmacaoSelecaoLista"/>
+								
+		</div>
+	</ui:define>
+</ui:composition>

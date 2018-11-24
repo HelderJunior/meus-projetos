@@ -1,0 +1,46 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+	
+<cc:interface componentType="UIBootstrapPagination" >
+	<cc:attribute name="id" type="java.lang.String" />
+	<cc:attribute name="dataTable" type="java.lang.String" />
+</cc:interface>
+
+<cc:implementation>
+	<div id="${cc.clientId}" style="text-align: center;" class="col-xs-4 col-xs-offset-6">
+		<ul class="pagination">
+			<ui:repeat var="page" value="#{cc.paginationPages}" varStatus="status">
+				<ui:fragment rendered="#{page.active}">
+					<li class="#{page.numberPage gt 1 ? '' : 'disabled'}">
+						<h:commandLink action="#{cc.back(page)}" value="Anterior" rendered="#{page.numberPage gt 1}"/>
+						<h:commandLink action="#" value="Anterior" onclick="return false;" rendered="#{page.numberPage eq 1}" />
+					</li>
+				</ui:fragment>
+			</ui:repeat>
+		
+			<ui:repeat var="page" value="#{cc.paginationPages}" varStatus="status">
+				<li class="#{page.active ? 'active' : ''}">
+					<h:commandLink value="#{page.numberPage}" action="#{cc.alterCurrentPage(page)}" rendered="#{not page.active}" >
+						<f:ajax render="#{cc.dataTable.concat(' :').concat(cc.clientId)}" />
+					</h:commandLink>
+					<h:commandLink action="#" onclick="return false;" rendered="#{page.active}" styleClass="cursor: pointer;">
+						#{page.numberPage}
+					</h:commandLink>
+				</li>
+			</ui:repeat>
+			
+			<ui:repeat var="page" value="#{cc.paginationPages}" varStatus="status">
+				<ui:fragment rendered="#{page.active}">
+					<li class="#{page.numberPage lt page.totalPages ? '' : 'disabled'}">
+						<h:commandLink action="#{cc.next(page)}" value="Próximo" rendered="#{page.numberPage lt page.totalPages}" />
+						<h:commandLink action="#" value="Próximo" onclick="return false;" rendered="#{page.numberPage eq page.totalPages}" />
+					</li>
+				</ui:fragment>
+			</ui:repeat>
+		</ul>
+	</div>
+</cc:implementation>
+</html>

@@ -1,0 +1,2290 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		#{appBean.init()}
+		<p:messages autoUpdate="true" globalOnly="true" />
+		<h:form id="formDashboard">
+			<div class="content">
+				<div class="row">
+					<div class="col-xs-16">
+						<h4 class="light">Olá #{appBean.usuarioAutenticado.nome},
+							bem-vindo(a) ao Sistema de Gestão de Metas</h4>
+					</div>
+				</div>
+
+				<ui:fragment
+					rendered="#{not empty appBean.cicloSelecionado and (cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F')}">
+					<div class="row marginT30px">
+						<div class="col-xs-16">
+							<p class="titulo">
+								<ui:fragment rendered="#{(cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F') and (cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'N' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'N')}">
+									<span>1</span>Acompanhamento de Status - Pactuação
+								</ui:fragment>
+								
+								<ui:fragment rendered="#{(cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F') and (cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F')}">
+									<span>2</span>Acompanhamento de Status - Pactuação/Repactuação
+								</ui:fragment>
+							</p>
+						</div>
+					</div>
+
+					<div class="row marginT30px">
+						<div class="col-xs-16">
+							<ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F'}">
+									<li><a id="abaDesempenho1" href="#metas-desempenho"
+										class="branco bgCorDesempenho bold600 abasDesempenho"
+										onclick="if(!jQuery('#monitoramento-metas-desempenho').hasClass('active')){jQuery('#abaDesempenho3').click();} if(!jQuery('#validacao-metas-desempenho').hasClass('active')){jQuery('#abaDesempenho4').click();}">Metas
+											de Desempenho</a></li>
+								</ui:fragment>
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F'}">
+									<li><a id="abaDesenvolvimento1"
+										href="#metas-desenvolvimento"
+										class="branco bgCorDesenvolvimento bold600 abasDesenvolvimento"
+										onclick="if(!jQuery('#monitoramento-metas-desenvolvimento').hasClass('active')){jQuery('#abaDesenvolvimento3').click();} if(!jQuery('#validacao-metas-desenvolvimento').hasClass('active')){jQuery('#abaDesenvolvimento4').click();}">Metas
+											de Desenvolvimento</a></li>
+								</ui:fragment>
+							</ul>
+							<div class="tab-content">
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesempenho) eq 'F'}">
+									<div id="metas-desempenho"
+										class="tab-pane active linhaDesempenho">
+										<ui:fragment 
+											  rendered="#{appBean.usuarioEstaComPerfil('ROLE_ADM_MASTER') or 
+														appBean.usuarioEstaComPerfil('ROLE_GERENTE') or 
+														(appBean.usuarioEstaComPerfil('ROLE_COLABORADOR') and cicloConfigurarMetasEquipeBean.colaboradorInserirMetaEquipeDesemp()) 
+														and not empty appBean.cicloSelecionado}">
+											<div class="row">
+												<div class="col-xs-16 marginT20px">
+													<h:commandLink action="#{appBean.inserirMetaEquipe()}"
+														value="Inserir Meta de Equipe"
+														styleClass="btn btn-azul floatR">
+														<f:param name="nocid" value="true" />
+														<f:setPropertyActionListener value="/pages/home"
+															target="#{appBean.back}" />
+													</h:commandLink>
+												</div>
+											</div>
+										</ui:fragment>
+
+										<div class="row marginT20px">
+											<div class="col-xs-16">
+												<div class="titulo-tabela bgCorDesempenho">
+													<h:commandLink action="/pages/meta-equipe/listar.xhtml"
+														value="Metas de Equipe" styleClass="link-limpo">
+														<f:param name="nocid" value="true" />
+													</h:commandLink>
+												</div>
+												<table class="table table-striped table-bordered">
+													<thead class="bgCorDesempenhoFraco">
+														<tr>
+															<th>Status</th>
+															<th>Quantidade</th>
+														</tr>
+													</thead>
+													
+													<tbody>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Metas Gravadas">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'SA'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasGravadasEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'SA'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Pendente Superior">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PA'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasEnviadasAprovacaoEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PA'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Observação Superior">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OS'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasObservacaoSuperiorEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OS'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Observação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasObservacaoComiteEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Observação UGP">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OU'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasEquipeObservacaoUGP}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OU'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Pendente Avaliação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PAC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasEquipePendenteAvalicaoComite}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PAC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Pendente Avaliação UGP">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PU'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdPendenteMetasEquipeAvalicaoUGP}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PU'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Metas Aprovadas">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AP'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasAprovadasEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AP'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Metas Canceladas">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'CS'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasCanceladasEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'CS'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Metas Avaliação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasEquipeAvaliacaoComite}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="Metas Avaliação UGP">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AU'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-equipe/listar"
+																	value="#{appBean.qtdMetasEquipeAvaliacaoUGP}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AU'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+													</tbody>
+													
+												</table>
+											</div>
+										</div>
+										
+										<ui:fragment
+											rendered="#{appBean.qtdMetasFaltantesCicloEquipe gt 0}">
+											<div class="row">
+												<div class="col-xs-16">
+													<div class="alert alert-danger alert-danger-link"
+														role="alert">
+														<button type="button" class="close" data-dismiss="alert">
+															<span aria-hidden="true">×</span><span class="sr-only">Close</span>
+														</button>
+														<h:commandLink action="/pages/meta-equipe/listar"
+															value="Atenção! Faltam inserir #{appBean.qtdMetasFaltantesCicloEquipe} metas para atingir o mínimo necessário para o ciclo.">
+															<f:param name="nocid" value="true"></f:param>
+														</h:commandLink>
+													</div>
+												</div>
+											</div>
+										</ui:fragment>
+
+										<ui:fragment rendered="#{appBean.metasEquipeAprovadas}">
+											<div class="row">
+												<div class="col-xs-16">
+													<div class="alert alert-success alert-success-link"
+														role="alert">
+														<a href="#">Todas as suas metas foram aprovadas com sucesso!</a>
+													</div>
+												</div>
+											</div>
+										</ui:fragment>
+
+										<ui:fragment
+											rendered="#{(appBean.usuarioEstaComPerfil('ROLE_ADM_MASTER') or appBean.usuarioEstaComPerfil('ROLE_COLABORADOR') or appBean.usuarioEstaComPerfil('ROLE_GERENTE')) and not empty appBean.cicloSelecionado}">
+											<div class="row">
+												<div class="col-xs-16">
+													<h:commandLink action="#{appBean.inserirMetaIndividual()}"
+														value="Inserir Meta Individual"
+														styleClass="btn btn-azul floatR">
+														<f:param name="nocid" value="true" />
+														<f:setPropertyActionListener value="/pages/home"
+															target="#{appBean.back}" />
+													</h:commandLink>
+												</div>
+											</div>
+										</ui:fragment>
+
+										<div class="row marginT20px">
+											<div class="col-xs-16">
+												<div class="titulo-tabela bgCorDesempenho">
+													<h:commandLink action="/pages/meta-individual/listar.xhtml"
+														value="Metas Individuais" styleClass="link-limpo">
+														<f:param name="nocid" value="true" />
+													</h:commandLink>
+												</div>
+												<table class="table table-striped table-bordered">
+													<thead class="bgCorDesempenhoFraco">
+														<tr>
+															<th>Status</th>
+															<th>Quantidade</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Metas Gravadas">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'SA'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasGravadasIndividual}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'SA'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Pendente Superior">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'L'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PA'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasEnviadasAprovacaoIndividual}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'L'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PA'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Observação Superior">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OS'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasObservacaoSuperiorIndividual}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OS'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Observação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasObservacaoComiteIndividual}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Observação UGP">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OU'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasIndividualObservacaoUGP}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OU'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Pendente Avaliação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PAC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasIndividualPendenteAvalicaoComite}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PAC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Pendente Avaliação UGP">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PU'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdPendenteMetasIndividualAvalicaoUGP}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PU'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Metas Aprovadas">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AP'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasIndividualAprovadas}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AP'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Metas Canceladas">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'CS'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasCanceladasIndividual}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'CS'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Metas Avaliação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasIndividualAvaliacaoComite}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="Metas Avaliação UGP">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AU'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-individual/listar"
+																	value="#{appBean.qtdMetasIndividualAvaliacaoUGP}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AU'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<ui:fragment
+											rendered="#{appBean.usuarioEstaComPerfil('ROLE_ADM_MASTER') or appBean.usuarioEstaComPerfil('ROLE_COLABORADOR')}">
+											<ui:fragment
+												rendered="#{appBean.qtdMetasFaltantesCicloIndividual gt 0}">
+												<div class="row">
+													<div class="col-xs-16">
+														<div class="alert alert-danger alert-danger-link"
+															role="alert">
+															<button data-dismiss="alert" class="close" type="button">
+																<span aria-hidden="true">×</span><span class="sr-only">Close</span>
+															</button>
+															<h:commandLink action="/pages/meta-individual/manter"
+																value="Atenção! Faltam inserir #{appBean.qtdMetasFaltantesCicloIndividual} metas para atingir o mínimo necessário para o ciclo.">
+																<f:param name="nocid" value="true"></f:param>
+															</h:commandLink>
+														</div>
+													</div>
+												</div>
+											</ui:fragment>
+
+											<ui:fragment rendered="#{appBean.metasIndividualAprovadas}">
+												<div class="row">
+													<div class="col-xs-16">
+														<div class="alert alert-success alert-success-link"
+															role="alert">
+															<a href="#">Todas as suas metas foram aprovadas com sucesso!</a>
+														</div>
+													</div>
+												</div>
+											</ui:fragment>
+										</ui:fragment>
+									</div>
+								</ui:fragment>
+
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusPactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusRepactuacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F'}">
+									<div id="metas-desenvolvimento"
+										class="tab-pane linhaDesenvolvimento">
+										<div class="row marginT20px">
+											<div class="col-xs-16">
+												<h:commandLink
+													action="#{appBean.inserirMetaDesenvolvimento()}"
+													styleClass="btn btn-azul floatR">
+					                    			Inserir Meta de Desenvolvimento
+					                    		<f:param name="nocid" value="true" />
+													<f:setPropertyActionListener
+														value="/pages/meta-desenvolvimento/listar"
+														target="#{appBean.back}" />
+												</h:commandLink>
+											</div>
+										</div>
+
+										<div class="row marginT20px">
+											<div class="col-xs-16">
+												<div class="titulo-tabela bgCorDesenvolvimento">
+													<h:commandLink
+														action="/pages/meta-desenvolvimento/listar.xhtml"
+														value="Metas de Desenvolvimento" styleClass="link-limpo">
+														<f:param name="nocid" value="true" />
+													</h:commandLink>
+												</div>
+												<table class="table table-striped table-bordered">
+													<thead class="bgCorDesenvolvimentoFraco">
+														<tr>
+															<th>Carga Horária Prevista</th>
+															<th>Pontuação Prevista</th>
+															<th>Pontuação Realizada</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>#{appBean.cargaHorariaPrevista}</td>
+															<td>#{appBean.pontuacaoPrevista}</td>
+															<td>#{appBean.pontuacaoRealizada}</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<div class="row marginT20px">
+											<div class="col-xs-16">
+												<div class="titulo-tabela bgCorDesenvolvimento">
+													<h:commandLink
+														action="/pages/meta-desenvolvimento/listar.xhtml"
+														value="Metas de Desenvolvimento" styleClass="link-limpo">
+														<f:param name="nocid" value="true" />
+													</h:commandLink>
+												</div>
+												<table class="table table-striped table-bordered">
+													<thead class="bgCorDesenvolvimentoFraco">
+														<tr>
+															<th>Status da Meta</th>
+															<th>Quantidade</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="Pendente">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'NA'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="#{appBean.qtdMetasPendentesDesenvolvimento}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'NA'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="Aprovada">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AP'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="#{appBean.qtdMetasAprovadasDesenvolvimento}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'AP'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="Cancelada">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'CS'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="#{appBean.qtdMetasCanceladasDesenvolvimento}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'CS'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="Enviada para Aprovação">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PA'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="#{appBean.qtdMetasDesenvolvimentoEnviadasParaAprovacao}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PA'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="Observação Superior">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OS'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="#{appBean.qtdMetasDesenvolvimentoObservacaoSuperior}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OS'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="Observação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+															<td>
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="#{appBean.qtdMetasDesenvolvimentoObservacaoComite}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasDesenvolvimentoBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</ui:fragment>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
+
+				<ui:fragment
+					rendered="#{not empty appBean.cicloSelecionado and (cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesempenho) eq 'F' or cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesenvolvimento) eq 'F')}">
+
+					<div class="row marginT30px">
+						<div class="col-xs-16">
+							<p class="titulo">
+								<span>3</span>Acompanhamento de Status - Monitoramento / Ajustes
+							</p>
+						</div>
+					</div>
+
+					<div class="row marginT30px">
+						<div class="col-xs-16">
+							<ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesempenho) eq 'F'}">
+									<li><a id="abaDesempenho3"
+										href="#monitoramento-metas-desempenho" class="tab-desempenho"
+										onclick="if(!jQuery('#metas-desempenho').hasClass('active')){jQuery('#abaDesempenho1').click();} if(!jQuery('#validacao-metas-desempenho').hasClass('active')){jQuery('#abaDesempenho4').click();}">Metas
+											de Desempenho</a></li>
+								</ui:fragment>
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesenvolvimento) eq 'F'}">
+									<li><a id="abaDesenvolvimento3"
+										href="#monitoramento-metas-desenvolvimento"
+										class="tab-desenvolvimento"
+										onclick="if(!jQuery('#metas-desenvolvimento').hasClass('active')){jQuery('#abaDesenvolvimento1').click();} if(!jQuery('#validacao-metas-desenvolvimento').hasClass('active')){jQuery('#abaDesenvolvimento4').click();}">Metas
+											de Desenvolvimento</a></li>
+								</ui:fragment>
+							</ul>
+							<div class="tab-content">
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesempenho) eq 'F'}">
+									<div id="monitoramento-metas-desempenho"
+										class="tab-pane active linhaDesempenho">
+										<div class="row marginT20px marginB20px">
+											<div class="col-xs-5 col-xs-offset-3">
+												<div class="row">
+													<div class="col-xs-16">
+														<div id="percentMetaDesempenhoEquipe"
+															class="container_circulo bt-centered"
+															title="#{appBean.porcentagemMetaDesempenhoEquipe}%">
+															<div id="activeBorder" class="active-border">
+																<div id="circle" class="circle">
+																	<span class="prec"></span> <span id="startDeg"
+																		class="360"></span>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+
+												<script type="text/javascript">
+												// <![CDATA[
+												jQuery(document).ready(function(){
+													desenharAcompanhamento("percentMetaDesempenhoEquipe", #{appBean.porcentagemMetaDesempenhoEquipe});
+												});
+												// ]]>
+											</script>
+
+												<div class="row marginT20px">
+													<div class="col-xs-16 text-center">Metas de
+														Desempenho de Equipe</div>
+												</div>
+												<div class="row marginT20px">
+													<div class="col-xs-8 col-xs-offset-4">
+														<h:commandLink action="/pages/monitoramento/listar.xhtml"
+															value="Monitorar metas"
+															styleClass="btn btn-azul bt-centered marginB20px" />
+													</div>
+												</div>
+											</div>
+											<div class="col-xs-5">
+												<div class="row">
+													<div class="col-xs-16">
+														<div id="percentMetaDesempenhoIndividual"
+															class="container_circulo bt-centered"
+															title="#{appBean.porcentagemMetaDesempenhoIndividual}%">
+															<div id="activeBorder" class="active-border">
+																<div id="circle" class="circle">
+																	<span class="prec"></span> <span id="startDeg"
+																		class="360"></span>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<script type="text/javascript">
+												// <![CDATA[
+												jQuery(document).ready(function(){
+													desenharAcompanhamento("percentMetaDesempenhoIndividual", #{appBean.porcentagemMetaDesempenhoIndividual});
+												});
+												// ]]>
+											</script>
+												<div class="row marginT20px">
+													<div class="col-xs-16 text-center">Metas de
+														Desempenho Individual</div>
+												</div>
+												<div class="row marginT20px">
+													<div class="col-xs-8 col-xs-offset-4">
+														<h:commandLink action="/pages/monitoramento/listar.xhtml"
+															value="Monitorar metas"
+															styleClass="btn btn-azul bt-centered marginB20px" />
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</ui:fragment>
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusMonitoramentoAjustes(appBean.cicloConfiguracaoDesenvolvimento) eq 'F'}">
+									<div id="monitoramento-metas-desenvolvimento"
+										class="tab-pane linhaDesenvolvimento">
+										<div class="row marginT20px marginB20px">
+											<div class="col-xs-5 col-xs-offset-3">
+												<div class="row">
+													<div class="col-xs-16">
+														<div id="percentQtdHorasFundamentadas"
+															class="container_circulo bt-centered"
+															title="#{appBean.porcentagemHorasFundamentaisExecutadas}%">
+															<div id="activeBorder" class="active-border">
+																<div id="circle" class="circle">
+																	<span class="prec"></span> <span id="startDeg"
+																		class="360"></span>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+
+												<script type="text/javascript">
+												// <![CDATA[
+												jQuery(document).ready(function(){
+													desenharAcompanhamento("percentQtdHorasFundamentadas", #{appBean.porcentagemHorasFundamentaisExecutadas});
+												});
+												// ]]>
+											</script>
+
+												<div class="row marginT20px">
+													<div class="col-xs-16 text-center">Quantidade de
+														horas fundamentais executadas</div>
+												</div>
+												<div class="row marginT20px">
+													<div class="col-xs-8 col-xs-offset-4">
+														<h:commandLink
+															action="/pages/meta-desenvolvimento/listar.xhtml"
+															value="Ajustar metas"
+															styleClass="btn btn-azul bt-centered marginB20px" />
+													</div>
+												</div>
+											</div>
+											<div class="col-xs-5">
+												<div class="row">
+													<div class="col-xs-16">
+														<div id="percentQtdHorasComplementares"
+															class="container_circulo bt-centered"
+															title="#{appBean.porcentagemHorasComplementaresExecutadas}%">
+															<div id="activeBorder" class="active-border">
+																<div id="circle" class="circle">
+																	<span class="prec"></span> <span id="startDeg"
+																		class="360"></span>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<script type="text/javascript">
+												// <![CDATA[
+												jQuery(document).ready(function(){
+													desenharAcompanhamento("percentQtdHorasComplementares", #{appBean.porcentagemHorasComplementaresExecutadas});
+												});
+												// ]]>
+											</script>
+												<div class="row marginT20px">
+													<div class="col-xs-16 text-center">Quantidade de
+														horas complementares executadas</div>
+												</div>
+												<div class="row marginT20px">
+													<div class="col-xs-8 col-xs-offset-4">
+														<h:commandLink
+															action="/pages/meta-desenvolvimento/listar.xhtml"
+															value="Ajustar metas"
+															styleClass="btn btn-azul bt-centered marginB20px" />
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</ui:fragment>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
+
+
+				<ui:fragment
+					rendered="#{not empty appBean.cicloSelecionado and (cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesempenho) eq 'F' or cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F')}">
+					<div class="row marginT30px">
+						<div class="col-xs-16">
+							<p class="titulo">
+								<span>4</span>Validação de Resultados
+							</p>
+						</div>
+					</div>
+					<div class="row marginT30px">
+						<div class="col-xs-16">
+							<ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesempenho) eq 'F'}">
+									<li><a id="abaDesempenho4"
+										href="#validacao-metas-desempenho" class="tab-desempenho"
+										onclick="if(!jQuery('#metas-desempenho').hasClass('active')){jQuery('#abaDesempenho1').click();}if(!jQuery('#monitoramento-metas-desempenho').hasClass('active')){jQuery('#abaDesempenho3').click();}">Metas
+											de Desempenho</a></li>
+								</ui:fragment>
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F'}">
+									<li><a id="abaDesenvolvimento4"
+										href="#validacao-metas-desenvolvimento"
+										class="tab-desenvolvimento"
+										onclick="if(!jQuery('#metas-desenvolvimento').hasClass('active')){jQuery('#abaDesenvolvimento1').click();}if(!jQuery('#monitoramento-metas-desenvolvimento').hasClass('active')){jQuery('#abaDesenvolvimento3').click();}">Metas
+											de Desenvolvimento</a></li>
+								</ui:fragment>
+							</ul>
+							<div class="tab-content">
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesempenho) eq 'I' or cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesempenho) eq 'F'}">
+									<div id="validacao-metas-desempenho"
+										class="tab-pane active linhaDesempenho">
+										<div class="row marginT20px">
+											<div class="col-xs-16">
+												<div class="titulo-tabela bgCorDesempenho">
+													<h:commandLink styleClass="link-limpo"
+														action="/pages/monitoramento/listar"
+														value="Metas de Equipe" />
+												</div>
+												<table class="table table-striped table-bordered">
+													<thead class="bgCorDesempenhoFraco">
+														<tr>
+															<th class="text-center">Tipo de Pendência das Metas</th>
+															<th class="text-center">Quantidade</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="Metas Aprovadas pelo Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'VC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td class="text-center">
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="#{appBean.qtdMetasValidadasComiteEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'VC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="Metas pendentes de Aprovação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PV'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td class="text-center">
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="#{appBean.qtdMetasPendenteValidacaoComiteEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PV'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="Metas Não Aprovadas pelo Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+															<td class="text-center">
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="#{appBean.qtdMetasObservacaoComiteEquipe}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasEquipeBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasEquipeBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+										
+										<ui:fragment
+											rendered="#{appBean.qtdMetasPendenteValidacaoComiteEquipe gt 0}">
+											<div class="row">
+												<div class="col-xs-16">
+													<div class="alert alert-danger" role="alert">
+														<button type="button" class="close" data-dismiss="alert">
+															<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+														</button>
+														<h:commandLink action="/pages/monitoramento/listar.xhtml"
+															value="Atenção! Ainda faltam #{appBean.qtdMetasPendenteValidacaoComiteEquipe} resultados de metas a serem validados!">
+															<f:param name="nocid" value="true"></f:param>
+														</h:commandLink>
+													</div>
+												</div>
+											</div>
+										</ui:fragment>
+
+										<div class="row">
+											<div class="col-xs-16">
+												<div class="titulo-tabela bgCorDesempenho">
+													<h:commandLink styleClass="link-limpo"
+														action="/pages/monitoramento/listar"
+														value="Metas Individuais" />
+												</div>
+												<table class="table table-striped table-bordered">
+													<thead class="bgCorDesempenhoFraco">
+														<tr>
+															<th class="text-center">Tipo de Pendência das Metas</th>
+															<th class="text-center">Quantidade</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="Metas Aprovadas pelo Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'VC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td class="text-center">
+															<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="#{appBean.qtdMetasValidadasComiteIndividual}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'VC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="Metas pendentes de Aprovação Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PV'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td class="text-center">
+															<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="#{appBean.qtdMetasPendenteValidacaoComiteIndividual}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'PV'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="Metas Não Aprovadas pelo Comitê">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+															<td class="text-center">
+																<h:commandLink
+																	action="/pages/monitoramento/listar.xhtml"
+																	value="#{appBean.qtdMetasObservacaoComiteIndividual}">
+																	<f:setPropertyActionListener value="/pages/home"
+																		target="#{appBean.back}" />
+																	<f:setPropertyActionListener value="#{'S'}"
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" />
+																	<f:setPropertyActionListener value="#{'OC'}"
+																		target="#{listarMetasIndividuaisBean.status}" />
+																</h:commandLink>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<ui:fragment
+											rendered="#{appBean.qtdMetasPendenteValidacaoComiteIndividual gt 0}">
+											<div class="row">
+												<div class="col-xs-16">
+													<div class="alert alert-danger" role="alert">
+														<button type="button" class="close" data-dismiss="alert">
+															<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+														</button>
+														<h:commandLink action="/pages/monitoramento/listar.xhtml"
+															value="Atenção! Ainda faltam #{appBean.qtdMetasPendenteValidacaoComiteIndividual} resultados de metas a serem validados!">
+															<f:param name="nocid" value="true"></f:param>
+														</h:commandLink>
+														<!-- <a href="#" class="alert-link">Atenção! Ainda faltam
+															#{appBean.qtdMetasPendenteValidacaoComiteIndividual}
+															resultados de metas a serem validados!</a> -->
+													</div>
+												</div>
+											</div>
+										</ui:fragment>
+									</div>
+								</ui:fragment>
+
+								<ui:fragment
+									rendered="#{cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'I' or cicloConfiguracaoService.getStatusValidacao(appBean.cicloConfiguracaoDesenvolvimento) eq 'F'}">
+									<div id="validacao-metas-desenvolvimento"
+										class="tab-pane linhaDesenvolvimento">
+										<div class="row marginT20px">
+											<div class="col-xs-16">
+												<div class="titulo-tabela bgCorDesenvolvimento">Metas
+													de Desenvolvimento</div>
+												<table class="table table-striped table-bordered">
+													<thead class="bgCorDesenvolvimentoFraco">
+														<tr>
+															<th>Status da Validação de Soluções</th>
+															<th>Quantidade de Soluções</th>
+															<th>Quantidade de Horas</th>
+															<th>Quantidade de Pontos</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td><h:commandLink
+																	action="/pages/meta-desenvolvimento/listar.xhtml"
+																	value="Aprovadas" /></td>
+															<td>#{appBean.qtdSolucoesAprovadas}</td>
+															<td>#{appBean.qtdHorasSolucoesAprovadas}</td>
+															<td>#{appBean.qtdPontosSolucoesAprovadas}</td>
+														</tr>
+														<tr>
+															<td><h:commandLink
+																	action="/pages/meta-desenvolvimento/listar.xhtml"
+																	value="Não Aprovadas" /></td>
+															<td>#{appBean.qtdSolucoesNaoAprovadas}</td>
+															<td>#{appBean.qtdHorasSolucoesNaoAprovadas}</td>
+															<td>#{appBean.qtdPontosSolucoesNaoAprovadas}</td>
+														</tr>
+														<tr>
+															<td><h:commandLink
+																	action="/pages/meta-desenvolvimento/listar.xhtml"
+																	value="Pendentes" /></td>
+															<td>#{appBean.qtdSolucoesPendentes}</td>
+															<td>#{appBean.qtdHorasSolucoesPendentes}</td>
+															<td>#{appBean.qtdPontosSolucoesPendentes}</td>
+														</tr>
+														<tr>
+															<td><h:commandLink
+																	action="/pages/meta-desenvolvimento/listar.xhtml"
+																	value="Canceladas" /></td>
+															<td>#{appBean.qtdSolucoesCanceladas}</td>
+															<td>#{appBean.qtdHorasSolucoesCanceladas}</td>
+															<td>#{appBean.qtdPontosSolucoesCanceladas}</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</ui:fragment>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
+
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Ciclos de Avaliação</p>
+					</div>
+				</div>
+				<div class="row marginT30px">
+					<div class="col-xs-16 tabs-padrao">
+						<ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+							<ui:fragment rendered="#{not empty appBean.ciclosAbertos}">
+								<li class="active"><a href="#ciclo-avaliacao-andamento">Em
+										andamento</a></li>
+							</ui:fragment>
+							<ui:fragment rendered="#{not empty appBean.ciclosFinalizados}">
+								<li><a href="#ciclo-avaliacao-finalizado">Finalizados</a></li>
+							</ui:fragment>
+						</ul>
+						<div class="tab-content">
+							<ui:fragment rendered="#{not empty appBean.ciclosAbertos}">
+								<div id="ciclo-avaliacao-andamento" class="tab-pane active">
+									<ui:repeat var="ciclo" value="#{appBean.ciclosAbertos}">
+										<div class="row marginT30px">
+											<div class="col-xs-16">
+												<label>#{ciclo.descricao}</label>
+											</div>
+										</div>
+										<div class="row marginT20px">
+											<div class="col-xs-16">
+												<div class="etapas">
+													<hr />
+													<div class="row">
+														<div class="col-xs-3 col-xs-offset-2 marginT40px">
+															<span class="bold600 corDesempenho">Meta de
+																Desempenho de equipe</span>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusPactuacao('DESEMP', 'E') eq 'I' or ciclo.getStatusPactuacao('DESEMP', 'E') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusPactuacao('DESEMP', 'E') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/meta-equipe/listar.xhtml" value="1" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/meta-equipe/listar.xhtml"
+																			value="Pactuação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/meta-equipe/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioPactuacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimPactuacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusRepactuacao('DESEMP', 'E') eq 'I' or ciclo.getStatusRepactuacao('DESEMP', 'E') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusRepactuacao('DESEMP', 'E') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/meta-equipe/listar.xhtml" value="2" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/meta-equipe/listar.xhtml"
+																			value="Repactuação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/meta-equipe/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioRepactuacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimRepactuacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusMonitoramento('DESEMP', 'E') eq 'I' or ciclo.getStatusMonitoramento('DESEMP', 'E') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusMonitoramento('DESEMP', 'E') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml" value="3" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="Monitoramento" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioMonitoramentoAjustes('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimMonitoramentoAjustes('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusValidacao('DESEMP', 'E') eq 'I' or ciclo.getStatusValidacao('DESEMP', 'E') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusValidacao('DESEMP', 'E') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml" value="4" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="Validação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioValidacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimValidacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusAuditoria('DESEMP', 'E') eq 'I' or ciclo.getStatusAuditoria('DESEMP', 'E') eq 'F')  ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusAuditoria('DESEMP', 'E') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/auditor/listar.xhtml" value="5" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/auditor/listar.xhtml"
+																			value="Auditoria" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/auditor/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioAuditoria('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimAuditoria('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="etapas">
+													<hr />
+													<div class="row">
+														<div class="col-xs-3 col-xs-offset-2 marginT40px">
+															<span class="bold600 corDesempenho">Meta de
+																Desempenho Individual</span>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusPactuacao('DESEMP', 'C') eq 'I' or ciclo.getStatusPactuacao('DESEMP', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusPactuacao('DESEMP', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/meta-individual/listar.xhtml"
+																			value="1" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/meta-individual/listar.xhtml"
+																			value="Pactuação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/meta-individual/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioPactuacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimPactuacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusRepactuacao('DESEMP', 'C') eq 'I' or ciclo.getStatusRepactuacao('DESEMP', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusRepactuacao('DESEMP', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/meta-individual/listar.xhtml"
+																			value="2" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/meta-individual/listar.xhtml"
+																			value="Repactuação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/meta-individual/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioRepactuacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimRepactuacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusMonitoramento('DESEMP', 'C') eq 'I' or ciclo.getStatusMonitoramento('DESEMP', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusMonitoramento('DESEMP', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="3" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="Monitoramento" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioMonitoramentoAjustes('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimMonitoramentoAjustes('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusValidacao('DESEMP', 'C') eq 'I' or ciclo.getStatusValidacao('DESEMP', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusValidacao('DESEMP', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="4" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="Validação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioValidacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimValidacao('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusAuditoria('DESEMP', 'C') eq 'I' or ciclo.getStatusAuditoria('DESEMP', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusAuditoria('DESEMP', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/auditor/listar.xhtml"
+																			value="5" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/auditor/listar.xhtml"
+																			value="Auditoria" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink
+																			action="/pages/auditor/listar.xhtml">
+																			<h:outputText
+																				value="#{ciclo.getDataInicioAuditoria('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimAuditoria('DESEMP', 'E')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="etapas">
+													<hr class="menor" />
+													<div class="row">
+														<div class="col-xs-3 col-xs-offset-2 marginT40px">
+															<span class="bold600 corDesenvolvimento">Meta de Desenvolvimento</span>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusPactuacao('DESENV', 'C') eq 'I' or ciclo.getStatusPactuacao('DESENV', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusPactuacao('DESENV', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/meta-desenvolvimento/listar.xhtml"
+																			value="1" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/meta-desenvolvimento/listar.xhtml"
+																			value="Pactuação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink>
+																			<h:outputText
+																				value="#{ciclo.getDataInicioPactuacao('DESENV', 'C')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimPactuacao('DESENV', 'C')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusRepactuacao('DESENV', 'C') eq 'I' or ciclo.getStatusRepactuacao('DESENV', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusRepactuacao('DESENV', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/meta-desenvolvimento/listar.xhtml"
+																			value="2" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/meta-desenvolvimento/listar.xhtml"
+																			value="Repactuação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink>
+																			<h:outputText
+																				value="#{ciclo.getDataInicioRepactuacao('DESENV', 'C')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimRepactuacao('DESENV', 'C')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusMonitoramento('DESENV', 'C') eq 'I' or ciclo.getStatusMonitoramento('DESENV', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusMonitoramento('DESENV', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="3" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="Ajustes" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink>
+																			<h:outputText
+																				value="#{ciclo.getDataInicioMonitoramentoAjustes('DESENV', 'C')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimMonitoramentoAjustes('DESENV', 'C')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-2">
+															<div class="row">
+																<div class="col-xs-16">
+																	<div
+																		class="#{(ciclo.getStatusValidacao('DESENV', 'C') eq 'I' or ciclo.getStatusValidacao('DESENV', 'C') eq 'F') ? 'circulo-atual' : 'circulo-normal'}">
+																		<ui:fragment
+																			rendered="#{ciclo.getStatusValidacao('DESENV', 'C') eq 'F'}">
+																			<i class="fa fa-check-circle"></i>
+																		</ui:fragment>
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="4" />
+																	</div>
+																</div>
+															</div>
+															<div class="row marginT10px">
+																<div class="col-xs-16">
+																	<p class="fase">
+																		<h:commandLink
+																			action="/pages/monitoramento/listar.xhtml"
+																			value="Validação" />
+																	</p>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-xs-16">
+																	<p class="data">
+																		<h:commandLink>
+																			<h:outputText
+																				value="#{ciclo.getDataInicioValidacao('DESENV', 'C')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																			<h:outputText value=" à " />
+																			<h:outputText
+																				value="#{ciclo.getDataFimValidacao('DESENV', 'C')}">
+																				<f:convertDateTime pattern="dd/MM" />
+																			</h:outputText>
+																		</h:commandLink>
+																	</p>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</ui:repeat>
+								</div>
+							</ui:fragment>
+
+							<ui:fragment rendered="#{not empty appBean.ciclosFinalizados}">
+								<div id="ciclo-avaliacao-finalizado" class="tab-pane">
+									<div class="row marginT30px">
+										<div class="col-xs-16 marginB20px">
+											<ui:repeat var="ciclo" value="#{appBean.ciclosFinalizados}">
+												<div class="row">
+													<div class="col-xs-16">
+														<label>#{ciclo.descricao}</label>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-xs-4 col-xs-offset-3">
+														<div class="row">
+															<div class="col-xs-16 text-center">
+																<span class="bold600 corDesempenho">Meta de
+																	Desempenho de Equipe</span>
+															</div>
+														</div>
+														<div class="row marginT10px">
+															<div class="col-xs-16">
+																<h:commandLink action="/pages/meta-equipe/listar"
+																	value="Consultar" styleClass="btn btn-azul bt-centered">
+																	<f:setPropertyActionListener
+																		target="#{listarMetasEquipeBean.tipoFiltro}" value="#{'C'}" />
+																	<f:setPropertyActionListener value="#{ciclo}" target="#{listarMetasEquipeBean.ciclo}" />
+																	<f:setPropertyActionListener value="/pages/home" target="#{appBean.back}" />
+																</h:commandLink>
+															</div>
+														</div>
+													</div>
+													<div class="col-xs-4">
+														<div class="row">
+															<div class="col-xs-16 text-center">
+																<span class="bold600 corDesempenho">Meta de	Desempenho Individual</span>
+															</div>
+														</div>
+														<div class="row marginT10px">
+															<div class="col-xs-16">
+																<h:commandLink action="/pages/meta-individual/listar"
+																	value="Consultar" styleClass="btn btn-azul bt-centered">
+																	<f:setPropertyActionListener
+																		target="#{listarMetasIndividuaisBean.tipoFiltro}" value="#{'C'}" />
+																	<f:setPropertyActionListener value="#{ciclo}" target="#{listarMetasIndividuaisBean.ciclo}" />
+																	<f:setPropertyActionListener value="/pages/home" target="#{appBean.back}" />
+																</h:commandLink>
+															</div>
+														</div>
+													</div>
+													<div class="col-xs-4">
+														<div class="row">
+															<div class="col-xs-16 text-center">
+																<span class="bold600 corDesenvolvimento">Meta de
+																	Desenvolvimento</span>
+															</div>
+														</div>
+														<div class="row marginT10px">
+															<div class="col-xs-16">
+																<h:commandLink
+																	action="/pages/meta-desenvolvimento/listar"
+																	value="Consultar" styleClass="btn btn-azul bt-centered">
+																	<f:setPropertyActionListener
+																		target="#{listarMetasDesenvolvimentoBean.tipoFiltro}" value="#{'C'}" />
+																	<f:setPropertyActionListener value="#{ciclo}" target="#{listarMetasDesenvolvimentoBean.ciclo}" />
+																	<f:setPropertyActionListener value="/pages/home" target="#{appBean.back}" />
+																</h:commandLink>
+															</div>
+														</div>
+													</div>
+												</div>
+											</ui:repeat>
+										</div>
+									</div>
+								</div>
+							</ui:fragment>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

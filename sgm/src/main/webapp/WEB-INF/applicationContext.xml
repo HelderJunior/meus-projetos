@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/security
+	http://www.springframework.org/schema/security/spring-security-3.2.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+
+	<beans:bean id="logoutHandler"
+		class="br.com.sebrae.sgm.security.LogoutHandler" />
+		
+	<http auto-config='true' use-expressions="true">
+		<intercept-url pattern="/pages/index.xhtml" access="isFullyAuthenticated()"/>
+		<intercept-url pattern="/pages/home.xhtml" access="hasAnyRole('ROLE_COLABORADOR','ROLE_ADM_MASTER','ROLE_DIRETOR','ROLE_ADM_UF_NAC','ROLE_ASSESSOR','ROLE_CHEFE_GAB','ROLE_GERENTE','ROLE_GERENTE_ADJ')"/>
+		<intercept-url pattern="/pages/pendencias.xhtml" access="hasAnyRole('ROLE_COLABORADOR','ROLE_ADM_MASTER','ROLE_DIRETOR','ROLE_ADM_UF_NAC','ROLE_ASSESSOR','ROLE_CHEFE_GAB','ROLE_GERENTE','ROLE_GERENTE_ADJ')"/>
+		<intercept-url pattern="/pages/ajuda.xhtml" access="isFullyAuthenticated()"/>
+		<intercept-url pattern="/pages/meta-individual/*" access="hasAnyRole('ROLE_COLABORADOR','ROLE_ADM_MASTER','ROLE_DIRETOR','ROLE_ADM_UF_NAC','ROLE_ASSESSOR','ROLE_CHEFE_GAB','ROLE_GERENTE','ROLE_GERENTE_ADJ')"/>
+		<intercept-url pattern="/pages/meta-equipe/*" access="hasAnyRole('ROLE_COLABORADOR','ROLE_ADM_MASTER','ROLE_DIRETOR','ROLE_ADM_UF_NAC','ROLE_ASSESSOR','ROLE_CHEFE_GAB','ROLE_GERENTE','ROLE_GERENTE_ADJ')"/>
+		<intercept-url pattern="/pages/usuario/*" access="isFullyAuthenticated()"/>
+		
+		<intercept-url pattern="/pages/ciclo/*" access="hasAnyRole('ROLE_ADM_MASTER')"/>
+		
+		<intercept-url pattern="/pages/configurar-sgm.xhtml" access="hasAnyRole('ROLE_ADM_MASTER')"/>
+		<intercept-url pattern="/pages/configurar-sgm-administrador.xhtml" access="hasAnyRole('ROLE_ADM_MASTER')"/>
+		<intercept-url pattern="/pages/configurar-sgm-alterar-senha.xhtml" access="hasAnyRole('ROLE_ADM_MASTER')"/>
+		<intercept-url pattern="/pages/configurar-sgm-perfil.xhtml" access="hasAnyRole('ROLE_ADM_MASTER')"/>
+		<intercept-url pattern="/pages/configurar-sgm-usuario-externo.xhtml" access="hasAnyRole('ROLE_ADM_MASTER')"/>
+		
+		<intercept-url pattern="/pages/gestao-metas.xhtml" access="hasAnyRole('ROLE_ADM_MASTER')"/>
+		
+		<intercept-url pattern="/pages/gestor/*" access="hasAnyRole('ROLE_GERENTE','ROLE_GERENTE_ADJ')"/>
+		<intercept-url pattern="/pages/comite/*" access="hasAnyRole('ROLE_COMITE')"/>
+		<intercept-url pattern="/pages/auditor/*" access="hasAnyRole('ROLE_AUDITOR')"/>
+
+		<form-login login-page='/auth/login.xhtml'
+			default-target-url="/pages/index.xhtml" authentication-failure-url="/auth/login.xhtml?error=true" />
+		
+		<logout invalidate-session="true" delete-cookies="JSESSIONID"
+			logout-url="/logout" success-handler-ref="logoutHandler"/>
+
+		<session-management>
+			<concurrency-control expired-url="/auth/login.xhtml?error=sessao"/>
+		</session-management>
+	</http>
+
+	<beans:bean id="sgmAuthenticationProvider"
+		class="br.com.sebrae.sgm.security.SgmAuthenticationProvider" />
+
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider ref="sgmAuthenticationProvider" />
+	</authentication-manager>
+
+	<beans:bean id="dataSource"
+		class="org.springframework.jndi.JndiObjectFactoryBean">
+		<beans:property name="jndiName" value="java:comp/env/sgm_ds" />
+	</beans:bean>
+
+	<beans:bean id="applicationContextProvider"
+		class="br.com.sebrae.sgm.utils.ApplicationContextUtils" />
+</beans:beans>

@@ -1,0 +1,300 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="#{appBean.back()}">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}"/>
+		</li>
+		<li>
+			<h:commandLink action="/pages/comite/desempenho/getao-metas.xhtml" value="Gestão de Metas de Desempenho" />
+		</li>
+		<li><a href="#">Valida Meta</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		#{comiteValidacaoDesempenhoBean.init()}
+		
+		<p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+		<h:form id="form_meta_validacao">
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<p class="titulo-sem-marcador">Validação de Meta de Desempenho - Comitê</p>
+				</div>
+			</div>
+			<div class="row marginT20px">
+				<div class="col-xs-8">
+					<label for="codigo">Código</label> 
+					<input type="text" id="codigo"
+						class="form-control" name="codigo" value="#{comiteValidacaoDesempenhoBean.meta.codigo}"
+						disabled="disabled" />
+				</div>
+				<div class="col-xs-8">
+					<label for="status">Status</label> 
+					<input type="text" id="status"
+						class="form-control" placeholder="status" name="status"
+						value="#{comiteValidacaoDesempenhoBean.meta.statusAtual.value}" disabled="disabled" />
+				</div>
+			</div>
+			<div class="row marginT20px">
+				<div class="col-xs-8">
+					<label for="unidadeVinculada">Unidade Vinculada</label> 
+					<input
+						type="text" id="unidadeVinculada" class="form-control"
+						name="unidadeVinculada" value="#{comiteValidacaoDesempenhoBean.meta.unidade.descricao}" 
+						disabled="disabled"/>
+				</div>
+				<div class="col-xs-8">
+					<label for="nomeDoColaborador">Nome do Colaborador</label> 
+					<input
+						type="text" id="nomeDoColaborador" class="form-control"
+						name="nomeDoColaborador" value="#{comiteValidacaoDesempenhoBean.meta.colaborador.nome}" 
+						disabled="disabled"/>
+				</div>
+			</div>
+			<div class="row marginT20px">
+				<div class="col-xs-8">
+					<label for="resultadosEsperados">Resultados Esperados*</label>
+					<textarea class="form-control" rows="3" id="resultadosEsperados"
+						name="resultadosEsperados" placeholder="Resultados Esperados"
+						disabled="disabled">#{comiteValidacaoDesempenhoBean.meta.resultadosEsperados}</textarea>
+				</div>
+				<div class="col-xs-8">
+					<label for="evidenciaDeEntrega">Evidência de Entrega*</label>
+					<textarea class="form-control" rows="3" id="evidenciaDeEntrega"
+						name="evidenciaDeEntrega" placeholder="Evidência de Entrega"
+						data-toggle="tooltip"
+						title="Tipo de evidência ou critério de cálculo que demonstra a forma pela qual a meta será apurada. É necessário descrever de forma específica as características da entrega a ser feita, necessárias para que a meta seja considerada alcançada."
+						disabled="disabled">#{comiteValidacaoDesempenhoBean.meta.evidenciaEntrega}</textarea>
+				</div>
+			</div>
+			<div class="row marginT20px">
+				<div class="col-xs-8">
+					<label for="quantidadePrevista">Quantidade Prevista*</label> 
+					<input
+						type="text" id="quantidadePrevista" class="form-control"
+						name="quantidadePrevista" placeholder="Quantidade Prevista"
+						disabled="disabled" value="#{comiteValidacaoDesempenhoBean.meta.quantidadePrevista}"/>
+				</div>
+				<div class="col-xs-8">
+					<label for="unidadeDeMedida">Unidade de Medida*</label> 
+						<input
+						type="text" id="unidadeDeMedida" class="form-control"
+						data-toggle="tooltip"
+						value="#{comiteValidacaoDesempenhoBean.meta.unidadeMedida}"
+						title="Métrica ou grandeza que será utilizada para mensuração (R$, numero de unidades, % de satisfação)"
+						name="unidadeDeMedida" placeholder="Unidade de Medida"
+						disabled="disabled" />
+				</div>
+			</div>
+			<div class="row marginT20px">
+				<div class="col-xs-8">
+					<label for="tipoDeDado">Tipo de Dado*</label> <select
+						class="form-control" id="tipoDeDado" name="tipoDeDado"
+						data-toggle="tooltip"
+						title="É a expressão do valor previsto em formato de número percentual, inteiro ou decimal."
+						disabled="disabled">
+						<option selected="selected" value="0">#{comiteValidacaoDesempenhoBean.meta.tipoDado.value}</option>
+					</select>
+				</div>
+				<div class="col-xs-8">
+					<label for="formaDeCalculo">Forma de Cálculo*</label> <select
+						class="form-control" id="formaDeCalculo" name="formaDeCalculo"
+						data-toggle="tooltip"
+						title="As metas apresentam três formas para contabilização: Cumulativo, Não  cumulativo e Média."
+						disabled="disabled">
+						<option selected="selected" value="0">#{comiteValidacaoDesempenhoBean.meta.formaCalculo.value}</option>
+					</select>
+				</div>
+			</div>
+			<div class="row marginT20px">
+				<div class="col-xs-8">
+					<label for="prazoDeConclusao">Prazo de Conclusão*</label> <select
+						class="form-control" id="prazoDeConclusao" name="prazoDeConclusao"
+						data-toggle="tooltip"
+						title="Mês/ano considerado para o alcance da meta"
+						disabled="disabled">
+						<option selected="selected" value="0">#{comiteValidacaoDesempenhoBean.meta.mesConclusao.value}</option>
+					</select>
+				</div>
+				<div class="col-xs-8">
+					<label for="indicadorAssociado">Indicador Associado*</label> 
+					<select
+						class="form-control" id="indicadorAssociado"
+						name="indicadorAssociado" disabled="disabled">
+						<option selected="selected" value="0">#{comiteValidacaoDesempenhoBean.meta.indicador.nome}</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="row marginT20px">
+				<div class="col-xs-16">
+					<label for="observacaoEJustificativa">Observação e Justificativa</label>
+					<textarea id="observacaoEJustificativa" class="form-control"
+						rows="3" placeholder="Observação e Justificativa"
+						data-toggle="tooltip"
+						title="Descrever neste campo todas as observações que considerar pertinente"
+						disabled="disabled">#{comiteValidacaoDesempenhoBean.meta.justificativa}</textarea>
+				</div>
+			</div>
+			<div class="row marginT20px">
+				<div class="col-xs-16">
+					<label>Vínculo com o Projeto </label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-16">
+					<table class="table table-striped table-bordered">
+						<thead class="bgCorDesempenhoFraco">
+							<tr>
+								<th>Projeto</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat var="p" value="#{comiteValidacaoDesempenhoBean.meta.projetosVinculados}">
+								<tr>
+									<td>#{p.nome}</td>
+								</tr>
+							</ui:repeat>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-16">
+					<label>Unidades</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-16">
+					<table class="table table-striped table-bordered">
+						<thead class="bgCorDesempenhoFraco">
+							<tr>
+								<th>Código</th>
+								<th>Unidades</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat var="un" value="#{comiteValidacaoDesempenhoBean.meta.unidadesVinculadas}">
+								<tr>
+									<td>#{un.unidadePK.codigo}</td>
+									<td>#{un.descricao}</td>
+								</tr>
+							</ui:repeat>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-16">
+					<label>Marco Crítico</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-16">
+					<table class="table table-striped table-bordered">
+						<thead class="bgCorDesempenhoFraco">
+							<tr>
+								<th class="width-col-peq">#</th>
+								<th>Quantidade</th>
+								<th>Evidência de Entrega</th>
+								<th>Prazo de Conclusão</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat var="mc" value="#{comiteValidacaoDesempenhoBean.meta.marcosCriticos}" varStatus="status">
+								<tr>
+									<td>#{status.index+1}</td>
+									<td>#{mc.quantidade}</td>
+									<td>#{mc.evidenciaEntrega}</td>
+									<td>#{mc.prazoConclusao.value}</td>
+								</tr>
+							</ui:repeat>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+			<ui:repeat var="iac" value="#{comiteValidacaoDesempenhoBean.itensAvaliacaoMeta}">
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<label>#{iac.itemAvaliado.descricao}*</label> 
+						<p:selectOneRadio id="itemAvaliado" value="#{iac.resultado}" required="true" label="#{iac.descricao}">
+				            <f:selectItem itemLabel="Fraco" itemValue="#{'F'}" />
+				            <f:selectItem itemLabel="Regular" itemValue="#{'R'}" />
+				            <f:selectItem itemLabel="Forte" itemValue="#{'T'}" />
+				        </p:selectOneRadio>
+				        <p:message for="itemAvaliado"/>
+					</div>
+				</div>
+			</ui:repeat>
+			
+			<div class="row marginT10px">
+				<div class="col-xs-16">
+					<label for="obsAuditor">Observações do Comitê*</label>
+					<p:inputTextarea id="obsComite" styleClass="form-control" rows="3" 
+						placeholder="Observações do Comitê" label="Observações do Comitê"
+						value="#{comiteValidacaoDesempenhoBean.obsComite}"/>
+					<p:message for="obsComite"/>
+				</div>
+			</div>
+			<div class="row marginT10px">
+				<div class="col-xs-3">
+					<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+				</div>
+				<div class="col-xs-13">
+					<h:commandLink action="#{comiteValidacaoDesempenhoBean.enviarObservacao()}" 
+						styleClass="btn btn-azul floatR marginL10px" value="Enviar Observação" />
+						
+					<h:commandLink action="#{comiteValidacaoDesempenhoBean.validarMeta()}" 
+						styleClass="btn btn-azul floatR marginL10px" value="Aprova Texto da Meta" />
+						
+					<h:commandLink action="#{appBean.back()}" value="Cancelar" styleClass="btn btn-azul floatR" immediate="true" />
+				</div>
+			</div>
+			<div class="row marginT20px">
+				<div class="col-xs-16">
+					<label>Histórico das Análises da Metas</label>
+					<table class="table table-striped table-bordered" id="tbUnidades">
+						<thead class="bgCorPadraoFraco">
+							<tr>
+								<th class="width-col-peq">#</th>
+								<th>Descrição da Observação</th>
+								<th class="width-col-peq">Data</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat var="obs" value="#{comiteValidacaoDesempenhoBean.meta.getObservacoesByTipo('C','ROLE_COLABORADOR')}" varStatus="status">
+								<tr>
+									<td>#{status.index}</td>
+									<td>#{obs.descricao}</td>
+									<td>
+										<h:outputText value="#{obs.dataHora}">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+										</h:outputText>
+									</td>
+								</tr>
+							</ui:repeat>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

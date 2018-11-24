@@ -1,0 +1,459 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:func="http://br.gov.sebrae/funcoes">
+
+	<ui:define name="link_anterior">
+		<h:commandLink styleClass="voltar">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}"/></li>
+		<li><a href="#">Monitoramento de Metas</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		#{monitoramentoListarBean.init()}
+		
+		<p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<h:form id="form_listar_monitoramento">
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Monitoramento de Metas</p>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-2 col-xs-offset-6">
+                            <p class="marginT10px">Status do Ciclo</p>
+                        </div>
+                        <div class="col-xs-3">
+                            <h:selectOneMenu id="statusEquipe" value="#{monitoramentoListarBean.faseCicloEquipe}" styleClass="form-control" 
+                            	label="Status do Ciclo">
+								<f:selectItem itemLabel="Selecione"/>
+								<f:selectItems value="#{monitoramentoListarBean.fasesCicloExistentes}" 
+									var="tl" itemLabel="#{tl.value}" itemValue="#{tl}"/>
+								<p:ajax event="change" update="tbl_listar_metas_equipe"
+									listener="#{monitoramentoListarBean.alterouFaseEquipe()}"/>
+							</h:selectOneMenu>
+							<p:message for="statusEquipe"/>
+                        </div>
+                        
+                        <div class="col-xs-2">
+                            <p class="marginT10px text-right">Ciclo</p>
+                        </div>
+                        <div class="col-xs-3">
+                            <h:selectOneMenu id="cicloEquipe" value="#{monitoramentoListarBean.cicloEquipe}" 
+                            	styleClass="form-control" converter="CicloConverter">
+	                       		<f:selectItems value="#{logBean.ciclos}" var="c" itemLabel="#{c.descricao}" itemValue="#{c}"/>
+	                       		<p:ajax event="change" update="tbl_listar_metas_equipe"
+									listener="#{monitoramentoListarBean.alterouCicloEquipe()}"/>
+	                       	</h:selectOneMenu>
+	                       	<p:message for="cicloEquipe"/>
+                        </div>
+                    </div>
+                    
+                    <div class="row marginT20px">
+                        <div class="col-xs-16">
+                            <div class="titulo-tabela bgCorDesempenho">Metas de Equipe</div>
+                            <p:dataTable var="meta" value="#{monitoramentoListarBean.metasEquipe}" 
+                            	tableStyleClass="table table-striped table-bordered bgCorDesempenhoFraco"
+		                   		id="tbl_listar_metas_equipe" paginator="true" rows="20" paginatorPosition="bottom" 
+		                   		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+		                   		emptyMessage="Nenhum resultado a ser exibido">
+						        
+						        <p:column headerText="Descrição da Meta" styleClass="text-center">
+						        	<h:outputText value="#{func:limitaString(20, meta.resultadosEsperados)}" />
+						        	<p:commandLink rendered="#{meta.resultadosEsperados.length() gt 30}" oncomplete="jQuery('#lerDescricao').modal('show');"
+							            update=":frmDescricaoMeta" process="@this">
+							            	<i class="fa fa-external-link"></i>
+							            	<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+							            	<f:setPropertyActionListener value="#{meta}" target="#{monitoramentoListarBean.metaSelecionada}" />
+							        </p:commandLink>
+						        </p:column>
+						        
+						        <p:column headerText="Status da Pactuação/Repactuação" styleClass="text-center">
+						            <h:outputText value="#{meta.statusAtual.value}" />
+						        </p:column>
+						        
+						        <p:column headerText="Percentual da Execução" styleClass="text-center">
+						            <div class="dd">
+						            	<span style="display: block; height: 0px;">#{meta.porcentagemConclusao}%</span>
+									    <div class="progresso" style="width:#{meta.porcentagemConclusao}%;"></div> 
+									</div>
+						        </p:column>
+						        
+						        <p:column headerText="Status da Validação do Resultado" styleClass="text-center">
+						            <h:outputText value="#{meta.statusValidacao.value}"/>
+						        </p:column>
+						       	 						        
+						        <p:column headerText="Monitorar" styleClass="text-center width-col-peq">
+						            <h:commandLink action="/pages/monitoramento/monitorar" rendered="#{not appBean.usuarioEstaComPerfil('ROLE_COLABORADOR')}">
+										<i class="fa fa-desktop"></i>
+										<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+										<f:setPropertyActionListener value="#{meta}" target="#{monitoramentoBean.meta}" />
+										<f:setPropertyActionListener value="/pages/monitoramento/listar" target="#{appBean.back}" />
+									</h:commandLink>
+						        </p:column>
+						        
+						         <p:column headerText="Anexo" styleClass="text-center width-col-peq">
+						         	<p:commandLink oncomplete="jQuery('#modalAnexo').modal('show');" update=":form_anexo" process="@this" 
+						         				   rendered="#{not appBean.usuarioEstaComPerfil('ROLE_COLABORADOR')}">
+										<i class="fa fa-paperclip"></i>
+										<f:setPropertyActionListener value="#{meta}" target="#{monitoramentoListarBean.metaSelecionada}" />
+										<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+									</p:commandLink>
+						        </p:column>
+						        
+						        <p:column headerText="Enviar" styleClass="text-center width-col-peq">
+						        	<p:commandLink oncomplete="jQuery('#modalEnviarOk').modal('show');" update=":form_enviar" 
+						        				   rendered="#{not appBean.usuarioEstaComPerfil('ROLE_COLABORADOR')}"> 
+										<i class="fa fa-arrow-right"></i>
+										<f:setPropertyActionListener value="#{meta}" target="#{monitoramentoListarBean.metaSelecionada}" />
+										<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+									</p:commandLink>
+						        </p:column>
+						    </p:dataTable>
+                        </div>
+                    </div>
+                    
+                    <div class="row marginT20px">
+                        <div class="col-xs-2 col-xs-offset-6">
+                            <p class="marginT10px">Status do Ciclo</p>
+                        </div>
+                        <div class="col-xs-3">
+                            <h:selectOneMenu id="statusIndividual" value="#{monitoramentoListarBean.faseCicloIndividual}" styleClass="form-control" 
+                            	label="Status do Ciclo">
+								<f:selectItem itemLabel="Selecione"/>
+								<f:selectItems value="#{monitoramentoListarBean.fasesCicloExistentes}" 
+									var="tl" itemLabel="#{tl.value}" itemValue="#{tl}"/>
+								<p:ajax event="change" update="tbl_listar_metas_individual"
+									listener="#{monitoramentoListarBean.alterouFaseIndividual()}"/>
+							</h:selectOneMenu>
+							<p:message for="statusIndividual"/>
+                        </div>
+                        <div class="col-xs-2">
+                            <p class="marginT10px text-right">Ciclo</p>
+                        </div>
+                        <div class="col-xs-3">
+                            <h:selectOneMenu id="cicloIndividual" value="#{monitoramentoListarBean.cicloIndividual}" 
+                            	styleClass="form-control" converter="CicloConverter">
+	                       		<f:selectItems value="#{logBean.ciclos}" var="c" itemLabel="#{c.descricao}" itemValue="#{c}"/>
+	                       		<p:ajax event="change" update="tbl_listar_metas_individual"
+									listener="#{monitoramentoListarBean.alterouCicloIndividual()}"/>
+	                       	</h:selectOneMenu>
+	                       	<p:message for="cicloIndividual"/>
+                        </div>
+                    </div>
+                    <div class="row marginT20px">
+                        <div class="col-xs-16">
+                            <div class="titulo-tabela bgCorDesempenho">Metas Individuais</div>
+                            <p:dataTable var="meta" value="#{monitoramentoListarBean.metasIndividual}" 
+                            	tableStyleClass="table table-striped table-bordered bgCorDesempenhoFraco"
+		                   		id="tbl_listar_metas_individual" paginator="true" rows="20" paginatorPosition="bottom" 
+		                   		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+		                   		emptyMessage="Nenhum resultado a ser exibido">
+						        
+						        <p:column headerText="Descrição da Meta" styleClass="text-center">
+						        	<h:outputText value="#{func:limitaString(20, meta.resultadosEsperados)}" />
+						        	<p:commandLink rendered="#{meta.resultadosEsperados.length() gt 30}" oncomplete="jQuery('#lerDescricao').modal('show');"
+							            update=":frmDescricaoMeta" process="@this">
+							            	<i class="fa fa-external-link"></i>
+							            	<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+							            	<f:setPropertyActionListener value="#{meta}" target="#{monitoramentoListarBean.metaSelecionada}" />
+							        </p:commandLink>
+						        </p:column>
+						        
+						        <p:column headerText="Status da Pactuação/Repactuação" styleClass="text-center">
+						            <h:outputText value="#{meta.statusAtual.value}" />
+						        </p:column>
+						        
+						        <p:column headerText="Percentual da Execução" styleClass="text-center">
+						            <div class="dd">
+						            	<span style="display:block;height:0px;">#{meta.porcentagemConclusao}%</span>
+									    <div class="progresso" style="width:#{meta.porcentagemConclusao}%;"></div> 
+									</div>
+						        </p:column>
+						        
+						        <p:column headerText="Status da Validação do Resultado" styleClass="text-center">
+						            <h:outputText value="#{meta.statusValidacao.value}"/>
+						        </p:column>
+						       	 						        
+						        <p:column headerText="Monitorar" styleClass="text-center width-col-peq">
+						            <h:commandLink action="/pages/monitoramento/monitorar">
+										<i class="fa fa-desktop"></i>
+										<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+										<f:setPropertyActionListener value="#{meta}" target="#{monitoramentoBean.meta}" />
+										<f:setPropertyActionListener value="/pages/monitoramento/listar" target="#{appBean.back}" />
+									</h:commandLink>
+						        </p:column>
+						        
+						         <p:column headerText="Anexo" styleClass="text-center width-col-peq">
+						         	<p:commandLink oncomplete="jQuery('#modalAnexo').modal('show');" update=":form_anexo" process="@this">
+										<i class="fa fa-paperclip"></i>
+										<f:setPropertyActionListener value="#{meta}" target="#{monitoramentoListarBean.metaSelecionada}" />
+										<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+									</p:commandLink>
+						        </p:column>
+						        
+						        <p:column headerText="Enviar" styleClass="text-center width-col-peq">
+						        	<p:commandLink oncomplete="jQuery('#modalEnviarOk').modal('show');" update=":form_enviar"> 
+										<i class="fa fa-arrow-right"></i>
+										<f:setPropertyActionListener value="#{meta}" target="#{monitoramentoListarBean.metaSelecionada}" />
+										<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+									</p:commandLink>
+						        </p:column>
+						    </p:dataTable>
+                        </div>
+                    </div>
+			</h:form>
+		</div>
+		
+		<div class="modal fade" id="modalAnexo" tabindex="-1" role="dialog" aria-labelledby="modalAnexo" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="form_anexo">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Anexos para validação</h4>
+                    </div>
+                    <div class="modal-body">
+                    	<p:messages for="form_anexo" autoUpdate="true"/>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <label for="selecioneAnexo">Selecione o Anexo*</label>
+                            </div>
+                            <div class="col-xs-10">
+								<p:commandLink oncomplete="jQuery('#uploadAnexo').modal('show');" 
+									value="Selecionar Arquivo" styleClass="btn btn-default" process="@this"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-16">
+                                <p:dataTable var="anexo" value="#{monitoramentoListarBean.metaSelecionada.anexosEvidenciaEntrega}" 
+	                            	tableStyleClass="table table-striped table-bordered bgCorPadraoFraco" rowIndexVar="index"
+			                   		id="tbl_anexos" emptyMessage="Nenhuma evidência anexada">
+							        
+							        <p:column headerText="Arquivo" styleClass="text-center">
+							        	<h:outputText value="#{anexo.nomeExibicao}" />
+							        </p:column>
+							        
+							        <p:column headerText="Tipo" styleClass="text-center">
+							            <h:outputText value="#{anexo.tipoDescricao}" />
+							        </p:column>
+							        
+							        <p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+										<p:commandLink styleClass="btn btn-mini" id="downloadLink" process="@this" 
+												oncomplete="jQuery('#form-download-link\\:downloadLink').click();">
+												<i class="fa fa-eye"></i>
+										    	<f:setPropertyActionListener target="#{monitoramentoListarBean.indiceAnexo}" value="#{index}"/>  
+												<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+										</p:commandLink>
+							        </p:column>
+							 
+							        <p:column headerText="Apagar" styleClass="text-center width-col-peq">
+							            <p:commandLink styleClass="btn btn-mini" oncomplete="jQuery('#modalApagarAnexo').modal('show');" 
+											process="@this">
+											<i class="fa fa-trash-o"></i>
+											<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+											<f:setPropertyActionListener target="#{monitoramentoListarBean.indiceAnexo}" value="#{index}"/>
+										</p:commandLink>
+							        </p:column>
+							    </p:dataTable>
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label>Local de Armazenamento da Evidência da Entrega</label>
+                                <p:inputTextarea id="evidenciaDeEntregaModal" styleClass="form-control" rows="3" 
+                                	placeholder="Local de Armazenamento da Evidência de Entrega*" 
+                                	value="#{monitoramentoListarBean.metaSelecionada.localArmazenamentoEvidenciaEntrega}"
+                                	required="true" label="Local de Armazenamento da Evidência da Entrega">
+                                </p:inputTextarea>
+                                <p:message for="evidenciaDeEntregaModal"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                            </div>
+                            <div class="col-xs-8">
+                                <button type="button" class="btn btn-azul" data-dismiss="modal">Cancelar</button>
+                                <p:commandLink styleClass="btn btn-azul" value="Salvar" 
+                                	update=":form_anexo" oncomplete="fecharModal();"
+                                	actionListener="#{monitoramentoListarBean.salvarMetaAtual()}">
+                                	<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+                                </p:commandLink>
+                            </div>  
+                        </div>
+                    </div>
+                    
+                     <h:panelGroup id="panelMessages">
+                       	<script type="text/javascript">
+							var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+							function fecharModal(){
+								if(!maximunSeverity || maximunSeverity != '2'){
+									jQuery('#modalAnexo').modal('hide');
+								}
+							}
+                       	</script>
+                     </h:panelGroup>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        <sebrae:upload modalId="uploadAnexo" listener="uploadArquivo" modalTitulo="Enviar Anexo" bean="#{monitoramentoListarBean}"
+        	onComplete="jQuery('#uploadAnexo').modal('hide');" update=":form_anexo"/>
+        
+        <div class="modal fade" id="modalEnviarOk" tabindex="-1" role="dialog" aria-labelledby="modalEnviarOk" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="form_enviar">
+	                    <div class="modal-header">
+	                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+	                        <h4 class="modal-title">Enviar meta para aprovação</h4>
+	                    </div>
+	                    <div class="modal-body">
+	                    	<p:messages for="form_enviar"/>
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <label for="selecioneAnexo">Resumo da situação atual da meta</label>
+	                            </div>
+	                        </div>
+	                        <div class="row marginT20px">
+	                            <div class="col-xs-16">
+	                                <table class="table table-striped table-bordered">
+	                                    <thead class="bgCorPadraoFraco">
+	                                        <tr>
+	                                            <th>Previsto</th>                                                    
+	                                            <th>Realizado</th>
+	                                            <th>Percentual Atingido</th>                                              
+	                                            <th>Status da Execução</th>  
+	                                        </tr>
+	                                    </thead>
+	                                    <tbody>
+	                                        <tr>
+	                                            <td>#{monitoramentoListarBean.metaSelecionada.quantidadePrevista}</td>
+	                                            <td>#{monitoramentoListarBean.metaSelecionada.valorRealizado}</td>
+	                                            <td>Percentual</td>  
+	                                            <td>#{monitoramentoListarBean.metaSelecionada.porcentagemConclusao}%</td>
+	                                        </tr>
+	                                    </tbody>
+	                                </table>
+	                            </div>
+	                        </div>
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <label for="selecioneAnexo">Anexos para validação</label>
+	                            </div>
+	                        </div>
+	                        <div class="row marginT20px">
+	                            <div class="col-xs-16">
+	                               <p:dataTable var="anexo" value="#{monitoramentoListarBean.metaSelecionada.anexosEvidenciaEntrega}" 
+		                            	tableStyleClass="table table-striped table-bordered bgCorPadraoFraco" rowIndexVar="index"
+				                   		id="tbl_anexos" emptyMessage="Nenhuma evidência anexada">
+								        <p:column headerText="Arquivo" styleClass="text-center">
+								        	<h:outputText value="#{anexo.nome}" />
+								        </p:column>
+								        <p:column headerText="Tipo" styleClass="text-center">
+								            <h:outputText value="#{anexo.tipo}" />
+								        </p:column>
+								        <p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+											<p:commandLink styleClass="btn btn-mini" id="downloadLink" process="@this" 
+													oncomplete="jQuery('#form-download-link\\:downloadLink').click();">
+													<i class="fa fa-eye"></i>
+											    	<f:setPropertyActionListener target="#{monitoramentoListarBean.indiceAnexo}" value="#{index}"/>  
+													<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+											</p:commandLink>
+								        </p:column>
+								    </p:dataTable>
+	                            </div>
+	                        </div>
+	                        <div class="row marginT10px">
+	                            <div class="col-xs-16">
+	                                <label>Local de Armazenamento da Evidência da Entrega</label>
+	                                <p:inputTextarea id="localArmazenamento" styleClass="form-control" rows="3"
+	                                 placeholder="Local de Armazenamento da Evidência de Entrega*"
+	                                 value="#{monitoramentoListarBean.metaSelecionada.localArmazenamentoEvidenciaEntrega}">
+	                                 </p:inputTextarea>
+	                                <p:message for="localArmazenamento"/>
+	                            </div>
+	                        </div>
+	                    </div>
+	                    <div class="modal-footer">
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <label class="floatL">Deseja Enviar a Meta para Aprovação?</label>
+	                            </div>
+	                        </div>
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <p:commandLink styleClass="btn btn-azul floatR marginL10px" 
+	                                	actionListener="#{monitoramentoListarBean.confirmarEnviarAprovacao()}"
+	                                	update=":form_enviar,:form_listar_monitoramento" oncomplete="fecharModal();">Sim</p:commandLink>
+	                                <button type="button" class="btn btn-azul floatR" data-dismiss="modal">Não</button>
+	                            </div>  
+	                        </div>
+	                    </div>
+	                    
+	                    <h:panelGroup id="panelMessages">
+                           	<script type="text/javascript">
+								var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+								function fecharModal(){
+									if(!maximunSeverity || maximunSeverity != '2'){
+										jQuery('#modalEnviarOk').modal('hide');
+									}
+								}
+                           	</script>
+                        </h:panelGroup>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{monitoramentoListarBean.excluirArquivo()}"
+			modalMensagem="Deseja realmente excluir este anexo?" onComplete="$('#modalApagarAnexo').modal('hide')"
+			modalId="modalApagarAnexo" update=":form_anexo"/>
+		
+		<div class="modal fade" id="lerDescricao" tabindex="-1" role="dialog" aria-labelledby="lerDescricao" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <h:form id="frmDescricaoMeta">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Descrição</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <p>
+                                    #{monitoramentoListarBean.metaSelecionada.resultadosEsperados}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+         <h:form id="form-download-link">
+         	<p:commandLink id="downloadLink" ajax="false" style="display:none;">
+				<f:param name="cid" value="#{monitoramentoListarBean.conversation.id}"/>
+				<p:fileDownload value="#{monitoramentoListarBean.arquivo}"/>  
+			</p:commandLink>
+         </h:form>
+	</ui:define>
+</ui:composition>

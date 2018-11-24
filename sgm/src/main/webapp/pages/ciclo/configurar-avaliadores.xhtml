@@ -1,0 +1,439 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml"> 
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><h:commandLink action="/pages/ciclo/listar.xhtml" value="Ciclo de Avaliação" /></li>
+		<li><h:commandLink action="/pages/ciclo/manter.xhtml" value="Manter Ciclo de Avaliação" /></li>
+		<li><a href="#">Configurar Avaliadores para o Ciclo de Desempenho</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+	
+	<style>
+		.tooltip-inner {
+		    max-width: 350px !important;
+		    width: 350px !important; 
+		}
+	</style>
+	
+	#{cicloAvaliadoresBean.init()}
+	#{cicloAvaliadoresExternosBean.init()}
+		 
+		<p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content" jsf:id="content_avaliadores">
+		
+			<p:blockUI block=":content_avaliadores" widgetVar="blockCarregarArvoreInternos">
+			     Carregando árvore de Unidades...
+			</p:blockUI>
+			                        
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<p class="titulo-sem-marcador">Configurar Avaliadores para o Ciclo de Desempenho</p>
+				</div>
+			</div>
+			<div class="row marginT30px">
+				<div class="col-xs-16 tabs-padrao">
+					<ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+						<li class="active"><a href="#avaliadores" class="bold600">Configurar Avaliadores para o Ciclo</a></li>
+						<li><a href="#usuarios-externos" class="bold600">Usuário Externo</a></li>
+					</ul>
+					<div class="tab-content">
+						<div id="avaliadores" class="tab-pane active">
+								<div class="row">
+									<div class="col-xs-8">
+										<h:form id="frm_botoes_tree_interno">
+											<p:commandLink styleClass="btn btn-azul" rendered="#{not cicloAvaliadoresBean.todosExpandidos}" value="Expandir Todos"
+												update=":frm_botoes_tree_interno"
+												oncomplete="jQuery('#form_tree_internos\\:treeGestores .ui-tree-toggler').each(function(){if(jQuery(this).hasClass('ui-icon-plus')){jQuery(this).click();}});">
+												<f:setPropertyActionListener target="#{cicloAvaliadoresBean.todosExpandidos}" value="#{true}"/>
+											</p:commandLink>
+											
+											<p:commandLink styleClass="btn btn-azul" rendered="#{cicloAvaliadoresBean.todosExpandidos}" value="Retrair Todos"
+												update=":frm_botoes_tree_interno"
+												oncomplete="jQuery('#form_tree_internos\\:treeGestores .ui-tree-toggler').each(function(){if(!jQuery(this).hasClass('ui-icon-plus')){jQuery(this).click();}});">
+												<f:setPropertyActionListener target="#{cicloAvaliadoresBean.todosExpandidos}" value="#{false}"/>
+											</p:commandLink>
+										</h:form>
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<h:form id="form_tree_internos">
+									<p:remoteCommand id="carregarArvoreInternos" name="carregarArvoreInternos" update="treeGestores" actionListener="#{cicloAvaliadoresBean.popularArvores()}" 
+										oncomplete="PF('blockCarregarArvoreInternos').hide();carregarConfiguracoesTolltips();" onstart="PF('blockCarregarArvoreInternos').show();"/>
+									<div class="col-xs-16">
+										<p:tree id="treeGestores" styleClass="treemenu" value="#{cicloAvaliadoresBean.arvoreUnidades.root}" var="node" animate="true" style="width:100%;"
+											cache="true" datakey="#{node.unidadePK.codigoSemPonto}" >
+											<p:ajax event="expand" listener="#{cicloAvaliadoresBean.onNodeExpand}"/>
+											<p:ajax event="collapse" listener="#{cicloAvaliadoresBean.onNodeCollapse}"/>
+									        <p:treeNode>
+									            <h:outputText value="#{node.unidadePK.codigo} - #{node.descricao}" />
+									            <p:commandLink oncomplete="$('#perfilInterno').modal('show')" update=":form_perfil_interno">
+									            	<i class="fa fa-user"></i>
+									            	<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresBean.unidadeSelecionada}" />
+									            </p:commandLink>
+									            <ui:fragment rendered="#{node.possuiAvaliador}">
+										            	<i class="fa fa-check check-enabled" data-toggle="tooltip" title="#{node.nomesCargosTemp}" data-html="true"
+										            		onclick="$('.adicionados_internos_#{node.unidadePK.codigoSemPonto}').toggle();"></i>
+									            </ui:fragment>
+									            <ui:fragment rendered="#{not node.possuiAvaliador}">
+										            <i class="fa fa-check check-disabled"></i>
+									            </ui:fragment>
+	                                                 <ol class="adicionados_internos_#{node.unidadePK.codigoSemPonto}" style="display:block;display:none;">
+	                                                 	 <ui:fragment rendered="#{not empty node.gerenteTemp}">
+                                                         	<li>
+                                                         		<p class="alert alert-users">#{node.gerenteTemp.usuario.nome}
+                                                         		<span>
+	                                                         		[#{node.gerenteTemp.perfil.descricao}]
+	                                                         		<p:commandLink oncomplete="$('#modalConfirmacaoExcluirAvaliador').modal('show')">
+	                                                         			<i class="fa fa-times"></i>
+	                                                         			<f:setPropertyActionListener value="#{node.gerenteTemp}" target="#{cicloAvaliadoresBean.avaliador}"/>
+	                                                         			<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresBean.unidadeSelecionada}"/>
+	                                                         		</p:commandLink>
+                                                         		</span>
+                                                         		</p>
+                                                         	</li>
+                                                         </ui:fragment>
+                                                         <ui:fragment rendered="#{not empty node.gerenteAdjuntoTemp}">
+                                                         	<li>
+                                                         		<p class="alert alert-users">#{node.gerenteAdjuntoTemp.usuario.nome}
+                                                         		<span>[#{node.gerenteAdjuntoTemp.perfil.descricao}]
+                                                         		<p:commandLink oncomplete="$('#modalConfirmacaoExcluirAvaliador').modal('show')">
+                                                         			<i class="fa fa-times"></i>
+                                                         			<f:setPropertyActionListener value="#{node.gerenteAdjuntoTemp}" target="#{cicloAvaliadoresBean.avaliador}"/>
+                                                         			<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresBean.unidadeSelecionada}"/>
+                                                         		</p:commandLink>
+                                                         		</span>
+                                                         		</p>
+                                                         	</li>
+                                                         </ui:fragment>
+                                                         <ui:fragment rendered="#{not empty node.diretorTemp}">
+                                                         	<li>
+                                                         		<p class="alert alert-users">#{node.diretorTemp.usuario.nome}
+                                                         		<span>[#{node.diretorTemp.perfil.descricao}]
+	                                                         		<p:commandLink oncomplete="$('#modalConfirmacaoExcluirAvaliador').modal('show')">
+	                                                         			<i class="fa fa-times"></i>
+	                                                         			<f:setPropertyActionListener value="#{node.diretorTemp}" target="#{cicloAvaliadoresBean.avaliador}"/>
+	                                                         			<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresBean.unidadeSelecionada}"/>
+	                                                         		</p:commandLink>
+                                                         		</span>
+                                                         		</p>
+                                                         	</li>
+                                                         </ui:fragment>
+                                                         <ui:fragment rendered="#{not empty node.assessorTemp}">
+                                                         	<li>
+                                                         		<p class="alert alert-users">#{node.assessorTemp.usuario.nome}
+                                                         		<span>[#{node.assessorTemp.perfil.descricao}]
+	                                                         		<p:commandLink oncomplete="$('#modalConfirmacaoExcluirAvaliador').modal('show')">
+	                                                         			<i class="fa fa-times"></i>
+	                                                         			<f:setPropertyActionListener value="#{node.assessorTemp}" target="#{cicloAvaliadoresBean.avaliador}"/>
+	                                                         			<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresBean.unidadeSelecionada}"/>
+	                                                         		</p:commandLink>
+                                                         		</span>
+                                                         		</p>
+                                                         	</li>
+                                                         </ui:fragment>
+                                                         <ui:fragment rendered="#{not empty node.chefeGabineteTemp}">
+                                                         	<li>
+                                                         		<p class="alert alert-users">#{node.chefeGabineteTemp.usuario.nome}
+                                                         		<span>[#{node.chefeGabineteTemp.perfil.descricao}]
+	                                                         		<p:commandLink oncomplete="$('#modalConfirmacaoExcluirAvaliador').modal('show')">
+	                                                         			<i class="fa fa-times"></i>
+	                                                         			<f:setPropertyActionListener value="#{node.chefeGabineteTemp}" target="#{cicloAvaliadoresBean.avaliador}"/>
+	                                                         			<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresBean.unidadeSelecionada}"/>
+	                                                         		</p:commandLink>
+                                                         		</span>
+                                                         		</p>
+                                                         	</li>
+                                                         </ui:fragment>
+                                                     </ol>
+									        </p:treeNode>
+									    </p:tree>
+									</div>
+									<script type="text/javascript">
+										// <![CDATA[
+											jQuery(document).ready(function(){
+												carregarArvoreInternos();
+												carregarConfiguracoesTolltips();
+											});
+										// ]]>
+									</script>
+									</h:form>
+								</div>
+								
+							<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{cicloAvaliadoresBean.excluir()}"
+									modalMensagem="O avaliador será excluído. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirAvaliador').modal('hide')"
+									modalId="modalConfirmacaoExcluirAvaliador" update=":form_tree_internos"/>
+							
+							  <div class="modal fade" id="perfilInterno" tabindex="-1" role="dialog" aria-labelledby="perfil" aria-hidden="true">
+					            <div class="modal-dialog">
+					                <div class="modal-content">
+					                	<h:form id="form_perfil_interno">
+						                    <div class="modal-header">
+						                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+						                        <h4 class="modal-title">Adicionar Gestor</h4>
+						                    </div>
+						                    <div class="modal-body">
+						                    	<p:messages for="form_perfil_interno"/>
+						                        <div class="row">
+						                            <div class="col-xs-16">
+						                                <label for="tipoPerfilAvaliador">Tipo de Perfil Avaliador*</label>
+						                                <h:selectOneMenu id="tipoPerfilAvaliador" required="true" label="Tipo de Perfil	Avaliador"
+															value="#{cicloAvaliadoresBean.perfilAvaliador}" disabled="#{cicloAvaliadoresBean.visualizando}"
+															styleClass="form-control" converter="PerfilConverter">
+															<f:selectItem itemLabel="Selecione" />
+															<f:selectItems value="#{cicloAvaliadoresBean.perfisAvaliadores}" var="pa"
+																itemLabel="#{pa.descricao}" itemValue="#{pa}" />
+															<p:ajax process="@this" update="usuarioResponsavel" />
+														</h:selectOneMenu>
+														<p:message for="tipoPerfilAvaliador" />
+						                            </div>
+						                        </div>
+						                        <div class="row">
+						                            <div class="col-xs-16 marginT10px">
+						                               <label for="nomeAvaliadorOutro">Nome do Avaliador*
+						                               	<i class="fa fa-info-circle" style="color: blue;" title="Informe o Tipo de Perfil Avaliador, para que seja listado os canditados a avaliadores para a unidade atual"></i>
+						                               </label>
+						                               <h:selectOneMenu id="usuarioResponsavel" value="#{cicloAvaliadoresBean.usuarioAvaliador}"
+															disabled="#{cicloAvaliadoresBean.visualizando}"
+															styleClass="form-control" converter="UsuarioConverter" required="true" label="Nome do Usuário Responsável">
+															<f:selectItem itemLabel="Selecione" />
+															<f:selectItems value="#{cicloAvaliadoresBean.usuariosAvaliadores}" 
+																var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+														</h:selectOneMenu>
+														<p:message for="usuarioResponsavel" />
+						                            </div>
+						                        </div>
+						                    </div>
+						                    <div class="modal-footer">
+						                        <div class="row">
+						                            <div class="col-xs-8">
+						                                <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+						                            </div>
+						                            <div class="col-xs-8">
+						                                <button type="button" class="btn btn-azul" data-dismiss="modal">Cancelar</button>
+						                                <p:commandLink styleClass="btn btn-azul" update=":form_tree_internos,:form_perfil_interno"
+						                                	oncomplete="fecharModalPerfilInterno();" actionListener="#{cicloAvaliadoresBean.inserirAlterar()}"
+						                                	value="Inserir">
+						                                	<f:param name="cid" value="#{cicloAvaliadoresBean.conversation.id}"/>
+						                                </p:commandLink>
+						                            </div>  
+						                        </div>
+						                    </div>
+			                            	<script type="text/javascript">
+			                            		var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+												function fecharModalPerfilInterno(){
+													if(!maximunSeverity || maximunSeverity != '2'){
+														jQuery('#perfilInterno').modal('hide');
+													}
+												}
+			                            	</script>
+					                    </h:form>
+					                </div>
+					            </div>
+					        </div>
+						</div>
+
+						<div id="usuarios-externos" class="tab-pane">
+							<div class="row">
+									<div class="col-xs-8">
+										<h:form id="frm_botoes_tree_externo">
+											<p:commandLink styleClass="btn btn-azul" rendered="#{not cicloAvaliadoresExternosBean.todosExpandidos}" value="Expandir Todos"
+												update=":frm_botoes_tree_externo"
+												oncomplete="jQuery('#form_tree_externos\\:treeGestores .ui-tree-toggler').each(function(){if(jQuery(this).hasClass('ui-icon-plus')){jQuery(this).click();}});">
+												<f:setPropertyActionListener target="#{cicloAvaliadoresExternosBean.todosExpandidos}" value="#{true}"/>
+											</p:commandLink>
+											
+											<p:commandLink styleClass="btn btn-azul" rendered="#{cicloAvaliadoresExternosBean.todosExpandidos}" value="Retrair Todos"
+												update=":frm_botoes_tree_externo"
+												oncomplete="jQuery('#form_tree_externos\\:treeGestores .ui-tree-toggler').each(function(){if(!jQuery(this).hasClass('ui-icon-plus')){jQuery(this).click();}});">
+												<f:setPropertyActionListener target="#{cicloAvaliadoresExternosBean.todosExpandidos}" value="#{false}"/>
+											</p:commandLink>
+										</h:form>
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<h:form id="form_tree_externos">
+									<p:remoteCommand name="carregarArvoreExternos" update="treeGestores" 
+										actionListener="#{cicloAvaliadoresExternosBean.popularArvoreUnidaes()}" oncomplete="carregarConfiguracoesTolltips();"/>
+									<div class="col-xs-16">
+										<p:tree id="treeGestores" styleClass="treemenu" value="#{cicloAvaliadoresExternosBean.arvoreUnidades.root}" var="node" animate="true" style="width:100%;"
+											cache="true">
+											<p:ajax event="expand" listener="#{cicloAvaliadoresExternosBean.onNodeExpand}"/>
+											<p:ajax event="collapse" listener="#{cicloAvaliadoresExternosBean.onNodeCollapse}"/>
+									        <p:treeNode>
+									            <h:outputText value="#{node.unidadePK.codigo} - #{node.descricao}" />
+									            <p:commandLink oncomplete="$('#perfilExterno').modal('show')" update=":form_perfil_externo">
+									            	<i class="fa fa-user"></i>
+									            	<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresExternosBean.unidadeSelecionada}" />
+									            </p:commandLink>
+									            
+									            <ui:fragment rendered="#{node.possuiAvaliadorExterno}">
+										            <i class="fa fa-check check-enabled" data-toggle="tooltip" title="#{node.nomesCargosExternosTemp}" data-html="true"
+										            		onclick="$('.adicionados_externos_#{node.unidadePK.codigoSemPonto}').toggle();"></i>
+									            </ui:fragment>
+									            
+									            <ui:fragment rendered="#{not node.possuiAvaliadorExterno}">
+										            <i class="fa fa-check check-disabled"></i>
+									            </ui:fragment>
+                                                
+                                                 <ol class="adicionados_externos_#{node.unidadePK.codigoSemPonto}" style="display:block; display:none;">
+                                                 	 <ui:fragment rendered="#{not empty node.auditorTemp}">
+                                                        	<li>
+                                                        		<p class="alert alert-users">#{node.auditorTemp.usuario.nome}
+                                                        		<span>
+                                                         		[#{node.auditorTemp.perfil.descricao}]
+                                                         		<p:commandLink oncomplete="$('#modalConfirmacaoExcluirAvaliadorExterno').modal('show')">
+                                                         			<i class="fa fa-times"></i>
+                                                         			<f:setPropertyActionListener value="#{node.auditorTemp}" target="#{cicloAvaliadoresExternosBean.avaliador}"/>
+                                                         			<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresExternosBean.unidadeSelecionada}"/>
+                                                         		</p:commandLink>
+                                                        		</span>
+                                                        		</p>
+                                                        	</li>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{not empty node.comiteTemp}">
+                                                        	<li>
+                                                        		<p class="alert alert-users">#{node.comiteTemp.usuario.nome}
+                                                        		<span>[#{node.comiteTemp.perfil.descricao}]
+                                                        		<p:commandLink oncomplete="$('#modalConfirmacaoExcluirAvaliadorExterno').modal('show')">
+                                                         			<i class="fa fa-times"></i>
+                                                         			<f:setPropertyActionListener value="#{node.comiteTemp}" target="#{cicloAvaliadoresExternosBean.avaliador}"/>
+                                                         			<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresExternosBean.unidadeSelecionada}"/>
+                                                         		</p:commandLink>
+                                                        		</span>
+                                                        		</p>
+                                                        	</li>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{not empty node.avaliadorExternoTemp}">
+                                                        	<li>
+                                                        		<p class="alert alert-users">#{node.avaliadorExternoTemp.usuario.nome}
+                                                        		<span>[#{node.avaliadorExternoTemp.perfil.descricao}]
+                                                        		<p:commandLink oncomplete="$('#modalConfirmacaoExcluirAvaliadorExterno').modal('show')">
+                                                         			<i class="fa fa-times"></i>
+                                                         			<f:setPropertyActionListener value="#{node.avaliadorExternoTemp}" target="#{cicloAvaliadoresExternosBean.avaliador}"/>
+                                                         			<f:setPropertyActionListener value="#{node}" target="#{cicloAvaliadoresExternosBean.unidadeSelecionada}"/>
+                                                         		</p:commandLink>
+                                                        		</span>
+                                                        		</p>
+                                                        	</li>
+                                                        </ui:fragment>
+                                                    </ol>
+									        </p:treeNode>
+									    </p:tree>
+									</div>
+									
+									<script type="text/javascript">
+										// <![CDATA[
+										jQuery(document).ready(function(){
+											carregarArvoreExternos();
+											carregarConfiguracoesTolltips();
+										});
+										// ]]>
+									</script>
+									</h:form>
+								</div>
+							
+							<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{cicloAvaliadoresExternosBean.excluir()}"
+									modalMensagem="O parâmetro será excluído. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirAvaliadorExterno').modal('hide')"
+									modalId="modalConfirmacaoExcluirAvaliadorExterno" update=":form_tree_externos"/>
+									
+							<div class="modal fade" id="perfilExterno" tabindex="-1" role="dialog" aria-labelledby="perfil" aria-hidden="true">
+					            <div class="modal-dialog">
+					                <div class="modal-content">
+					                	<h:form id="form_perfil_externo">
+						                    <div class="modal-header">
+						                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+						                        <h4 class="modal-title">Adicionar Gestor</h4>
+						                    </div>
+						                    <div class="modal-body">
+						                    	<p:messages for="form_perfil_interno"/>
+						                        <div class="row">
+						                            <div class="col-xs-16">
+						                                <label for="tipoPerfilAvaliador">Tipo de Perfil Avaliador*</label>
+						                                <h:selectOneMenu id="tipoPerfilAvaliador" required="true" label="Tipo de Perfil	Avaliador"
+															value="#{cicloAvaliadoresExternosBean.perfilAvaliador}" disabled="#{cicloAvaliadoresExternosBean.visualizando}"
+															styleClass="form-control" converter="PerfilConverter">
+															<f:selectItem itemLabel="Selecione" />
+															<f:selectItems value="#{cicloAvaliadoresExternosBean.perfisAvaliadores}" var="pa"
+																itemLabel="#{pa.descricao}" itemValue="#{pa}" />
+															<p:ajax event="change" process="@this" update="usuarioResponsavel"/>
+														</h:selectOneMenu>
+														<p:message for="tipoPerfilAvaliador" />
+						                            </div>
+						                        </div>
+						                        <div class="row">
+						                            <div class="col-xs-16 marginT10px">
+						                                <label for="nomeAvaliadorOutro">Nome do Avaliador*
+						                                	<i class="fa fa-info-circle" style="color: blue;" title="Informe o Tipo de Perfil Avaliador, para que seja listado os canditados"></i>
+						                                </label>
+						                               <h:selectOneMenu id="usuarioResponsavel" value="#{cicloAvaliadoresExternosBean.usuarioAvaliador}"
+															disabled="#{cicloAvaliadoresExternosBean.visualizando}"
+															styleClass="form-control" converter="UsuarioConverter" required="true" label="Nome do Usuário Responsável">
+															<f:selectItem itemLabel="Selecione" />
+															<f:selectItems value="#{cicloAvaliadoresExternosBean.usuariosAvaliadores}" var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+														</h:selectOneMenu>
+														<p:message for="usuarioResponsavel" />
+						                            </div>
+						                        </div>
+						                    </div>
+						                    <div class="modal-footer">
+						                        <div class="row">
+						                            <div class="col-xs-8">
+						                                <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+						                            </div>
+						                            <div class="col-xs-8">
+						                                <button type="button" class="btn btn-azul" data-dismiss="modal">Cancelar</button>
+						                                <p:commandLink styleClass="btn btn-azul" update=":form_perfil_externo,:form_tree_externos"
+						                                	oncomplete="fecharModalPerfilExterno();" actionListener="#{cicloAvaliadoresExternosBean.inserirAlterar()}"
+						                                	value="Inserir">
+						                                	<f:param name="cid" value="#{cicloAvaliadoresBean.conversation.id}"/>
+						                                </p:commandLink>
+						                            </div>  
+						                        </div>
+						                    </div>
+			                            	<script type="text/javascript">
+			                            		var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+												function fecharModalPerfilExterno(){
+													if(!maximunSeverity || maximunSeverity != '2'){
+														jQuery('#perfilExterno').modal('hide');
+													}
+												}
+			                            	</script>
+					                    </h:form>
+					                </div>
+					            </div>
+					        </div>
+									
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			  <div class="row marginT30px">
+                  <div class="col-xs-16">
+                  	  <h:form>
+                  		<h:commandLink  styleClass="btn btn-azul floatR marginL10px" immediate="true"
+												action="#{cicloAvaliadoresBean.continuarConfiguracao()}">Continuar Configuração</h:commandLink>
+                      </h:form>
+                  </div>
+              </div>
+		</div>
+	</ui:define>
+</ui:composition>

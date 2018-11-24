@@ -1,0 +1,293 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+ 
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><h:commandLink action="/pages/ciclo/listar.xhtml"
+				value="Ciclo de Avaliação" /></li>
+		<li><h:commandLink action="/pages/ciclo/manter.xhtml"
+				value="Manter Ciclo de Avaliação" /></li>
+		<li><a href="#">Fluxo</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{cicloFluxoAprovacaoMetasDesenvolvimentoBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<h:form id="form-fluxo-metas">
+
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurar Fluxo de Aprovação
+							de Metas</p>
+					</div>
+				</div>
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<label for="btmodalUnidade">Unidade</label>
+						<p:commandLink id="btmodalUnidade"
+							styleClass="btn btn-azul marginL15px" value="Adicionar"
+							onsuccess="jQuery('#modalUnidade').modal('show');"
+							rendered="#{not cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}"
+							actionListener="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.prepararModalVincularUnidades()}"
+							update=":formUnidade" process="@this" />
+					</div>
+				</div>
+				<div class="row marginT10px">
+					<div class="col-xs-16">
+						<div class="titulo-tabela bgCorPadrao cinzaFonte">Unidades</div>
+						<p:message for="tblUnidadesSelecionadas" />
+						<p:dataTable var="un"
+							value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.fluxoAprovacao.unidades}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblUnidadesSelecionadas"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhuma unidade selecionada" rowIndexVar="index">
+
+							<p:column headerText="#" styleClass="text-center width-col-peq">
+							            #{index+1}
+							    </p:column>
+
+							<p:column headerText="Unidade" styleClass="text-center">
+							            #{un.descricaoComCodigo}
+							    </p:column>
+
+							<p:column headerText="Editar"
+								rendered="#{not cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									actionListener="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.prepararModalVincularUnidadesEditar()}"
+									oncomplete="jQuery('#modalUnidade').modal('show');"
+									update=":formUnidade" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								rendered="#{not cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirUnidade').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:param name="cid"
+										value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.conversation.id}" />
+									<f:setPropertyActionListener value="#{un}"
+										target="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.unidadeSelecionada}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label for="fluxo">Escolha o Fluxo*</label>
+						<h:selectOneMenu id="fluxo"
+							value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.fluxoAprovacao.fluxo}"
+							styleClass="form-control" required="true" label="Escolha o Fluxo">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.fluxosAprovacaoDesenvolvimento}" var="f"
+								itemLabel="#{f.value}" itemValue="#{f}" />
+						</h:selectOneMenu>
+						<p:message for="fluxo" />
+					</div>
+				</div>
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+					</div>
+					<div class="col-xs-8">
+						<p:commandLink value="Inserir Parâmetro"
+							styleClass="btn btn-azul floatR marginL10px"
+							actionListener="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.inserirParametro()}"
+							update=":form-fluxo-metas"
+							rendered="#{empty cicloFluxoAprovacaoMetasDesenvolvimentoBean.fluxoAprovacao.id and not cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}" />
+
+						<p:commandLink value="Salvar Parâmetro"
+							styleClass="btn btn-azul floatR marginL10px"
+							style="margin-left:10px;"
+							actionListener="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.alterarParametro()}"
+							update=":form-fluxo-metas"
+							rendered="#{not empty cicloFluxoAprovacaoMetasDesenvolvimentoBean.fluxoAprovacao.id and not cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}" />
+					</div>
+				</div>
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurações Salvas</p>
+					</div>
+				</div>
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<p:dataTable var="obj"
+							value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.cicloConfiguracao.fluxosAprovacaoMetas}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblParametros"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhum parâmetro a ser exibido" rowIndexVar="index">
+
+							<p:column headerText="Unidade" styleClass="text-center">
+								<dl>
+									<ui:repeat var="un" value="#{obj.unidades}">
+										<dd>#{un.descricaoComCodigo}</dd>
+									</ui:repeat>
+								</dl>
+							</p:column>
+
+							<p:column headerText="Tipo de Fluxo" styleClass="text-center">
+								<h:outputText value="#{obj.fluxo.value}" />
+							</p:column>
+
+							<p:column headerText="Editar"
+								styleClass="text-center width-col-peq"
+								rendered="#{not cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}">
+								<p:commandLink
+									actionListener="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.editar(obj)}"
+									update=":form-fluxo-metas" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								styleClass="text-center width-col-peq"
+								rendered="#{not cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirParametro').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:setPropertyActionListener value="#{obj}"
+										target="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.fluxoAprovacao}" />
+									<f:param name="cid"
+										value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<h:form>
+						<h:commandLink styleClass="btn btn-azul floatR marginL10px"
+							immediate="true" action="#{configuracaoMetasService.mensagemSucesso()}">Continuar Configuração</h:commandLink>
+					</h:form>
+				</div>
+			</div>
+
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.excluir()}"
+				modalMensagem="O parâmetro será excluído. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirParametro').modal('hide')"
+				modalId="modalConfirmacaoExcluirParametro"
+				update=":form-fluxo-metas" />
+
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.desvincularUnidade()}"
+				modalMensagem="A Unidade será desvinculada. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirUnidade').modal('hide')"
+				modalId="modalConfirmacaoExcluirUnidade"
+				update=":form-fluxo-metas:tblUnidadesSelecionadas" />
+
+			<div class="modal fade" id="modalUnidade" tabindex="-1" role="dialog"
+				aria-labelledby="modalUnidade" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<h:form id="formUnidade">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+								</button>
+								<h4 class="modal-title">Adicionar Unidade Associada</h4>
+							</div>
+							<div class="modal-body">
+								<p:messages for="formUnidade" autoUpdate="true" />
+								<div class="row">
+		                    		<div class="col-xs-8">
+		                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+		                    				onclick="selecioanarTodosLista();" styleClass="btn"/>  
+		                    		</div>
+		                    	</div>
+								<div class="row marginT05px">
+									<div class="col-xs-16">
+										<p:selectManyMenu id="nomeBusca"
+											value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.unidadesSelecionadasVincular}"
+											converter="UnidadeAutocompleteConverter" var="t" filter="true"
+											filterMatchMode="contains" showCheckbox="true"
+											styleClass="ui-selectlistbox-item input_100P"
+											style="width: 100% !important"
+											ondblclick="jQuery('.btn_add_unidades').click();">
+											<f:selectItems
+												value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.unidadesDisponiveis}" var="uv"
+												itemLabel=" #{uv.descricaoComCodigo}" itemValue="#{uv}" />
+											<p:column>
+												<h:outputText value=" #{t.descricaoComCodigo}" style="float:left;white-space:nowrap;text-align:left;" />
+											</p:column>
+										</p:selectManyMenu>
+										<p:message for="nomeBusca" />
+	
+										<SCRIPT type="text/javascript">
+											function selecioanarTodosLista(){
+												if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+													$('#modalConfirmacaoSelecaoLista').modal('show');
+												}else{
+													 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+												}
+											}
+			                             </SCRIPT>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<div class="row">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left"></p>
+									</div>
+									<div class="col-xs-8">
+										<button type="button" class="btn btn-default"
+											data-dismiss="modal">Cancelar</button>
+										<p:commandLink styleClass="btn btn-primary btn_add_unidades" value="Incluir"
+											actionListener="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.vincularUnidades()}"
+											update=":form-fluxo-metas:tblUnidadesSelecionadas"
+											oncomplete="jQuery('#modalUnidade').modal('hide');">
+											<f:param name="cid"
+												value="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.conversation.id}" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+			modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+			modalId="modalConfirmacaoSelecaoLista"/>
+	</ui:define>
+</ui:composition>

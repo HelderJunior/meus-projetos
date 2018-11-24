@@ -1,0 +1,496 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Pagina Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<h:commandLink action="/pages/ciclo/listar.xhtml" value="Ciclo de Avaliação" />
+		</li>
+		<li>
+			<h:commandLink action="/pages/ciclo/manter.xhtml" value="Manter Ciclo de Avaliação" />
+		</li>
+		<li>
+			<a href="#">Configurar Envio de E-mail de Metas de Desempenho</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+		 #{cicloConfigurarEmailBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+		 
+		 <div class="content">
+			 <h:form id="form-configuracao-email">
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Configurar Envio de E-mail de Metas de Desempenho</p>
+                        </div>
+                    </div>
+                    <div class="row marginT10px">
+                        <div class="col-xs-3">
+                            <label for="perfilUsuario">Perfil de Usuário</label>
+					          <p:selectManyMenu id="perfilUsuario"
+								value="#{cicloConfigurarEmailBean.configuracaoEmail.perfis}"
+								converter="PerfilConverter" var="p" showCheckbox="true"
+								styleClass="ui-selectlistbox-item input_100P" label="Perfil"
+								disabled="#{cicloConfigurarEmailBean.visualizando}">
+								<f:selectItems value="#{cicloConfigurarEmailBean.perfis}" var="p" itemLabel="#{p.descricao}" itemValue="#{p}" />
+								<p:ajax event="change" listener="#{cicloConfigurarEmailBean.alterouPerfil()}"
+									 process="@this" update="tblUsuariosAdicionados"/>
+								<p:column>
+									<h:outputText value="#{p.descricao}" style="float:left;white-space:nowrap;text-align:left;" />
+								</p:column>
+							</p:selectManyMenu>
+                        </div>
+                        
+                        <div class="col-xs-3">
+                            <label for="periodoCiclo">Período do Ciclo*</label>
+							<p:selectManyMenu id="periodoCiclo"
+								value="#{cicloConfigurarEmailBean.configuracaoEmail.fasesCiclo}"
+								var="f" showCheckbox="true" required="true"
+								converter="FaseConverter"
+								styleClass="ui-selectlistbox-item input_100P" label="Período do Ciclo"
+								disabled="#{cicloConfigurarEmailBean.visualizando}">
+								<f:selectItems value="#{cicloConfigurarEmailBean.fasesCiclo}" var="f" 
+									itemLabel="#{f.value}" itemValue="#{f}" />
+								<p:column>
+									<h:outputText value="#{f.value}" style="float:left;white-space:nowrap;text-align:left;" />
+								</p:column>
+							</p:selectManyMenu>
+							<p:message for="periodoCiclo"/>
+                        </div>
+                        
+                        <div class="col-xs-3">
+                            <label for="periodicidadeEnvio">Períodicidade</label>
+							<p:selectManyMenu id="periodicidadeEnvio"
+								value="#{cicloConfigurarEmailBean.configuracaoEmail.periodicidades}"
+								converter="PeriodicidadeConverter"
+								var="p" showCheckbox="true" required="true"
+								styleClass="ui-selectlistbox-item input_100P" label="Períodicidade"
+								disabled="#{cicloConfigurarEmailBean.visualizando}">
+								<f:selectItems value="#{cicloConfigurarEmailBean.periodicidades}" var="p" 
+									itemLabel="#{p.value}" itemValue="#{p}" />
+								<p:column>
+									<h:outputText value="#{p.value}" style="float:left;white-space:nowrap;text-align:left;" />
+								</p:column>
+							</p:selectManyMenu>
+							<p:message for="periodicidadeEnvio"/>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+							<h:selectBooleanCheckbox value="#{cicloConfigurarEmailBean.cicloConfiguracao.enviarEmailComPendencia}">
+								<p:ajax event="change" process="@this"/>
+							</h:selectBooleanCheckbox>
+							Enviar e-mail com pendências para auditor, colaborador e gerente na fase de auditoria.
+						</div>
+                    </div> 
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <label for="btmodalUnidade">Unidade</label>
+                            <p:commandLink id="btmodalUnidade" styleClass="btn btn-azul marginL15px" value="Adicionar"
+								onsuccess="jQuery('#modalUnidade').modal('show');"
+								rendered="#{not cicloConfigurarEmailBean.visualizando}"
+								actionListener="#{cicloConfigurarEmailBean.prepararModalVincularUnidades()}"
+								update=":formUnidade" process="@this" />
+                        </div>
+                    </div>
+                    <div class="row marginT10px">
+                        <div class="col-xs-16"> 
+                            <div class="titulo-tabela bgCorPadrao cinzaFonte">Unidades</div>
+                            <p:message for="tblUnidadesSelecionadas"/>
+	                        <p:dataTable var="un"
+								value="#{cicloConfigurarEmailBean.configuracaoEmail.unidades}"
+								tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+								id="tblUnidadesSelecionadas"
+								paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+								emptyMessage="Nenhuma unidade selecionada"
+								rowIndexVar="index">
+	
+								<p:column headerText="#" styleClass="text-center width-col-peq">
+							            #{index+1}
+							    </p:column>
+	
+								<p:column headerText="Unidade" styleClass="text-center">
+							            #{un.descricaoComCodigo}
+							    </p:column>
+	
+								<p:column headerText="Editar" rendered="#{not cicloConfigurarEmailBean.visualizando}"
+									styleClass="text-center width-col-peq">
+									<p:commandLink
+										actionListener="#{cicloConfigurarEmailBean.prepararModalVincularUnidadesEditar()}"
+										oncomplete="jQuery('#modalUnidade').modal('show');" update=":formUnidade" process="@this">
+										<i class="fa fa-pencil-square-o"></i>
+										<f:param name="cid" value="#{cicloConfigurarEmailBean.conversation.id}" />
+									</p:commandLink>
+								</p:column>
+	
+								<p:column headerText="Excluir" rendered="#{not cicloConfigurarEmailBean.visualizando}"
+									styleClass="text-center width-col-peq">
+									<p:commandLink
+										oncomplete="jQuery('#modalConfirmacaoExcluirUnidade').modal('show');" process="@this">
+										<i class="fa fa-trash-o"></i>
+										<f:param name="cid"	value="#{cicloConfigurarEmailBean.conversation.id}" />
+										<f:setPropertyActionListener value="#{un}" target="#{cicloConfigurarEmailBean.unidadeSelecionada}" />
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+                        </div>
+                    </div>
+                    <div class="row marginT10px">
+                        <div class="col-xs-16">
+                            <label for="nomeUsuario">Nome do Usuário</label>
+                            <p:commandLink id="btmodalUsuario" styleClass="btn btn-azul marginL15px" value="Adicionar"
+								onsuccess="jQuery('#modalUsuario').modal('show');"
+								rendered="#{not cicloConfigurarEmailBean.visualizando}"
+								actionListener="#{cicloConfigurarEmailBean.prepararModalVincularUsuarios()}"
+								update=":formUsuario" process="@this"/>
+                        </div>
+                    </div>
+                    <div class="row marginT10px">
+                        <div class="col-xs-16"> 
+                            <div class="titulo-tabela bgCorPadrao cinzaFonte">Usuários adicionados</div>
+                            <p:message for="tblUsuariosAdicionados"/>
+                            <p:dataTable var="obj" value="#{cicloConfigurarEmailBean.configuracaoEmail.usuarios}" 
+							    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+			                  		id="tblUsuariosAdicionados" 
+			                  		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+			                  		emptyMessage="Nenhum usuário selecionado" rowIndexVar="index">
+						        
+						        <p:column headerText="#" styleClass="text-center width-col-peq">
+						            #{index+1}
+						        </p:column>
+						        
+						        <p:column headerText="Usuário Adicionado" styleClass="text-center">
+						            #{obj.nome}
+						        </p:column>
+						 
+						        <p:column headerText="Editar" styleClass="text-center width-col-peq">
+						            <p:commandLink actionListener="#{cicloConfigurarEmailBean.prepararModalVincularUsuarioEditar()}"
+										oncomplete="jQuery('#modalUsuario').modal('show');" update=":formUsuario" 
+										process="@this">
+										<i class="fa fa-pencil-square-o"></i>
+										<f:param name="cid" value="#{cicloConfigurarEmailBean.conversation.id}"/>
+									</p:commandLink>
+						        </p:column>
+						 
+						        <p:column headerText="Excluir" styleClass="text-center width-col-peq">
+						            <p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirUsuario').modal('show');" 
+										process="@this">
+										<i class="fa fa-trash-o"></i>
+										<f:param name="cid" value="#{cicloConfigurarEmailBean.conversation.id}"/>
+										<f:setPropertyActionListener value="#{obj}" target="#{cicloConfigurarEmailBean.usuarioSelecionado}"/>
+									</p:commandLink>
+						        </p:column>
+						    </p:dataTable>
+                        </div>
+                    </div>
+                    
+                    <div class="row marginT10px">
+                        <div class="col-xs-8">
+                            <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                        </div>
+                        <div class="col-xs-8">
+	                       	 <p:commandLink value="Inserir Parâmetro"
+								styleClass="btn btn-azul floatR marginL10px"
+								actionListener="#{cicloConfigurarEmailBean.inserirParametro()}"
+								update=":form-configuracao-email"
+								rendered="#{empty cicloConfigurarEmailBean.configuracaoEmail.id and not cicloConfigurarEmailBean.visualizando}" />
+
+							<p:commandLink value="Salvar Parâmetro"
+								styleClass="btn btn-azul floatR marginL10px" style="margin-left:10px;"
+								actionListener="#{cicloConfigurarEmailBean.alterarParametro()}"
+								update=":form-configuracao-email"
+								rendered="#{not empty cicloConfigurarEmailBean.configuracaoEmail.id and not cicloConfigurarEmailBean.visualizando}" />
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Configurações Salvas</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row marginT10px">
+                        <div class="col-xs-16"> 
+                            <p:dataTable var="obj" value="#{cicloConfigurarEmailBean.cicloConfiguracao.configuracoesEmails}" 
+							    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+			                  		id="tblParametros" 
+			                  		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+			                  		emptyMessage="Nenhum parâmetro a ser exibido" rowIndexVar="index">
+						        
+						        <p:column headerText="Perfil do Usuário" styleClass="text-center">
+						        	<table class="table-no-border">
+										<tbody>
+											<ui:repeat var="p" value="#{obj.perfis}">
+												<tr>
+													<td>#{p.descricao}</td>
+												</tr>
+											</ui:repeat>
+										</tbody>
+									</table>
+						        </p:column>
+						        
+						        <p:column headerText="Unidades" styleClass="text-center">
+						        	<table class="table-no-border">
+										<tbody>
+											<ui:repeat var="un" value="#{obj.unidades}">
+												<tr>
+													<td>#{un.descricao}</td>
+												</tr>
+											</ui:repeat>
+										</tbody>
+									</table>
+						        </p:column>
+						        
+						        <p:column headerText="Nome do Usuário" styleClass="text-center">
+						        	<table class="table-no-border">
+										<tbody>
+											<ui:repeat var="usu" value="#{obj.usuarios}">
+												<tr>
+													<td>#{usu.nome}</td>
+												</tr>
+											</ui:repeat>
+										</tbody>
+									</table>
+						        </p:column>
+						        
+						        <p:column headerText="Período do Ciclo" styleClass="text-center">
+						        	<table class="table-no-border">
+										<tbody>
+											<ui:repeat var="usu" value="#{obj.fasesCiclo}">
+												<tr>
+													<td>#{usu.value}</td>
+												</tr>
+											</ui:repeat>
+										</tbody>
+									</table>
+						        </p:column>
+						        
+						        <p:column headerText="Periodicidade" styleClass="text-center">
+						        	<table class="table-no-border">
+										<tbody>
+											<ui:repeat var="usu" value="#{obj.periodicidades}">
+												<tr>
+													<td>#{usu.value}</td>
+												</tr>
+											</ui:repeat>
+										</tbody>
+									</table>
+						        </p:column>
+						 
+						        <p:column headerText="Editar" styleClass="text-center width-col-peq" rendered="#{not cicloConfigurarEmailBean.visualizando}">
+						        	<p:commandLink oncomplete="irPara();" actionListener="#{cicloConfigurarEmailBean.editar(obj)}" update=":form-configuracao-email" process="@this"> 
+										<i class="fa fa-pencil-square-o"></i>
+										<f:param name="cid" value="#{cicloConfigurarEmailBean.conversation.id}"/>
+									</p:commandLink>
+						       </p:column>
+		
+								<p:column headerText="Excluir" styleClass="text-center width-col-peq" rendered="#{not cicloConfigurarEmailBean.visualizando}">
+						        	<p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirParametro').modal('show');" process="@this"> 
+										<i class="fa fa-trash-o"></i>
+										<f:setPropertyActionListener value="#{obj}" target="#{cicloConfigurarEmailBean.configuracaoEmail}" />
+										<f:param name="cid" value="#{cicloConfigurarEmailBean.conversation.id}"/>
+									</p:commandLink>
+						        </p:column>
+						    </p:dataTable>
+                        </div>
+                    </div>
+			 </h:form>
+			 
+			 <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{cicloConfigurarEmailBean.excluir()}"
+				modalMensagem="O parâmetro será excluído. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirParametro').modal('hide')"
+				modalId="modalConfirmacaoExcluirParametro" update=":form-configuracao-email"/>
+	
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloConfigurarEmailBean.desvincularUnidade()}"
+				modalMensagem="A Unidade será desvinculada. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirUnidade').modal('hide')"
+				modalId="modalConfirmacaoExcluirUnidade"
+				update=":form-configuracao-email:tblUnidadesSelecionadas" />
+	
+				<div class="modal fade" id="modalUnidade" tabindex="-1"	role="dialog" aria-labelledby="modalUnidade" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<h:form id="formUnidade">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">
+										<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+									</button>
+									<h4 class="modal-title">Adicionar Unidade Associada</h4>
+								</div>
+								<div class="modal-body">
+									<p:messages for="formUnidade" autoUpdate="true" />
+									<div class="row">
+			                    		<div class="col-xs-8">
+			                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+			                    				onclick="selecioanarTodosLista();" styleClass="btn"/>  
+			                    		</div>
+			                    	</div>
+									<div class="row marginT05px">
+										<div class="col-xs-16">
+											<p:selectManyMenu id="nomeBusca"
+												value="#{cicloConfigurarEmailBean.unidadesSelecionadasVincular}"
+												converter="UnidadeAutocompleteConverter" var="t" filter="true"
+												filterMatchMode="contains" showCheckbox="true"
+												styleClass="ui-selectlistbox-item input_100P"
+												style="width: 100% !important"
+												ondblclick="jQuery('.btn_add_unidades').click();">
+												<f:selectItems
+													value="#{cicloConfigurarEmailBean.unidadesDisponiveis}" var="uv"
+													itemLabel=" #{uv.descricaoComCodigo}" itemValue="#{uv}" />
+												<p:column>
+													<h:outputText value=" #{t.descricaoComCodigo}" style="float:left;white-space:nowrap;text-align:left;" />
+												</p:column>
+											</p:selectManyMenu>
+											<p:message for="nomeBusca" />
+		
+										<SCRIPT type="text/javascript">
+											function selecioanarTodosLista(){
+												if(jQuery('#formUnidade .ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+													$('#modalConfirmacaoSelecaoLista').modal('show');
+												}else{
+														jQuery('#formUnidade .ui-selectlistbox-list .ui-chkbox-box :visible').click();
+												}
+											}
+				                          </SCRIPT>
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<div class="row">
+										<div class="col-xs-8">
+											<p class="campos-obrigatorios text-left"></p>
+										</div>
+										<div class="col-xs-8">
+											<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+											<p:commandLink styleClass="btn btn-primary btn_add_unidades"
+												value="Incluir"
+												actionListener="#{cicloConfigurarEmailBean.vincularUnidades()}"
+												update=":form-configuracao-email:tblUnidadesSelecionadas"
+												oncomplete="jQuery('#modalUnidade').modal('hide');">
+												<f:param name="cid"	value="#{cicloConfigurarEmailBean.conversation.id}" />
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+							</h:form>
+						</div>
+					</div>
+				</div>
+				
+				<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+				modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, Ã© recomendÃ¡vel filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta aÃ§Ã£o?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+				modalId="modalConfirmacaoSelecaoLista"/>
+				
+				<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloConfigurarEmailBean.desvincularUsuario()}"
+				modalMensagem="O Usuário será desvinculado. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirUsuario').modal('hide')"
+				modalId="modalConfirmacaoExcluirUsuario"
+				update=":form-configuracao-email:tblUsuariosAdicionados" />
+	
+				<div class="modal fade" id="modalUsuario" tabindex="-1"	role="dialog" aria-labelledby="modalUsuario" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<h:form id="formUsuario">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">
+										<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+									</button>
+									<h4 class="modal-title">Adicionar Usuário</h4>
+								</div>
+								<div class="modal-body">
+									<p:messages for="formUsuario" autoUpdate="true" />
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<p:commandButton value="Selecionar Todos"
+											id="btnSelecionarTodos"
+											onclick="selecioanarTodosListaUsuario();" styleClass="btn" />
+									</div>
+								</div>
+								<div class="row marginT05px">
+									<div class="col-xs-16">
+
+										<p:selectManyMenu id="listaVincular"
+											value="#{cicloConfigurarEmailBean.usuariosSelecionadasVincular}"
+											converter="UsuarioConverter" var="t" filter="true"
+											filterMatchMode="contains" showCheckbox="true"
+											styleClass="ui-selectlistbox-item input_100P"
+											style="width: 100% !important"
+											ondblclick="jQuery('.btn_add_usuario').click();">
+											<f:selectItems
+												value="#{cicloConfigurarEmailBean.usuariosDisponiveis}"
+												var="uv" itemLabel="#{uv.nome}" itemValue="#{uv}" />
+											<p:column>
+												<h:outputText value="#{t.nome}"
+													style="float:left;white-space:nowrap;text-align:left;" />
+											</p:column>
+										</p:selectManyMenu>
+										<p:message for="listaVincular" />
+
+										<SCRIPT type="text/javascript">
+										function selecioanarTodosListaUsuario(){
+											if(jQuery('#formUsuario .ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+												$('#modalConfirmacaoSelecaoLista').modal('show');
+											}else{
+												 jQuery('#formUsuario .ui-selectlistbox-list .ui-chkbox-box :visible').click();
+											}
+										}
+		                             </SCRIPT>
+									</div>
+								</div>
+								</div>
+								<div class="modal-footer">
+									<div class="row">
+										<div class="col-xs-8">
+											<p class="campos-obrigatorios text-left"></p>
+										</div>
+										<div class="col-xs-8">
+											<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+											<p:commandLink styleClass="btn btn-primary"
+												value="Incluir"
+												actionListener="#{cicloConfigurarEmailBean.vincularUsuarios()}"
+												update=":form-configuracao-email:tblUsuariosAdicionados"
+												oncomplete="jQuery('#modalUsuario').modal('hide');">
+												<f:param name="cid"	value="#{cicloConfigurarEmailBean.conversation.id}" />
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+							</h:form>
+						</div>
+					</div>
+				</div>
+				
+				 <div class="row marginT30px">
+                  <div class="col-xs-16">
+                  	  <h:form>
+                  		<h:commandLink styleClass="btn btn-azul floatR marginL10px" immediate="true"
+												action="#{cicloConfigurarEmailBean.mensagemSucesso}">Continuar Configuração</h:commandLink>
+                      </h:form>
+                  </div>
+              </div>
+         </div>
+         <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+			modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, não é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+			modalId="modalConfirmacaoSelecaoLista"/>
+	</ui:define>
+</ui:composition>

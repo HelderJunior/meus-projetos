@@ -1,0 +1,742 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:func="http://br.gov.sebrae/funcoes"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="#{appBean.back()}">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><a href="#{facesContext.externalContext.requestContextPath}">#{appBean.nomeBreadcrumbinicial}</a>
+		</li>
+		<li><h:commandLink action="/pages/meta-desenvolvimento/listar.xhtml" value="Desenvolvimento"/></li>
+		<li>
+			<ui:fragment
+				rendered="#{manterMetaDesenvolvimentoBean.meta.id eq null}">
+				<a href="#">Inserir</a>
+			</ui:fragment> 
+			<ui:fragment rendered="#{manterMetaDesenvolvimentoBean.meta.id ne null and not manterMetaDesenvolvimentoBean.visualizando}">
+				<a href="#">Editar</a>
+			</ui:fragment>
+			<ui:fragment rendered="#{manterMetaDesenvolvimentoBean.meta.id ne null and manterMetaDesenvolvimentoBean.visualizando}">
+				<a href="#">Visualizar</a>
+			</ui:fragment>
+		</li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{manterMetaDesenvolvimentoBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true"/>
+
+		 <div class="content">
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<ui:fragment rendered="#{manterMetaDesenvolvimentoBean.meta.id eq null}">
+						<p class="titulo-sem-marcador" id="inserirMeta">Inserir Meta de Desenvolvimento</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{manterMetaDesenvolvimentoBean.meta.id ne null and not manterMetaDesenvolvimentoBean.visualizando}">
+						<p class="titulo-sem-marcador">Editar Meta de Desenvolvimento</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{manterMetaDesenvolvimentoBean.meta.id ne null and manterMetaDesenvolvimentoBean.visualizando}">
+						<p class="titulo-sem-marcador">Visualizar Meta de Desenvolvimento</p>
+					</ui:fragment>
+				</div>
+			</div>
+			<h:form styleClass="form-horizontal" role="form" id="form_meta_desenvolvimento">
+                    <div class="row marginT20px">
+                        <div class="col-xs-8">
+                            <label for="codigoMeta">Código da Meta de Desenvolvimento</label>
+                            <p:inputText styleClass="form-control" disabled="true" id="codigo" value="#{manterMetaDesenvolvimentoBean.meta.codigo}"/>
+                        </div>
+                        <div class="col-xs-8">
+                            <label for="descricaoMeta">Descrição da Meta de Desenvolvimento*</label>
+                            <p:inputText id="descricaoMeta" styleClass="form-control" placeholder="Descrição da Meta" disabled="#{manterMetaDesenvolvimentoBean.visualizando}"
+                            	value="#{manterMetaDesenvolvimentoBean.meta.resultadosEsperados}" label="Descrição da Meta de Desenvolvimento"
+                            	required="true"/>
+                            <p:message for="descricaoMeta"/>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <label>Vincular sua Meta de Desenvolvimento a uma das Metas de Equipe abaixo*</label>
+                            <p:message for="tbl_metas_equipe_vincular"/>
+                            <p:dataTable var="m" value="#{manterMetaDesenvolvimentoBean.metasEquipeVincular}" 
+	                            tableStyleClass="table table-striped table-bordered bgCorDesenvolvimentoFraco"
+		                   		id="tbl_metas_equipe_vincular" emptyMessage="Nenhuma meta de equipe disponível">
+						        <p:column headerText="#" styleClass="text-center" width="30">
+						        	<h:selectBooleanCheckbox value="#{m.selecionado}" disabled="#{manterMetaDesenvolvimentoBean.visualizando}" />
+						        </p:column>
+						        <p:column headerText="Descricao" styleClass="text-center">
+						        	<h:outputText value="#{m.resultadosEsperados}" />
+						        </p:column>
+						        <p:column headerText="Status" styleClass="text-center" width="150">
+						            <h:outputText value="#{m.statusAtual.value}" />
+						        </p:column>
+					    	</p:dataTable>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <label>Vincular sua Meta de Desenvolvimento a uma das Metas Individuais de Desempenho abaixo*</label>
+                            <p:message for="tbl_metas_individual_vincular"/>
+                            <p:dataTable var="m" value="#{manterMetaDesenvolvimentoBean.metasIndividualVincular}" 
+	                            tableStyleClass="table table-striped table-bordered bgCorDesenvolvimentoFraco"
+		                   		id="tbl_metas_individual_vincular" emptyMessage="Nenhuma meta individual disponível">
+						        
+						        <p:column headerText="#" styleClass="text-center" width="30">
+						        	<h:selectBooleanCheckbox value="#{m.selecionado}" disabled="#{manterMetaDesenvolvimentoBean.visualizando}"/>
+						        </p:column>
+						        
+						        <p:column headerText="Descricao" styleClass="text-center">
+						        	<h:outputText value="#{m.resultadosEsperados}" />
+						        </p:column>
+						 
+						        <p:column headerText="Status" styleClass="text-center" width="150">
+						            <h:outputText value="#{m.statusAtual.value}" />
+						        </p:column>
+					    	</p:dataTable>
+                        </div>
+                    </div>
+                    <div class="row marginT20px">
+                        <div class="col-xs-16">
+                            <label>Competências*</label>
+                            <p:message for="tbl_competencias_vincular"/>
+                            <p:dataTable var="c" value="#{manterMetaDesenvolvimentoBean.competenciasVincular}" 
+	                            tableStyleClass="table table-striped table-bordered bgCorDesenvolvimentoFraco"
+	                            paginator="true" rows="5" paginatorPosition="bottom" 
+	                   			paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+		                   		id="tbl_competencias_vincular" emptyMessage="Nenhuma competencia disponível">
+						        
+						        <p:column headerText="#" styleClass="text-center" width="30">
+						        	<h:selectBooleanCheckbox value="#{c.selecionado}" disabled="#{manterMetaDesenvolvimentoBean.visualizando}"/>
+						        </p:column>
+						        
+						        <p:column headerText="Competências" styleClass="text-center">
+						        	<h:outputText value="#{c.competenciaDescricao}" />
+						        </p:column>
+						 
+						        <p:column headerText="Nível de Proficiência" styleClass="text-center" width="200">
+						            <h:outputText value="#{c.competenciaNivelProficiencia}" />
+						        </p:column>
+					    	</p:dataTable>
+                        </div>
+                    </div>
+                    <div class="row marginT20px">
+                        <div class="col-xs-16">
+                            <label>Objetivos Estratégicos da Unidade*</label>
+                            <p:message for="tbl_objetivos_estrategicos_unidade"/>
+                            <p:dataTable var="o" value="#{manterMetaDesenvolvimentoBean.objetivosEstrategicosVincular}" 
+	                            tableStyleClass="table table-striped table-bordered bgCorDesenvolvimentoFraco"
+		                   		id="tbl_objetivos_estrategicos_unidade" 
+		                   		emptyMessage="Nenhum objetivo estratético disponível">
+						        
+						        <p:column headerText="#" styleClass="text-center" width="30">
+						        	<h:selectBooleanCheckbox value="#{o.selecionado}" disabled="#{manterMetaDesenvolvimentoBean.visualizando}"/>
+						        </p:column>
+						        
+						        <p:column headerText="Objetivos" styleClass="text-center">
+						        	<h:outputText value="#{o.nome}" />
+						        </p:column>
+						 
+						        <p:column headerText="Descrição do Objetivo Estratégico" styleClass="text-center">
+						            <h:outputText value="#{o.descricao}" />
+						        </p:column>
+					    	</p:dataTable>
+                        </div>
+                    </div>
+                    <div class="row marginT20px">
+                        <div class="col-xs-16">
+                            <label for="solucaoEducacional">Solução Educacional*</label>
+                            <p:commandLink styleClass="btn btn-azul marginL15px" oncomplete="jQuery('#modalSolucaoEducacional').modal('show');"
+                            	rendered="#{not manterMetaDesenvolvimentoBean.visualizando}" process="@this" update=":form_solucao_educacional"
+                            	actionListener="#{manterMetaDesenvolvimentoBean.prepararAdicaoSolucaoEducacional()}" value="Adicionar">
+                            	<f:setPropertyActionListener value="#{false}" target="#{manterMetaDesenvolvimentoBean.editandoSolucao}" />
+                            	<f:setPropertyActionListener value="#{false}" target="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}" />
+                            </p:commandLink>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Configurações Salvas</p>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                        	<p:message for="tbl_solucoes_educationais"/>
+                            <p:dataTable var="se" value="#{manterMetaDesenvolvimentoBean.meta.solucoesEducacionais}" 
+	                            tableStyleClass="table table-striped table-bordered bgCorDesenvolvimentoFraco"
+		                   		id="tbl_solucoes_educationais" 
+		                   		emptyMessage="Nenhuma solução educacional adicionada">
+						        
+						        <p:column headerText="Solução Educacional" styleClass="text-center">
+						        	<h:outputText value="#{se.solucaoEducacional.nome}" />
+						        </p:column>
+						 
+						        <p:column headerText="Forma de Aquisição" styleClass="text-center">
+						            <h:outputText value="#{se.solucaoEducacional.formaAquisicao.nome}" />
+						        </p:column>
+						        
+						        <p:column headerText="Vínculo Ocupacional" styleClass="text-center">
+						            <h:outputText value="#{se.vinculoOcupacional.value}" />
+						        </p:column>
+						        
+						        <p:column headerText="Status da Soluçãol" styleClass="text-center">
+						            <h:outputText value="#{se.status.value}" />
+						        </p:column>
+						        
+						        <p:column headerText="Carga Horária" styleClass="text-center">
+						            <h:outputText value="#{se.quantidadePrevista}" />
+						        </p:column>
+						        
+						         <p:column headerText="Pontuação" styleClass="text-center">
+						            <h:outputText value="#{se.pontuacaoPrevista}" />
+						        </p:column>
+						        
+						        <p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+						           <p:commandLink process="@this" update=":form_solucao_educacional" 
+						           		action="#{manterMetaDesenvolvimentoBean.prepararAlteracaoSolucaoEducacional()}"
+						           		oncomplete="jQuery('#modalSolucaoEducacional').modal('show');">
+						           		<i class="fa fa-eye"></i>
+						           		<f:setPropertyActionListener value="#{se}" target="#{manterMetaDesenvolvimentoBean.solucaoSelecionada}"/>
+						           		<f:setPropertyActionListener value="#{true}" target="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}" />
+						           		<f:setPropertyActionListener value="#{false}" target="#{manterMetaDesenvolvimentoBean.editandoSolucao}" />
+						           		<f:param name="cid" value="#{manterMetaDesenvolvimentoBean.conversation.id}"/>
+						           </p:commandLink>
+						        </p:column>
+						        
+						        <p:column headerText="Editar" styleClass="text-center width-col-peq" rendered="#{not manterMetaDesenvolvimentoBean.visualizando}">
+						           <p:commandLink process="@this" update=":form_solucao_educacional" action="#{manterMetaDesenvolvimentoBean.prepararAlteracaoSolucaoEducacional()}"
+						           		oncomplete="jQuery('#modalSolucaoEducacional').modal('show');">
+						           		<i class="fa fa-pencil-square-o"></i>
+						           		<f:setPropertyActionListener value="#{se}" target="#{manterMetaDesenvolvimentoBean.solucaoEducacionalEditando}"/>
+						           		<f:setPropertyActionListener value="#{false}" target="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}"/>
+						           		<f:setPropertyActionListener value="#{true}" target="#{manterMetaDesenvolvimentoBean.editandoSolucao}" />
+						           		<f:param name="cid" value="#{manterMetaDesenvolvimentoBean.conversation.id}"/>
+						           </p:commandLink>
+						        </p:column>
+						        
+						        <p:column headerText="Excluir" styleClass="text-center width-col-peq" rendered="#{not manterMetaDesenvolvimentoBean.visualizando}">
+						           <p:commandLink process="@this" oncomplete="jQuery('#modalExcluirSolucao').modal('show');">
+						           		<i class="fa fa-trash-o"></i>
+						           		<f:setPropertyActionListener value="#{se}" target="#{manterMetaDesenvolvimentoBean.solucaoSelecionada}"/>
+						           		<f:param name="cid" value="#{manterMetaDesenvolvimentoBean.conversation.id}"/>
+						           </p:commandLink>
+						        </p:column>
+						        
+						        <p:column headerText="Anexo" styleClass="text-center width-col-peq" rendered="#{se.podeAdicionarAnexo}">
+						           <p:commandLink process="@this" oncomplete="jQuery('#modalAnexo').modal('show');" 
+						           		update=":form_anexo_desenvolvimento">
+						           		<i class="fa fa-paperclip"></i>
+						           		<f:setPropertyActionListener value="#{se}" target="#{manterMetaDesenvolvimentoBean.solucaoSelecionada}"/>
+						           </p:commandLink>
+						        </p:column>
+					    	</p:dataTable>
+                        </div>
+                    </div>
+                    
+                     <div class="row marginT20px" jsf:rendered="#{not empty manterMetaDesenvolvimentoBean.meta.justificativaPendencia}">
+                        <div class="col-xs-16">
+                            <label>Justificativa da Pendência</label>
+                            <p:inputTextarea id="justificativaPendencia" styleClass="form-control" value="#{manterMetaDesenvolvimentoBean.meta.justificativaPendencia}" 
+                            	placeholder="Justificativa da Pendência" rows="3" disabled="true"/>
+                            <p:message for="justificativaPendencia"/>
+                        </div>
+                    </div>
+                    <div class="row marginT20px" jsf:rendered="#{not empty manterMetaDesenvolvimentoBean.meta.justificativanaoValidacao}">
+                        <div class="col-xs-16">
+                            <label>Justificativa de Não Validação</label>
+                            <p:inputTextarea id="justificativaNaoValidacao" styleClass="form-control" value="#{manterMetaDesenvolvimentoBean.meta.justificativanaoValidacao}" 
+                            	placeholder="Justificativa de Não Validação" rows="3" disabled="true"/>
+                            <p:message for="justificativaNaoValidacao"/>
+                        </div>
+                    </div>
+                    
+                     <ui:fragment rendered="#{not empty manterMetaDesenvolvimentoBean.meta.id}">
+                     <div class="row">
+                     	<div class="col-xs-16">
+                            <div class="form-group">
+                                <label>
+                                    <p:commandLink process="@this" oncomplete="jQuery('#modalLog').modal('show');"
+                                    	actionListener="#{manterMetaDesenvolvimentoBean.obterRegistrosLog()}" update=":form_registros_log">
+                                    	Visualizar LOG de alterações <i class="fa fa-search azul"></i>
+                                    </p:commandLink>
+                                </label>
+                            </div>
+                    	</div>
+                    </div>
+                    </ui:fragment>
+                                
+                    <div class="row marginT20px">
+                        <div class="col-xs-4">
+                            <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                        </div>
+                        <div class="col-xs-12">
+                        	<h:commandLink action="#{manterMetaDesenvolvimentoBean.salvarMeta()}" rendered="#{not manterMetaDesenvolvimentoBean.visualizando}"
+                        		styleClass="btn btn-azul floatR marginL10px" value="Salvar e Continuar Pendente"/>
+                        	<h:commandLink action="#{manterMetaDesenvolvimentoBean.enviarAprovacao()}" rendered="#{not manterMetaDesenvolvimentoBean.visualizando}"
+                        		styleClass="btn btn-azul floatR marginL10px" value="Enviar para Aprovação"/>	
+                        	<h:commandLink value="Cancelar" styleClass="btn btn-azul floatR" action="#{appBean.back}"
+                        		 immediate="true"/>	
+                        </div>
+                    </div>
+			</h:form>
+		</div>
+		
+		<div class="modal fade" id="modalSolucaoEducacional" tabindex="-1" role="dialog" aria-labelledby="modalSolucaoEducacional" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="form_solucao_educacional">
+	                    <div class="modal-header">
+	                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+	                        <ui:fragment rendered="#{not manterMetaDesenvolvimentoBean.editandoSolucao and not manterMetaDesenvolvimentoBean.visualizandoSolucao}">
+	                        	<h4 class="modal-title">Inserir Solução Educacional</h4>
+	                        </ui:fragment>
+	                        
+	                        <ui:fragment rendered="#{manterMetaDesenvolvimentoBean.editandoSolucao}">
+	                        	<h4 class="modal-title">Editando Solução Educacional</h4>
+	                        </ui:fragment>
+	                        
+	                        <ui:fragment rendered="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}">
+	                        	<h4 class="modal-title">Visualizando Solução Educacional</h4>
+	                        </ui:fragment>
+	                    </div>
+	                    <div class="modal-body">
+	                    	<p:messages for="form_solucao_educacional"/>
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <label for="solucoesEducacionais">Categoria*</label>
+	                                <h:selectOneMenu id="categoria" disabled="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}"
+										value="#{manterMetaDesenvolvimentoBean.categoria}" styleClass="form-control"
+										converter="CategoriaConverter" label="Categoria">
+										<f:selectItem itemLabel="Selecione" />
+										<f:selectItems value="#{manterMetaDesenvolvimentoBean.categorias}" 
+											var="c" itemLabel="#{c.nome}" itemValue="#{c}" />
+										<p:ajax process="@this" update=":form_solucao_educacional" 
+											listener="#{manterMetaDesenvolvimentoBean.alterouCategoria()}"/>
+									</h:selectOneMenu>
+									<p:message for="categoria"/>
+	                            </div>
+	                        </div>
+	                        <div class="infoCategoria" jsf:id="infoCategoria" >
+	                        	<div class="row" jsf:rendered="#{not empty manterMetaDesenvolvimentoBean.categoria}">
+	                        		<div class="col-xs-16 marginT10px"><p>
+	                        			<i class="fa fa-info fontsize15px marginR10px"></i>
+	                        			#{manterMetaDesenvolvimentoBean.categoria.descricao}
+	                        		</p>
+	                        		</div>
+	                        	</div>
+	                        </div>
+	                        <div class="row marginT10px">
+	                            <div class="col-xs-16">
+	                                 <label for="formaAquisicao">Forma de Aquisição*</label>
+	                                 <h:selectOneMenu id="formaAquisicao" disabled="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}"
+										value="#{manterMetaDesenvolvimentoBean.formaAquisicao}" 
+										styleClass="form-control" converter="FormaAquisicaoConverter"
+										label="Forma de Aquisição">
+										<f:selectItem itemLabel="Selecione" />
+										<f:selectItems value="#{manterMetaDesenvolvimentoBean.formasAquisicao}" 
+											var="fa" itemLabel="#{fa.nome}" itemValue="#{fa}" />
+										<p:ajax event="change" update=":form_solucao_educacional" process="@this" 
+											listener="#{manterMetaDesenvolvimentoBean.alterouFormaAquisicao()}"/>
+									  </h:selectOneMenu>
+									  <p:message for="formaAquisicao"/>
+	                            </div>
+	                        </div>
+	                        <div class="infosAquisicao" jsf:id="infosAquisicao" >
+	                        	<div class="row" jsf:rendered="#{not empty manterMetaDesenvolvimentoBean.formaAquisicao}">
+	                        		<div class="col-xs-16 marginT10px">
+	                        		<p>
+	                        			<i class="fa fa-info fontsize15px marginR10px"></i>
+	                        			#{manterMetaDesenvolvimentoBean.formaAquisicao.descricao}</p>
+	                        		</div>
+	                        	</div>
+	                        </div>
+	                        
+	                        <div class="row marginT15px" jsf:id="formaComprovacao">
+	                        	<div class="col-xs-16">
+	                        		<label for="formaAquisicao">Forma de Comprovação</label>
+	                        		<p>#{manterMetaDesenvolvimentoBean.formaAquisicao.validacao.nome}</p>
+	                        	</div>
+	                        </div>
+	                        
+	                        <div class="row marginT10px" jsf:rendered="#{not empty manterMetaDesenvolvimentoBean.formaAquisicao and manterMetaDesenvolvimentoBean.formaAquisicao.tipoCargaHoraria eq 'U'}">
+	                            <div class="col-xs-16">
+	                                <label for="solucaoEducacional">Selecione a Soluçao*</label>
+	                                <h:selectOneMenu id="solucaoEducacional" converter="SEConverter"
+	                                	disabled="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}"
+	                                	value="#{manterMetaDesenvolvimentoBean.solucaoSelecionada.solucaoEducacional}"	
+	                                	styleClass="form-control" required="true" label="Solução Educacional">
+										<f:selectItem itemLabel="Selecione" />
+										<f:selectItems value="#{manterMetaDesenvolvimentoBean.solucoesEducacionais}" 
+											var="se" itemLabel="#{se.nome}" itemValue="#{se}" />
+										<p:ajax event="change" process="@this" update="painelValores" 
+											listener="#{manterMetaDesenvolvimentoBean.alterouSolucaoEducacional()}"/>
+									</h:selectOneMenu>
+									<p:message for="solucaoEducacional" />
+	                            </div>
+	                        </div>
+	                        
+	                        <div class="row marginT15px" jsf:rendered="#{not empty manterMetaDesenvolvimentoBean.formaAquisicao and manterMetaDesenvolvimentoBean.formaAquisicao.tipoCargaHoraria ne 'U'}">
+	                        	<div class="col-xs-16">
+	                        		<label for="nomeSolucao">Nome da Solução*</label>
+	                        		<h:inputText id="nomeSolucao" value="#{manterMetaDesenvolvimentoBean.solucaoSelecionada.solucaoEducacional.nome}" 
+	                        			disabled="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}"
+	                        			styleClass="form-control width100" maxlength="150" label="Nome da Solução" required="true"/>
+	                        		<p:message for="nomeSolucao"/>
+	                        	</div>
+	                        </div>
+	                        
+	                        <div class="row marginT10px">
+	                            <div class="col-xs-16">
+	                                <label for="vinculoOcupacional">Vínculo Ocupacional*</label>
+	                                <h:selectOneMenu id="vinculoOcupacional" 
+	                                	value="#{manterMetaDesenvolvimentoBean.solucaoSelecionada.vinculoOcupacional}"
+	                                	disabled="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}"	
+	                                	styleClass="form-control" required="true" label="Vínculo Ocupacional">
+										<f:selectItem itemLabel="Selecione" />
+										<f:selectItems value="#{manterMetaDesenvolvimentoBean.vinculosOcupacionais}" 
+											var="tl" itemLabel="#{tl.value}" itemValue="#{tl}" />
+									</h:selectOneMenu>
+									<p:message for="vinculoOcupacional" />
+	                            </div>
+	                        </div>
+	                        
+	                        <div class="row marginT10px" jsf:id="painelValores" jsf:rendered="#{not empty manterMetaDesenvolvimentoBean.formaAquisicao}">
+	                            <div class="col-xs-4 col-xs-offset-1">
+	                                <label class="bt-centered text-center">Carga Horária</label>
+	                                <p class="showQuant text-center marginT10px" jsf:rendered="#{manterMetaDesenvolvimentoBean.formaAquisicao.tipoCargaHoraria eq 'F'}">
+	                                	#{manterMetaDesenvolvimentoBean.formaAquisicao.cargaHoraria}
+	                                </p>
+	                               <!--  <pe:inputNumber
+	                                	rendered="#{manterMetaDesenvolvimentoBean.formaAquisicao.tipoCargaHoraria eq 'F'}"
+										value="#{manterMetaDesenvolvimentoBean.solucaoSelecionada.quantidadePrevista}"
+										disabled="#{manterMetaDesenvolvimentoBean.visualizandoSolucao}"
+										id="quantidade" converter="javax.faces.BigDecimal" converterMessage="Número inválido"
+										label="Quantidade" required="true"
+										decimalPlaces="0" styleClass="form-control2"/>
+									<p:message for="quantidade" /> -->
+	                            </div>
+	                            <div class="col-xs-4 col-xs-offset-1">
+	                                <label class="bt-centered text-center">Unidade</label>
+	                                <p class="showUnid text-center marginT10px">
+	                                	#{manterMetaDesenvolvimentoBean.solucaoSelecionada.solucaoEducacional.medidaBase}
+	                                </p>
+	                            </div>
+	                            <div class="col-xs-4 col-xs-offset-1">
+	                                <label class="bt-centered text-center">Pontuação</label>
+	                                <p class="showPont text-center marginT10px">
+	                                	<h:outputText value="#{func:formatBr(manterMetaDesenvolvimentoBean.solucaoSelecionada.pontuacaoPrevista, 3)}" />
+	                                </p>
+	                            </div>
+	                        </div>
+	                    </div>
+	                    
+	                    <div class="modal-footer">
+	                        <div class="row">
+	                            <div class="col-xs-8">
+	                                <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+	                            </div>
+	                            <div class="col-xs-8">
+	                                <button type="button" class="btn btn-azul" data-dismiss="modal">Cancelar</button>
+	                                <p:commandLink styleClass="btn btn-azul" rendered="#{not manterMetaDesenvolvimentoBean.visualizando}"
+	                                	actionListener="#{manterMetaDesenvolvimentoBean.adicionarSolucaoEducacional()}" oncomplete="fecharModal();"
+	                                	update=":form_solucao_educacional,:form_meta_desenvolvimento:tbl_solucoes_educationais">Salvar</p:commandLink>
+	                            </div>  
+	                        </div>
+	                    </div>
+	                    
+                       	<script type="text/javascript">
+							var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+							function fecharModal(){
+								if(!maximunSeverity || maximunSeverity != '2'){
+									jQuery('#modalSolucaoEducacional').modal('hide');
+								}
+							}
+                       	</script>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="modalAnexo" tabindex="-1" role="dialog" aria-labelledby="modalAnexo" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="form_anexo_desenvolvimento">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Anexos para Solução Educacional</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <label for="solucaoEducacional">Solução Educacional*</label>
+                                <h:inputText value="#{manterMetaDesenvolvimentoBean.solucaoSelecionada.solucaoEducacional.nome}" 
+                                	styleClass="form-control width100" disabled="true"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-16">
+                                <label for="selecioneComprovacao">Modelo de relatório de Comprovação*</label>
+                                <table class="table table-striped table-bordered">
+                                    <thead class="bgCorPadraoFraco">
+                                        <tr>
+                                            <th>Arquivo</th>                                                    
+                                            <th>Tipo</th>
+                                            <th class="width-col-peq">Visualizar</th>          
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    	<ui:repeat var="anexoForma" 
+                                    		value="#{appBean.cicloConfiguracaoDesenvolvimento.configuracaoFormaAquisicao.anexos}">
+	                                        <tr>
+	                                            <td>#{anexoForma.nomeExibicao}</td>
+	                                            <td>#{anexoForma.tipoDescricao}</td>
+	                                            <td class="width-col-peq">
+	                                            	<p:commandLink styleClass="btn btn-mini" id="downloadLink2" process="@this" 
+															oncomplete="jQuery('#form-download-link\\:downloadLink2').click();">
+															<i class="fa fa-eye"></i>
+													    	<f:setPropertyActionListener target="#{manterMetaDesenvolvimentoBean.indiceAnexo}" 
+													    		value="#{index}"/>  
+															<f:param name="cid" value="#{manterMetaDesenvolvimentoBean.conversation.id}"/>
+													</p:commandLink>
+	                                            </td>  
+	                                        </tr>
+                                        </ui:repeat>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <p:commandLink oncomplete="jQuery('#uploadAnexo').modal('show');" rendered="#{not manterMetaDesenvolvimentoBean.visualizando}"
+									value="Selecionar Arquivo*" styleClass="btn btn-default" process="@this"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-16">
+                             <p:dataTable var="anexo" value="#{manterMetaDesenvolvimentoBean.solucaoSelecionada.anexos}" 
+	                            	tableStyleClass="table table-striped table-bordered bgCorPadraoFraco" rowIndexVar="index"
+			                   		id="tbl_anexos" emptyMessage="Nenhum anexo adicionado">
+							        
+							        <p:column headerText="Arquivo" styleClass="text-center">
+							        	<h:outputText value="#{anexo.nomeExibicao}" />
+							        </p:column>
+							        
+							        <p:column headerText="Tipo" styleClass="text-center">
+							            <h:outputText value="#{anexo.tipoDescricao}" />
+							        </p:column>
+							        
+							        <p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+										<p:commandLink styleClass="btn btn-mini" id="downloadLink" process="@this" 
+												oncomplete="jQuery('#form-download-link\\:downloadLink').click();">
+												<i class="fa fa-eye"></i>
+										    	<f:setPropertyActionListener target="#{manterMetaDesenvolvimentoBean.indiceAnexo}" value="#{index}"/>  
+												<f:param name="cid" value="#{manterMetaDesenvolvimentoBean.conversation.id}"/>
+										</p:commandLink>
+							        </p:column>
+							 
+							        <p:column headerText="Excluir" styleClass="text-center width-col-peq" rendered="#{not manterMetaDesenvolvimentoBean.visualizando}">
+							            <p:commandLink styleClass="btn btn-mini" oncomplete="jQuery('#modalApagarAnexo').modal('show');" 
+											process="@this">
+											<i class="fa fa-trash-o"></i>
+											<f:param name="cid" value="#{manterMetaDesenvolvimentoBean.conversation.id}"/>
+											<f:setPropertyActionListener target="#{manterMetaDesenvolvimentoBean.indiceAnexo}" value="#{index}"/>
+										</p:commandLink>
+							        </p:column>
+							    </p:dataTable>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <label for="evidenciaDeEntregaModal">Endereço de publicação do Comprovante*</label>
+                                <p:inputTextarea id="evidenciaDeEntregaModal" styleClass="form-control" placeholder="Endereço de publicação do Comprovante*"
+                                	required="true" label="Endereço de publicação do Comprovante" disabled="#{manterMetaDesenvolvimentoBean.visualizando}"
+                                	rows="3" value="#{manterMetaDesenvolvimentoBean.solucaoSelecionada.enderecoPublicacaoComprovante}"/>
+                                <p:message for="evidenciaDeEntregaModal"/>
+                            </div>
+                        </div>
+                        <div class="row marginT10px">
+                            <div class="col-xs-16">
+                                <label for="obsAnexo">Observação</label>
+                                <p:inputTextarea id="obsAnexo" styleClass="form-control" placeholder="Observação" rows="3"
+                                	label="Observação" disabled="#{manterMetaDesenvolvimentoBean.visualizando}"
+                                	value="#{manterMetaDesenvolvimentoBean.solucaoSelecionada.enderecoPublicacaoComprovante}"/>
+                                <p:message for="obsAnexo"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                            </div>
+                            <div class="col-xs-8">
+                                <button type="button" class="btn btn-azul" data-dismiss="modal">Cancelar</button>
+                                <p:commandLink styleClass="btn btn-azul" value="Salvar" rendered="#{not manterMetaDesenvolvimentoBean.visualizando}"
+                                	actionListener="#{manterMetaDesenvolvimentoBean.salvarAnexos()}"
+                                	update=":form_anexo_desenvolvimento" oncomplete="fecharModalAnexo();">
+                                </p:commandLink>
+                            </div>  
+                        </div>
+                    </div>
+                   	 <script type="text/javascript">
+							var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+							function fecharModalAnexo(){
+								if(!maximunSeverity || maximunSeverity != '2'){
+									jQuery('#modalAnexo').modal('hide');
+								}
+							}
+                     </script>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="modalLog" tabindex="-1" role="dialog" aria-labelledby="modalLog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <h:form id="form_registros_log">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Visualizando LOG</h4>
+                    </div>
+                    <div class="modal-body">
+                    	<ui:repeat var="audit" value="#{manterMetaDesenvolvimentoBean.registrosLog}" varStatus="status">
+	                        <div class="row marginT20px">
+	                            <div class="col-xs-16">
+	                                <table class="table table-bordered log">
+	                                    <tbody>
+	                                        <tr>
+	                                            <td class="tituloLog">Código da Meta</td>
+	                                            <td class="repostaLog">#{audit[0].codigo}</td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Tipo de Meta</td>
+	                                            <td class="repostaLog">#{audit[0].tipo.value}</td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Nome do Usuário</td>
+	                                            <td class="repostaLog">#{audit[0].colaborador.nome}</td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">CPF</td>
+	                                            <td class="repostaLog">#{audit[1].usuario}</td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Data do Log</td>
+	                                            <td class="repostaLog">
+	                                            	 <h:outputText value="#{audit[1].dataAlteracao}">
+														<f:convertDateTime pattern="dd/MM/yyyy"/>
+													</h:outputText>
+	                                            </td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Hora do Log</td>
+	                                            <td class="repostaLog">
+	                                            	<h:outputText value="#{audit[1].dataAlteracao}">
+														<f:convertDateTime pattern="HH:mm"/>
+													</h:outputText>
+	                                            </td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Operação</td>
+	                                            <td class="repostaLog">
+	                                            	<h:outputText value="#{audit[1].tipoLog.value}"/>
+	                                            </td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Dados Antigos</td>
+	                                            <td class="repostaLog">
+	                                            	<ui:fragment rendered="#{status.index lt (manterMetaDesenvolvimentoBean.registrosLog.size() -1)}">
+		                                        		Descrição: #{manterMetaDesenvolvimentoBean.registrosLog.get(status.index+1)[0].resultadosEsperados}
+		                                        	</ui:fragment>
+	                                            </td>
+	                                        </tr>
+	                                        <tr>
+	                                            <td class="tituloLog">Dados Atuais</td>
+	                                            <td>
+	                                            	Descrição: #{audit[0].resultadosEsperados}
+	                                            </td>
+	                                        </tr>
+	                                    </tbody>
+	                                </table>
+	                            </div>
+	                        </div>
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <hr />
+	                            </div>
+	                        </div>
+                        </ui:repeat>
+                    </div>
+	                    <div class="modal-footer">
+                            <div class="row">
+                                <div class="col-xs-8 col-xs-offset-8">
+                                    <button type="button" class="btn btn-azul" data-dismiss="modal">Fechar</button>
+                                </div>  
+                            </div>
+                        </div>
+	                </h:form>
+	               </div>
+                </div>
+            </div>
+
+		<sebrae:upload modalId="uploadAnexo" listener="uploadArquivo" modalTitulo="Enviar Anexo" bean="#{manterMetaDesenvolvimentoBean}"
+        	onComplete="jQuery('#uploadAnexo').modal('hide');" update=":form_anexo_desenvolvimento"/>
+        	
+        <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{manterMetaDesenvolvimentoBean.excluirArquivo()}"
+			modalMensagem="Deseja realmente excluir este anexo?"
+			onComplete="$('#modalApagarAnexo').modal('hide')"
+			modalId="modalApagarAnexo" update=":form_anexo_desenvolvimento:tbl_anexos"/>
+        
+        <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{manterMetaDesenvolvimentoBean.excluirSolucao()}"
+			modalMensagem="Deseja realmente excluir a solução educacional?"
+			onComplete="$('#modalExcluirSolucao').modal('hide')"
+			modalId="modalExcluirSolucao" update=":form_meta_desenvolvimento:tbl_solucoes_educationais" />
+        	
+         <h:form id="form-download-link">
+         	<p:commandLink id="downloadLink" ajax="false" style="display:none;">
+				<f:param name="cid" value="#{manterMetaDesenvolvimentoBean.conversation.id}"/>
+				<p:fileDownload value="#{manterMetaDesenvolvimentoBean.arquivo}"/>  
+			</p:commandLink>
+			
+			<p:commandLink id="downloadLink2" ajax="false" style="display:none;">
+				<f:param name="cid" value="#{manterMetaDesenvolvimentoBean.conversation.id}"/>
+				<p:fileDownload value="#{manterMetaDesenvolvimentoBean.arquivo2}"/>  
+			</p:commandLink>
+         </h:form>
+         
+         <script type="text/javascript" >
+         	$(window).bind('load', function() {
+         		desmarcaCheck();
+            });
+            function desmarcaCheck() {
+                if ($('#inserirMeta').length) {
+	                $("input[type=checkbox]").each(
+	                       function(index) {
+	                           $(this).attr("checked", false);
+	                       }
+	                );
+                }
+            }
+			</script>
+			
+	</ui:define>
+</ui:composition>

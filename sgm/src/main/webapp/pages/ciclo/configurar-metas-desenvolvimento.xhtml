@@ -1,0 +1,527 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><h:commandLink action="/pages/ciclo/listar.xhtml"
+				value="Ciclo de Avaliação" /></li>
+		<li><h:commandLink action="/pages/ciclo/manter.xhtml"
+				value="Manter Ciclo de Avaliação" /></li>
+		<li><a href="#">Configurar Metas Desenvolvimento</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{cicloConfigurarMetasDesenvolvimentoBean.init()}
+		 
+		<div class="content">
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<p class="titulo-sem-marcador">Configurar Metas de Desenvolvimento</p>
+				</div>
+			</div>
+			<p:messages autoUpdate="true" globalOnly="true" />
+			<h:form id="form-individual">
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<label for="btmodalUnidadeIndividual">Unidade*</label>
+						<p:commandLink id="btmodalUnidadeIndividual"
+							styleClass="btn btn-azul marginL15px" value="Adicionar"
+							onsuccess="jQuery('#modalUnidadeIndividuals').modal('show');"
+							rendered="#{not cicloConfigurarMetasDesenvolvimentoBean.visualizando}"
+							actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.prepararModalVincularUnidades()}"
+							update=":formUnidadeIndividuals" process="@this" />
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-16">
+						<div class="titulo-tabela bgCorPadrao cinzaFonte">Unidades*</div>
+						<p:message for="tblUnidadesSelecionadas" />
+						<p:dataTable var="un"
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.unidades}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblUnidadesSelecionadas"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhuma unidade selecionada" rowIndexVar="index">
+
+							<p:column headerText="#" styleClass="text-center width-col-peq">
+								            #{index+1}
+								        </p:column>
+
+							<p:column headerText="Unidade" styleClass="text-center">
+								            #{un.descricaoComCodigo}
+								        </p:column>
+
+							<p:column headerText="Editar"
+								rendered="#{not cicloConfigurarMetasDesenvolvimentoBean.visualizando}"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.prepararModalVincularUnidadesEditar()}"
+									oncomplete="jQuery('#modalUnidadeIndividuals').modal('show');"
+									update=":formUnidadeIndividuals" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarMetasDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								rendered="#{not cicloConfigurarMetasDesenvolvimentoBean.visualizando}"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirUnidadeIndividual').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarMetasDesenvolvimentoBean.conversation.id}" />
+									<f:setPropertyActionListener value="#{un}"
+										target="#{cicloConfigurarMetasDesenvolvimentoBean.unidadeSelecionada}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-16">
+						<label for="btmodalEspaco">Espaço Ocupacional*</label>
+						<p:commandLink id="btmodalEspacoIndividual"
+							styleClass="btn btn-azul marginL15px" value="Adicionar"
+							onsuccess="jQuery('#modalEspacoOcupacional').modal('show');"
+							rendered="#{not cicloConfigurarMetasDesenvolvimentoBean.visualizando}"
+							actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.prepararModalVincularEspacos()}"
+							update=":formEspacoOcupacional" process="@this" />
+					</div>
+				</div>
+				<div class="row marginT10px">
+					<div class="col-xs-16">
+						<div class="titulo-tabela bgCorPadrao cinzaFonte">Espaço Ocupacional</div>
+						<p:message for="tblEspacosSelecionados" />
+						<p:dataTable var="un"
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.espacosOcupacionais}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblEspacosSelecionados"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhuma Espaco Ocupacional selecionado"
+							rowIndexVar="index">
+
+							<p:column headerText="#" styleClass="text-center width-col-peq">
+								            #{index+1}
+								    </p:column>
+
+							<p:column headerText="Espaço Ocupacional"
+								styleClass="text-center">
+								            #{un.descricaoComCodigo}
+								    </p:column>
+
+							<p:column headerText="Editar"
+								rendered="#{not cicloConfigurarMetasDesenvolvimentoBean.visualizando}"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.prepararModalVincularEspacosEditar()}"
+									oncomplete="jQuery('#modalEspacoOcupacional').modal('show');"
+									update=":formEspacoOcupacional" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarMetasDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								rendered="#{not cicloConfigurarMetasDesenvolvimentoBean.visualizando}"
+								styleClass="text-center width-col-peq">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirEspacoOcupacional').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarMetasDesenvolvimentoBean.conversation.id}" />
+									<f:setPropertyActionListener value="#{un}"
+										target="#{cicloConfigurarMetasDesenvolvimentoBean.espacoSelecionado}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label>Quantidade Miníma de Metas de Desenvolvimento a serem pactuadas no ciclo*:</label>
+					</div>
+					<div class="col-xs-2 text-left">
+						<pe:inputNumber
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.qtdMinimaMetasIndividuaisPactuadasCiclo}"
+							placeholder="Quantidade Miníma de Metas" id="qtdMinimasMetas"
+							label="Quantidade Miníma de Metas" required="true"
+							decimalSeparator="," thousandSeparator="." converter="javax.faces.Integer" converterMessage="Número inválido"
+							decimalPlaces="0" disabled="#{cicloConfigurarMetasDesenvolvimentoBean.visualizando}"
+							styleClass="form-control2" />
+						<p:message for="qtdMinimasMetas" />
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label>Quantidade Máxima de Metas de Desenvolvimento a serem pactuadas no ciclo*:</label>
+					</div>
+					<div class="col-xs-2 text-left">
+						<pe:inputNumber
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.qtdMaximaMetasIndividuaisPactuadasCiclo}"
+							placeholder="Quantidade Máxima de Metas" id="qtdMaximaMetas"
+							label="Quantidade Máxima de Metas" required="true"
+							decimalSeparator="," thousandSeparator="."
+							decimalPlaces="0" disabled="#{cicloConfigurarMetasDesenvolvimentoBean.visualizando}"
+							styleClass="form-control2" />
+						<p:message for="qtdMaximaMetas" />
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label>Pontuação Máxima Fundamental*:</label>
+					</div>
+					<div class="col-xs-2 text-left">
+						<pe:inputNumber
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.pontuacaoMaximaFundamental}"
+							id="pontuacaoMaximaFundamental" decimalSeparator="," thousandSeparator="."
+							label="Pontuação Máxima Fundamental" required="true"
+							decimalPlaces="2" styleClass="form-control2" />
+						<p:message for="pontuacaoMaximaFundamental" />
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label>Pontuação Máxima Complementar*:</label>
+					</div>
+					<div class="col-xs-2 text-left">
+						<pe:inputNumber
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.pontuacaoMaximaComplementar}"
+							id="pontuacaoMaximaComplementar" decimalSeparator="," thousandSeparator="."
+							label="Pontuação Máxima Complementar" required="true"
+							decimalPlaces="2" styleClass="form-control2" />
+						<p:message for="pontuacaoMaximaComplementar" />
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label>Calculo de Horas Fundamental*:</label>
+					</div>
+					<div class="col-xs-2 text-left">
+						<pe:inputNumber
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.calculoHorasFundamental}"
+							id="calculoHorasFundamental"
+							decimalSeparator="," thousandSeparator="."
+							label="Calculo de Horas Fundamental" required="true"
+							decimalPlaces="4" styleClass="form-control2" />
+						<p:message for="calculoHorasFundamental" />
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label>Calculo de Horas Complementar*:</label>
+					</div>
+					<div class="col-xs-2 text-left">
+						<pe:inputNumber
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.calculoHorasComplementar}"
+							id="calculoHorasComplementar"
+							decimalSeparator="," thousandSeparator="."
+							label="Calculo de Horas Complementar" required="true"
+							decimalPlaces="4" styleClass="form-control2" />
+						<p:message for="calculoHorasComplementar"/>
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+					</div>
+					<div class="col-xs-8">
+						<p:commandLink value="Inserir Parâmetro"
+							styleClass="btn btn-azul floatR marginL10px"
+							actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.inserirParametro()}"
+							update=":form-individual"
+							rendered="#{empty cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.id and not cicloConfigurarMetasDesenvolvimentoBean.visualizando}" />
+
+						<p:commandLink value="Salvar Parâmetro"
+							styleClass="btn btn-azul floatR" style="margin-left:10px;"
+							actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.alterarParametro()}"
+							update=":form-individual"
+							rendered="#{not empty cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta.id and not cicloConfigurarMetasDesenvolvimentoBean.visualizando}" />
+					</div>
+				</div>
+				
+				<p:messages for="form-individual" autoUpdate="true" globalOnly="true" />
+				
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurações Salvas</p>
+					</div>
+				</div>
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<p:dataTable var="obj"
+							value="#{cicloConfigurarMetasDesenvolvimentoBean.cicloConfiguracao.configuracoesMetasDesenvolvimento}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblConfiguracoesSalvas"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhuma unidade selecionada" rowIndexVar="index">
+
+							<p:column headerText="Unidades" styleClass="text-center">
+								<dl>
+									<ui:repeat var="un" value="#{obj.unidades}">
+										<dd>#{un.descricao}</dd>
+									</ui:repeat>
+								</dl>
+							</p:column>
+							
+							<p:column headerText="Espaço Ocupacional" styleClass="text-center">
+								<dl>
+									<ui:repeat var="eo" value="#{obj.espacosOcupacionais}">
+										<dd>#{eo.descricaoComCodigo}</dd>
+									</ui:repeat>
+								</dl>
+							</p:column>
+
+							<p:column headerText="Quantidade minima de metas"
+								styleClass="text-center">
+								<h:outputText
+									value="#{obj.qtdMinimaMetasIndividuaisPactuadasCiclo}" />
+							</p:column>
+
+							<p:column headerText="Quantidade máxima de metas"
+								styleClass="text-center">
+								<h:outputText
+									value="#{obj.qtdMaximaMetasIndividuaisPactuadasCiclo}" />
+							</p:column>
+
+							<p:column headerText="Editar"
+								styleClass="text-center width-col-peq"
+								rendered="#{not cicloConfigurarMetasDesenvolvimentoBean.visualizando}">
+								<p:commandLink
+									actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.editar(obj)}"
+									update=":form-individual" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarMetasDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								styleClass="text-center width-col-peq"
+								rendered="#{not cicloConfigurarMetasDesenvolvimentoBean.visualizando}">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirParametroIndividual').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:setPropertyActionListener value="#{obj}"
+										target="#{cicloConfigurarMetasDesenvolvimentoBean.configuracaoMeta}" />
+									<f:param name="cid"
+										value="#{cicloConfigurarMetasDesenvolvimentoBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+					<h:commandLink styleClass="btn btn-azul floatR marginL10px" immediate="true"
+						action="#{configuracaoMetasService.mensagemSucesso()}">Continuar Configuração
+					</h:commandLink>
+				</div>
+			</h:form>
+
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloConfigurarMetasDesenvolvimentoBean.excluir()}"
+				modalMensagem="O parâmetro será excluído. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirParametroIndividual').modal('hide')"
+				modalId="modalConfirmacaoExcluirParametroIndividual"
+				update=":form-individual" />
+
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloConfigurarMetasDesenvolvimentoBean.desvincularUnidade()}"
+				modalMensagem="A Unidade será desvinculada. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirUnidadeIndividual').modal('hide')"
+				modalId="modalConfirmacaoExcluirUnidadeIndividual"
+				update=":form-individual:tblUnidadesSelecionadas,:form-individual:tblEspacosSelecionados" />
+
+
+			<div class="modal fade" id="modalUnidadeIndividuals" tabindex="-1"
+				role="dialog" aria-labelledby="modalUnidadeIndividuals"
+				aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<h:form id="formUnidadeIndividuals">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+								</button>
+								<h4 class="modal-title">Adicionar Unidade Associada</h4>
+							</div>
+							<div class="modal-body">
+								<p:messages for="formUnidadeIndividuals" autoUpdate="true" />
+								<div class="row">
+		                    		<div class="col-xs-8">
+		                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+		                    				onclick="selecioanarTodosLista();" styleClass="btn"/>  
+		                    		</div>
+		                    	</div>
+								<div class="row marginT10px">
+									<div class="col-xs-16">
+										<p:selectManyMenu id="nomeBusca"
+											value="#{cicloConfigurarMetasDesenvolvimentoBean.unidadesSelecionadasVincular}"
+											converter="UnidadeAutocompleteConverter" var="t" filter="true"
+											filterMatchMode="contains" showCheckbox="true"
+											styleClass="ui-selectlistbox-item input_100P"
+											style="width: 100% !important"
+											ondblclick="jQuery('.btn_add_unidades').click();">
+											<f:selectItems
+												value="#{cicloConfigurarMetasDesenvolvimentoBean.unidadesDisponiveis}" var="uv"
+												itemLabel=" #{uv.descricaoComCodigo}" itemValue="#{uv}" />
+											<p:column>
+												<h:outputText value=" #{t.descricaoComCodigo}" style="float:left;white-space:nowrap;text-align:left;" />
+											</p:column>
+										</p:selectManyMenu>
+										<p:message for="nomeBusca" />
+	
+										<SCRIPT type="text/javascript">
+											function selecioanarTodosLista(){
+												if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+													$('#modalConfirmacaoSelecaoLista').modal('show');
+												}else{
+													 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+												}
+											}
+			                             </SCRIPT>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<div class="row">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left"></p>
+									</div>
+									<div class="col-xs-8">
+										<button type="button" class="btn btn-default"
+											data-dismiss="modal">Cancelar</button>
+										<p:commandLink styleClass="btn btn-primary btn_add_unidades" value="Incluir"
+											actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.vincularUnidades()}"
+											update=":form-individual:tblUnidadesSelecionadas,:form-individual:tblEspacosSelecionados"
+											oncomplete="jQuery('#modalUnidadeIndividuals').modal('hide');">
+											<f:param name="cid"
+												value="#{cicloConfigurarMetasDesenvolvimentoBean.conversation.id}" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+			</div>
+			
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+			modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+			modalId="modalConfirmacaoSelecaoLista"/>
+			
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+				modalTitulo="ATENÇÃO"
+				simAction="#{cicloConfigurarMetasDesenvolvimentoBean.desvincularEspaco()}"
+				modalMensagem="O Espaço Ocupacional será desvinculado. Deseja continuar?"
+				onComplete="$('#modalConfirmacaoExcluirEspacoOcupacional').modal('hide')"
+				modalId="modalConfirmacaoExcluirEspacoOcupacional"
+				update=":form-individual:tblEspacosSelecionados" />
+
+			<div class="modal fade" id="modalEspacoOcupacional" tabindex="-1"
+				role="dialog" aria-labelledby="modalEspacoOcupacional"
+				aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<h:form id="formEspacoOcupacional">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+								</button>
+								<h4 class="modal-title">Adicionar Espaço Ocupacional</h4>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+		                    		<div class="col-xs-8">
+		                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodosEspacos" 
+		                    				onclick="selecioanarTodosEspacoLista();" styleClass="btn"/>  
+		                    		</div>
+		                    	</div>
+								<p:messages for="formEspacoOcupacional" autoUpdate="true" />
+								<div class="row marginT10px">
+									<div class="col-xs-16">
+									
+										<p:selectManyMenu id="listaEspacosVincular"
+											value="#{cicloConfigurarMetasDesenvolvimentoBean.espacosSelecionadasVincular}" var="esv" filter="true" 
+											filterMatchMode="contains" showCheckbox="true" converter="EspacoOcupacionalConverter" 
+											styleClass="ui-selectlistbox-item input_100P"
+											style="width: 100% !important" ondblclick="jQuery('.btn_add_espaco').click();">
+											<f:selectItems
+												value="#{cicloConfigurarMetasDesenvolvimentoBean.espacosDisponiveis}"
+												var="eo" itemLabel="#{eo.descricaoComCodigo}" itemValue="#{eo}" />
+											<p:column>
+												<h:outputText value=" #{esv.descricaoComCodigo}" style="float:left;white-space:nowrap;text-align:left;" />
+											</p:column>
+										</p:selectManyMenu>
+										<p:message for="listaEspacosVincular" />
+
+										<SCRIPT type="text/javascript">
+											function selecioanarTodosEspacoLista(){
+												if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+													$('#modalConfirmacaoSelecaoListaEspacoOcupacional').modal('show');
+												}else{
+													 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+												}
+											}
+			                             </SCRIPT>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<div class="row">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left"></p>
+									</div>
+									<div class="col-xs-8">
+										<button type="button" class="btn btn-default"
+											data-dismiss="modal">Cancelar</button>
+										<p:commandLink styleClass="btn btn-primary btn_add_espaco" value="Incluir"
+											actionListener="#{cicloConfigurarMetasDesenvolvimentoBean.vincularEspacos()}"
+											update=":form-individual:tblEspacosSelecionados"
+											oncomplete="jQuery('#modalEspacoOcupacional').modal('hide');">
+											<f:param name="cid"
+												value="#{cicloConfigurarMetasDesenvolvimentoBean.conversation.id}" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+			</div>
+			<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+							modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoListaEspacoOcupacional').modal('hide');return false;"
+							modalId="modalConfirmacaoSelecaoListaEspacoOcupacional"/>
+		</div>
+	</ui:define>
+</ui:composition>

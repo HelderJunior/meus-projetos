@@ -1,0 +1,153 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="#{appBean.back()}">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><a href="#">Filtro de LOG</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		#{logBean.init()}
+		<p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<h:form id="form_registros_log">
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Filtro de LOG</p>
+					</div>
+				</div>
+				<div class="row marginT30px">
+					<div class="col-xs-8">
+						<label for="tipoOperacao">Operação*</label> 
+						<h:selectOneMenu id="tipoOperacao" value="#{logBean.tipoLog}" styleClass="form-control" required="true"
+							label="Operação">
+							<f:selectItem itemLabel="Selecione"/>
+							<f:selectItems value="#{logBean.tiposLog}" var="tl" itemLabel="#{tl.value}" itemValue="#{tl}"/>
+						</h:selectOneMenu>
+						<p:message for="tipoOperacao"/>
+					</div>
+					<div class="col-xs-8">
+						<label for="tipoMeta">Tipo de Meta*</label> 
+						<h:selectOneMenu id="tipoMeta" value="#{logBean.tipoMeta}" styleClass="form-control" required="true"
+							label="Tipo de Meta">
+							<f:selectItem itemLabel="Selecione"/>
+							<f:selectItems value="#{logBean.tiposMeta}" var="tl" itemLabel="#{tl.value}" itemValue="#{tl}"/>
+						</h:selectOneMenu>
+						<p:message for="tipoMeta"/>
+					</div>
+				</div>
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label for="tipoMeta">Código da Meta</label> 
+                        <h:inputText id="inputCodigoMeta" value="#{logBean.codigoMeta}" styleClass="form-control" placeholder="Código da Meta"/>
+                        <p:message for="inputCodigoMeta"/>
+					</div>
+					
+					<div class="col-xs-8">
+						<label for="usuarioCpf">Usuário CPF</label> 
+						<p:inputMask id="usuarioCpf" styleClass="form-control" placeholder="Usuário CPF" size="20" 
+                           	mask="999.999.999-99" value="#{logBean.cpf}" converter="CPFConverter">
+                        </p:inputMask>
+                        <p:message for="usuarioCpf"/>
+					</div>
+				</div>
+				
+				<div class="row marginT10px">
+					<div class="col-xs-8">
+						<label for="ciclo">Ciclo de Avaliação*</label> 
+						<h:selectOneMenu id="ciclo" value="#{logBean.cicloSelecionado}" styleClass="form-control" converter="CicloConverter" 
+										 required="true" label="Ciclo de Avaliação">
+                       		<f:selectItems value="#{logBean.ciclos}" var="c" itemLabel="#{c.descricao}" itemValue="#{c}"/>
+                       	</h:selectOneMenu>
+                       	<p:message for="ciclo"/>
+					</div>
+					
+					<div class="col-xs-6 marginT25px">
+						<p:inputText value="#{logBean.textoBuscaRapida}" placeholder="Busca Rápida" 
+							styleClass="form-control floatL" />
+					</div>
+					
+					<div class="col-xs-2 marginT25px">
+						<p:commandButton value="Buscar" styleClass="btn btn-azul width100" 
+							action="#{logBean.pesquisar()}" update=":form_registros_log">
+							<f:param name="cid" value="#{logBean.conversation.id}" />
+						</p:commandButton>
+					</div>
+				</div>
+				
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Resultados da Busca</p>
+					</div>
+				</div>
+				
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<p:dataTable var="audit" value="#{logBean.registrosLog}" 
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+	                   		id="tbLogs" paginator="true" rows="20" paginatorPosition="bottom" 
+	                   		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+	                   		emptyMessage="Nenhum registro encontrado">
+					        
+					        <p:column headerText="Código da Meta" styleClass="text-center">
+					            <h:outputText value="#{audit[0].codigo}" />
+					        </p:column>
+					 
+					        <p:column headerText="Tipo de Meta" styleClass="text-center">
+					            <h:outputText value="#{audit[0].tipo.value}" />
+					        </p:column>
+					        
+					        <p:column headerText="Nome de Usuário" styleClass="text-center">
+					            <h:outputText value="#{audit[0].colaborador.nome}" />
+					        </p:column>
+					        
+					        <p:column headerText="CPF" styleClass="text-center">
+					            <h:outputText value="#{audit[1].usuario}" converter="CPFConverter"/>
+					        </p:column>
+					        
+					        <p:column headerText="Data" styleClass="text-center">
+					            <h:outputText value="#{audit[1].dataAlteracao}">
+									<f:convertDateTime pattern="dd/MM/yyyy"/>
+								</h:outputText>
+					        </p:column>
+					        
+					        <p:column headerText="Hora" styleClass="text-center">
+					            <h:outputText value="#{audit[1].dataAlteracao}">
+									<f:convertDateTime pattern="HH:mm"/>
+								</h:outputText>
+					        </p:column>
+
+							<p:column headerText="Operação" styleClass="text-center">
+					            <h:outputText value="#{audit[1].tipoLog.value}"/>
+					        </p:column>
+					        
+					        <p:column headerText="Visualizar" styleClass="text-center">
+					            <h:commandLink action="/pages/log/visualizar">
+					            	<i class="fa fa-eye"></i>
+					            	<f:param name="cid" value="#{logBean.conversation.id}"/>
+									<f:setPropertyActionListener value="#{audit}" target="#{visualizarLogBean.registroDeLog}"/>
+					            </h:commandLink>
+					        </p:column>
+					    </p:dataTable>
+					</div>
+				</div>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

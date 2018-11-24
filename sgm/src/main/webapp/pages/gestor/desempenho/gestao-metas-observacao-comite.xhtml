@@ -1,0 +1,86 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+		
+		<div class="row marginT10px">
+			<div class="col-xs-16">
+				<p:dataTable var="obsCom"
+					value="#{gestaoMetasBean.metasObservacaoComite}"
+					tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+					id="tbl_metas_observacao_comite" paginator="true" rows="10"
+					paginatorPosition="bottom"
+					widgetVar="statusMetaObsComiteTable"
+					paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+					emptyMessage="Nenhum resultado a ser exibido">
+					
+					<f:facet name="header">
+					<p:outputPanel styleClass="text-left">
+						<span>Busca Rápida: </span>
+						<p:inputText id="globalFilter"
+							onkeyup="PF('statusMetaObsComiteTable').filter()" styleClass="width300px"
+							placeholder="Digite status da meta"
+							 />
+					</p:outputPanel>
+				</f:facet>
+
+					<p:column filterBy="#{obsCom.meta.statusAtual.value}" headerText="Tipo de Pendência" styleClass="text-center no-input">
+						<h:outputText value="#{obsCom.meta.statusAtual.value}" />
+					</p:column>
+
+					<p:column headerText="Nome do Colaborador" styleClass="text-center">
+						<h:outputText value="#{obsCom.meta.colaborador.nome}"/>
+					</p:column>
+
+					<p:column headerText="Resultado Esperado" styleClass="text-center">
+						<h:outputText value="#{obsCom.meta.resultadosEsperados}" />
+					</p:column>
+
+					<p:column headerText="Meta Prevista"
+						styleClass="text-center">
+						<h:outputText value="#{obsCom.meta.quantidadePrevista}" />
+					</p:column>
+					
+					<p:column headerText="Prazo Conclusão"
+						styleClass="text-center">
+						<h:outputText value="#{obsCom.meta.mesConclusao.value}" />
+					</p:column>
+
+					<p:column headerText=""
+						styleClass="text-center width-col-peq">
+						<h:commandLink action="/pages/meta-individual/manter" rendered="#{obsCom.meta.tipo eq 'I'}">
+			            	<i class="fa fa-eye"></i>
+			            	<f:param name="cid" value="#{gestaoMetasBean.conversation.id}"/>
+							<f:setPropertyActionListener value="#{obsCom.meta}" target="#{manterMetaIndividualBean.meta}" />
+							<f:setPropertyActionListener value="#{true}" target="#{manterMetaIndividualBean.visualizando}"/>
+							<f:setPropertyActionListener value="/pages/gestor/desempenho/gestao-metas" target="#{appBean.back}"/>
+			            </h:commandLink>
+			            
+			             <h:commandLink action="/pages/meta-equipe/manter" rendered="#{obsCom.meta.tipo eq 'E'}">
+			            	<i class="fa fa-eye"></i>
+			            	<f:param name="cid" value="#{gestaoMetasBean.conversation.id}"/>
+							<f:setPropertyActionListener value="#{meta}" target="#{manterMetaEquipeBean.meta}" />
+							<f:setPropertyActionListener value="#{true}" target="#{manterMetaEquipeBean.visualizando}"/>
+							<f:setPropertyActionListener value="/pages/gestor/desempenho/gestao-metas" target="#{appBean.back}"/>
+			            </h:commandLink>
+					</p:column>
+
+					<p:column styleClass="text-center width-col-peq">
+						<f:facet name="header">
+			                <h:selectBooleanCheckbox value="#{gestaoMetasBean.selecaoTodosObservacaoComiteTipoPendencia}">
+			                	<p:ajax event="change" listener="#{gestaoMetasBean.alterouSelecaoTodosObservacaoComiteTipoPendencia()}" 
+			                		process="@this" update=":form_listar_metas:tbl_metas_observacao_comite,:form_pesquisar"/>
+			                </h:selectBooleanCheckbox>
+			            </f:facet>
+						<h:selectBooleanCheckbox value="#{obsCom.selecionado}">
+							<p:ajax event="change" update=":form_listar_metas:tbl_metas_observacao_comite,:form_pesquisar"></p:ajax>
+						</h:selectBooleanCheckbox>
+					</p:column>
+				</p:dataTable>
+			</div>
+		</div>
+</ui:composition>

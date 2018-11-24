@@ -1,0 +1,127 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink styleClass="voltar">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<a href="#">Desempenho Individual</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+		#{listarMetasIndividuaisBean.init()}
+		
+		<p:messages autoUpdate="true" globalOnly="true" />
+		
+		<h:form id="form_listar_metas">
+			<div class="content">
+                <div class="row marginT30px">
+                    <div class="col-xs-16">
+                        <p class="titulo-sem-marcador">Meta de Desempenho Individual</p>
+                    </div>
+                </div>
+                <div class="row marginT20px">
+                    <div class="col-xs-10">
+                    	<h:commandLink action="/pages/meta-equipe/listar.xhtml?nocid=true">
+                    		<i class="fa fa-link"></i> Ir para página de Metas de Desempenho de Equipe
+                    	</h:commandLink>
+                    </div>
+                    <div class="col-xs-3">
+                    	<h:selectOneMenu value="#{listarMetasIndividuaisBean.unidadeSelecionada}" 
+                    		styleClass="form-control" converter="UnidadeConverter" 
+                    		rendered="#{listarMetasIndividuaisBean.unidades.size() gt 1}">
+                    		<f:selectItem itemLabel="Selecione a Unidade"/>
+                    		<f:selectItems value="#{listarMetasIndividuaisBean.unidades}" 
+                    			var="u" itemLabel="#{u.descricaoComCodigo}" itemValue="#{u}"/>
+                    		<p:ajax event="change" listener="#{listarMetasIndividuaisBean.alterouUnidade()}"
+                    		 	update="tbl_listar_metas" process="@this"/>
+                    	</h:selectOneMenu>
+                    </div>
+                    <div class="col-xs-3">
+                        <h:commandLink action="#{appBean.inserirMetaIndividual()}" styleClass="btn btn-azul floatR">
+                    		Inserir Meta Individual
+                    		<f:param name="nocid" value="true"/>
+                    		<f:setPropertyActionListener value="/pages/meta-individual/listar" target="#{appBean.back}"/>
+                    	</h:commandLink>
+                    </div>
+                </div>
+                <div class="row marginT30px">
+                    <div class="col-xs-16">
+                        <div class="titulo-tabela bgCorDesempenho">Metas Individuais</div>
+						<p:dataTable var="m" value="#{listarMetasIndividuaisBean.metas}" tableStyleClass="table table-striped table-bordered bgCorDesempenhoFraco"
+	                   		id="tbl_listar_metas" paginator="true" rows="20" paginatorPosition="bottom" 
+	                   		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+	                   		emptyMessage="Nenhum resultado a ser exibido">
+					        
+					        <p:column headerText="Metas Individuais" sortBy="#{m.resultadosEsperados}" styleClass="text-center">
+					        	<h:outputText value="#{m.resultadosEsperados}" />
+					        </p:column>
+					 
+					        <p:column headerText="Status" sortBy="#{m.statusAtual.value}" styleClass="text-center">
+					            <h:outputText value="#{m.statusAtual.value}" />
+					        </p:column>
+					        
+					        <p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+					            <h:commandLink id="btnVisualizarMeta" action="/pages/meta-individual/manter">
+									<i class="fa fa-eye"></i>
+									<f:param name="cid" value="#{listarMetasIndividuaisBean.conversation.id}"/>
+									<f:setPropertyActionListener value="#{m}" target="#{manterMetaIndividualBean.meta}" />
+									<f:setPropertyActionListener value="#{true}" target="#{manterMetaIndividualBean.visualizando}"/>
+									<f:setPropertyActionListener value="/pages/meta-individual/listar" target="#{appBean.back}"/>
+								</h:commandLink>
+								<p:tooltip for="btnVisualizarMeta" value="Visualizar Meta Individual" />
+					        </p:column>
+					        
+					         <p:column headerText="Editar" styleClass="text-center width-col-peq">
+					            <!-- <ui:fragment rendered="#{m.statusAtual ne 'PA'}"> -->
+					            	<h:commandLink id="btnEditarMetaIndividual" action="/pages/meta-individual/manter" rendered="#{m.statusAtual ne 'CS'}">
+										<i class="fa fa-pencil-square-o"></i>
+										<f:setPropertyActionListener value="#{m}" target="#{manterMetaIndividualBean.meta}" />
+										<f:setPropertyActionListener value="#{false}" target="#{manterMetaIndividualBean.visualizando}"/>
+										<f:setPropertyActionListener value="/pages/meta-individual/listar" target="#{appBean.back}"/>
+										<f:param name="cid" value="#{listarMetasIndividuaisBean.conversation.id}"/>
+									</h:commandLink>
+									<p:tooltip for="btnEditarMetaIndividual" value="Editar Meta Individual"/>
+								<!-- </ui:fragment> -->
+					        </p:column>
+					        
+					        <p:column headerText="Excluir" styleClass="text-center width-col-peq">
+						        <!-- <ui:fragment rendered="#{m.statusAtual ne 'PA'}"> -->
+					            	<p:commandLink id="btnExcluirMetaIndividual" oncomplete="jQuery('#modalConfirmacao').modal('show');" rendered="#{m.statusAtual ne 'CS'}"> 
+										<i class="fa fa-trash-o"></i>
+										<f:setPropertyActionListener value="#{m}" target="#{listarMetasIndividuaisBean.metaSelecionada}" />
+										<f:param name="cid" value="#{listarMetasIndividuaisBean.conversation.id}"/>
+									</p:commandLink>
+									<p:tooltip for="btnExcluirMetaIndividual" value="Editar Meta Individual"/>
+								<!-- </ui:fragment> -->
+					        </p:column>
+					    </p:dataTable>
+					    
+					    <p:blockUI block="tbl_listar_metas" trigger="tbl_listar_metas">
+					        Carregando...<br />
+					    </p:blockUI>
+               		</div>
+            	</div>
+           	</div>
+        </h:form>
+        
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{listarMetasIndividuaisBean.excluir()}"
+		modalMensagem="A meta será excluida do sistema. Deseja continuar?" onComplete="$('#modalConfirmacao').modal('toggle')"
+		modalId="modalConfirmacao" update=":form_listar_metas:tbl_listar_metas"/>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,61 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:p="http://primefaces.org/ui">
+
+<cc:interface>
+	<cc:attribute name="modalTitulo" required="true" />
+	<cc:attribute name="modalMensagem" required="true" />
+	<cc:attribute name="simTitulo" required="true" />
+	<cc:attribute name="naoTitulo" required="true" />
+	<cc:attribute name="modalId" required="true"/>
+	<cc:attribute name="update" default=""/>
+	<cc:attribute name="onComplete"/>
+	<cc:attribute name="simAction" method-signature="java.lang.String action()" default=""/>
+	<cc:attribute name="isAjax" default="true"/>
+	<cc:attribute name="onClick" default=""/>
+</cc:interface>
+
+<cc:implementation>
+	<h:form>
+		<div class="modal fade" id="#{cc.attrs.modalId}" tabindex="-1" role="dialog" aria-labelledby="#{cc.attrs.modalId}" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+						<h4 class="modal-title"><h:outputText value="#{cc.attrs.modalTitulo}" /></h4>
+					</div>
+					<div class="modal-body">
+						<h:outputText value="#{cc.attrs.modalMensagem}" />
+					</div>
+					<div class="modal-footer">
+						<button id="btnNao" type="button" class="btn btn-default" data-dismiss="modal">
+							<i class="fa fa-times"></i><h:outputText value="#{cc.attrs.naoTitulo}" />
+						</button>
+						
+						<ui:fragment rendered="#{cc.attrs.isAjax eq 'true'}">
+							<p:commandLink id="btnSimAjax" styleClass="btn btn-primary"
+								actionListener="#{cc.attrs.simAction}" update="#{cc.attrs.update}"
+								onclick="#{cc.attrs.onClick}"
+								oncomplete="#{cc.attrs.onComplete}">
+								<i class="fa fa-check"></i><h:outputText value="#{cc.attrs.simTitulo}" />
+							</p:commandLink>
+						</ui:fragment>
+						
+						<ui:fragment rendered="#{cc.attrs.isAjax eq 'false'}">
+							<h:commandLink id="btnSimNoAjax" styleClass="btn btn-primary"
+								action="#{cc.attrs.simAction}" >
+								<i class="fa fa-check"></i><h:outputText value="#{cc.attrs.simTitulo}" />
+							</h:commandLink>
+						</ui:fragment>
+					</div>
+				</div>
+			</div>
+		</div>
+	</h:form>
+</cc:implementation>
+
+</html>
