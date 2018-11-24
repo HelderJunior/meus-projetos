@@ -1,0 +1,985 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<h:commandLink action="/pages/ciclo/listar.xhtml" value="Ciclo de Avaliação" />
+		</li>
+		<li>
+			<h:commandLink action="/pages/ciclo/manter.xhtml" value="Manter Ciclo de Avaliação" />
+		</li>
+		<li>
+			<a href="#">Configurar Calendário de Metas de Desenvolvimento</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+		 #{cicloCalendarioDesenvolvimentoBean.init()}
+		 <p:messages autoUpdate="true" globalOnly="true" />
+
+		 <div class="content">
+			 	<h:form id="form-calendario-gerente">
+                     <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Configurar Calendário de Metas de Desenvolvimento</p>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <label>Configurar Calendário/Gerente</label>
+                        </div>
+                    </div>
+                    	<p:outputPanel id="pnlEtapasGerente" style="display:block" styleClass="etapas">
+                        <hr class="calendario" />
+                        <div class="row">
+                            <div class="col-xs-3 col-xs-offset-1">
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <div class="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente eq 'P' ? 'circulo-atual' : 'circulo-normal'}">
+                                            <p:commandLink value="1" process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<f:setPropertyActionListener value="#{'P'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row marginT10px">
+                                    <div class="col-xs-16">
+                                        <p class="fase">
+                                            <p:commandLink value="Pactuação" process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<f:setPropertyActionListener value="#{'P'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <p class="data">
+                                            <p:commandLink process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao}">
+			                                        <f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<h:outputText value=" à "/>
+                                           	   	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimPactuacao}">
+                                           	   		<f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<f:setPropertyActionListener value="#{'P'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-3 col-xs-offset-1">
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <div class="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente eq 'R' ? 'circulo-atual' : 'circulo-normal'}">
+                                            <p:commandLink value="2" process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<f:setPropertyActionListener value="#{'R'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row marginT10px">
+                                    <div class="col-xs-16">
+                                        <p class="fase">
+                                            <p:commandLink value="Repactuação" process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<f:setPropertyActionListener value="#{'R'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <p class="data">
+                                            <p:commandLink process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioRepactuacao}">
+			                                        <f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<h:outputText value=" à "/>
+                                           	   	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimRepactuacao}">
+                                           	   		<f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<f:setPropertyActionListener value="#{'R'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-3 col-xs-offset-1">
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <div class="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente eq 'J' ? 'circulo-atual' : 'circulo-normal'}">
+                                            <p:commandLink value="3" process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<f:setPropertyActionListener value="#{'J'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row marginT10px">
+                                    <div class="col-xs-16">
+                                        <p class="fase">
+                                            <p:commandLink value="Ajustes" process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<f:setPropertyActionListener value="#{'J'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <p class="data">
+                                             <p:commandLink process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioAjustes}">
+			                                        <f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<h:outputText value=" à "/>
+                                           	   	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimAjustes}">
+                                           	   		<f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<f:setPropertyActionListener value="#{'J'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}"/>
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-xs-3 col-xs-offset-1">
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <div class="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente eq 'V' ? 'circulo-atual' : 'circulo-normal'}">
+                                            <p:commandLink value="4" process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<f:setPropertyActionListener value="#{'V'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row marginT10px">
+                                    <div class="col-xs-16">
+                                        <p class="fase">
+                                            <p:commandLink value="Validação" process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<f:setPropertyActionListener value="#{'V'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <p class="data">
+                                            <p:commandLink process="@this" update="pnlEtapasGerente,:form-prorrogacao-gerente">
+                                            	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioValidacao}">
+			                                        <f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<h:outputText value=" à "/>
+                                           	   	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimValidacao}">
+                                           	   		<f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<f:setPropertyActionListener value="#{'V'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}"/>
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </p:outputPanel>
+                    
+                    <div class="row">
+                        <div class="col-xs-1 text-right">
+                            <label>Inicio</label>
+                        </div>
+                        <div class="col-xs-3">
+                            <p:calendar id="pactuacaoInicio" mask="true" placeholder="Selecione a Data"
+								value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao}"
+								navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+								label="Data de Início" showOn="button" locale="pt" disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}">
+								<p:ajax event="dateSelect" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+								<p:ajax event="change" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+							</p:calendar>
+							<p:message for="pactuacaoInicio"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                        
+                        		<script type="text/javascript">
+	                        		var dayDisableRepactuacaoGerente = "#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacaoForDisable}";
+	                        		function disableDayRepactuacaoGerente(date) {
+	                        		    var m = date.getMonth(), d = date.getDate(), y = date.getFullYear();
+	                        		    var dataStr =   d + '/' +(m+1)+ '/' + y;
+	                        		    if(dataStr == dayDisableRepactuacaoGerente){
+	                        		    	return [false];
+	                        		    }
+	                        		    return [true];
+	                        		}
+                        		</script>
+                        
+                                <p:calendar id="repactuacaoInicio" mask="true" placeholder="Selecione a Data"
+									value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioRepactuacao}"
+									navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+									disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+									mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimPactuacao}" 
+									label="Data de Início" showOn="button" locale="pt"
+									beforeShowDay="disableDayRepactuacaoGerente">
+									<p:ajax event="dateSelect" update=":form-calendario-gerente" process="@this"
+										listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+									<p:ajax event="change" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+								</p:calendar>
+								<p:message for="repactuacaoInicio"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="ajustesInicio" mask="true" placeholder="Selecione a Data"
+									value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioAjustes}"
+									navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+									disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+									mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao}"
+									label="Data de Início" showOn="button" locale="pt">
+									<p:ajax event="dateSelect" update=":form-calendario-gerente" process="@this"
+										listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+									<p:ajax event="change" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+								</p:calendar>
+								<p:message for="ajustesInicio"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="validacaoInicio" mask="true" placeholder="Selecione a Data"
+									value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioValidacao}"
+									navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+									disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+									mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao}"
+									label="Data de Início" showOn="button" locale="pt">
+									<p:ajax event="dateSelect" update=":form-calendario-gerente" process="@this"
+										listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+									<p:ajax event="change" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+								</p:calendar>
+								<p:message for="validacaoInicio"/>
+                        </div>
+                    </div>
+                    <div class="row marginT10px">
+                        <div class="col-xs-1 text-right">
+                            <label>Fim</label>
+                        </div>
+                        <div class="col-xs-3">
+                           <p:calendar id="pactuacaoFinal" mask="true" placeholder="Selecione a Data"
+							value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimPactuacao}"
+							disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+							mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioPactuacao}"
+							navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+							label="Data de Término" showOn="button" locale="pt">
+								<p:ajax event="dateSelect" update=":form-calendario-gerente" process="@this"
+										listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+								<p:ajax event="change" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+							</p:calendar>
+							<p:message for="pactuacaoFinal"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="repactuacaoFinal" mask="true" placeholder="Selecione a Data"
+									value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimRepactuacao}"
+									disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioRepactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+									mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioRepactuacao}"
+									navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+									label="Data de Término" showOn="button" locale="pt">
+									<p:ajax event="dateSelect" update=":form-calendario-gerente" process="@this"
+										listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+									<p:ajax event="change" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+								</p:calendar>
+								<p:message for="repactuacaoFinal"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                 <p:calendar id="ajustesFinal" mask="true" placeholder="Selecione a Data"
+									value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimAjustes}"
+									disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioAjustes or cicloCalendarioDesenvolvimentoBean.visualizando}"
+									mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioAjustes}"
+									navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+									label="Data de Término" showOn="button" locale="pt">
+									<p:ajax event="dateSelect" update=":form-calendario-gerente" process="@this"
+										listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+									<p:ajax event="change" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+								 </p:calendar>
+								 <p:message for="ajustesFinal"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="validacaoFinal" mask="true" placeholder="Selecione a Data"
+									value="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtFimValidacao}"
+									disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioValidacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+									mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente.dtInicioValidacao}"
+									navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+									label="Data de Término" showOn="button" locale="pt">
+									<p:ajax event="dateSelect" update=":form-calendario-gerente" process="@this"
+										listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+									<p:ajax event="change" update=":form-calendario-gerente" process="@this"
+									listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasGerente()}"/>
+								</p:calendar>
+								 <p:message for="validacaoFinal"/>
+                        </div>
+                    </div>
+                </h:form>
+                
+                    <div class="row marginT10px">
+                        <div class="col-xs-16">
+                            <div class="panel-group" id="accordion">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h5 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" onclick="jQuery('i',this).toggleClass('fa-plus-square-o fa-minus-square-o');">
+                                                <i class="fa fa-plus-square-o"></i> Período de Exceção
+                                            </a>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseOne" class="panel-collapse collapse">
+                                    <h:form id="form-prorrogacao-gerente">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-2 tex-center"><label for="unidade">Unidade*</label></div>
+                                                <div class="col-xs-5">
+													<p:autoComplete id="unidade" value="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoGerente.unidade}" 
+															styleClass="form-control2" style="width:100%;"
+															completeMethod="#{cicloCalendarioDesenvolvimentoBean.completeUnidade}"
+										                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+										                	converter="UnidadeConverter" forceSelection="true" 
+										                	disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}">
+										                	<p:ajax event="itemSelect" process="@this" update="nomeUsuario"/>
+										             </p:autoComplete>
+									                <p:message for="unidade"/>
+                                                </div>
+                                                <div class="col-xs-2 col-xs-offset-2"><label for="colaborador">Colaborador*</label></div>
+                                                <div class="col-xs-5">
+                                                    <h:selectOneMenu id="nomeUsuario" value="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoGerente.usuario}" styleClass="form-control"
+														converter="UsuarioConverter" label="Colaborador" disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}">
+														<f:selectItem itemLabel="Todos" />
+														<f:selectItems value="#{cicloCalendarioDesenvolvimentoBean.usuariosGerente}" var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+													</h:selectOneMenu>
+													<p:message for="nomeUsuario"/>
+                                                </div>
+                                            </div>
+                                            <div class="row marginT10px">
+                                                <div class="col-xs-2 tex-center"><label for="inicio">Inicio*</label></div>
+                                                <div class="col-xs-5">
+                                                     <p:calendar id="inicioProrrogacaoGerente" mask="true" placeholder="Selecione a Data"
+														value="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoGerente.dtInicio}"
+														style="min-width:200px;"
+														navigator="true" pattern="dd/MM/yyyy" disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}"
+														label="Data de Início" required="true" showOn="button" locale="pt">
+														
+														<p:ajax event="dateSelect" update="terminoProrrogacaoGerente" process="@this"
+															listener="#{cicloCalendarioDesenvolvimentoBean.alterouDataInicioProrrogacaoGerente()}"/>
+															
+														<p:ajax event="change" update="terminoProrrogacaoGerente" process="@this"
+														listener="#{cicloCalendarioDesenvolvimentoBean.alterouDataInicioProrrogacaoGerente()}"/>
+														
+													 </p:calendar>
+													 <p:message for="inicioProrrogacaoGerente"/>
+                                                </div>
+                                                <div class="col-xs-2 col-xs-offset-2"><label for="fim">Fim*</label></div>
+                                                <div class="col-xs-5">
+                                                    <p:calendar id="terminoProrrogacaoGerente" mask="true" placeholder="Selecione a Data"
+                                                    	style="min-width:200px;"
+														value="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoGerente.dtFim}" disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}"
+														navigator="true" pattern="dd/MM/yyyy" mindate="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoGerente.dtInicio}"
+														label="Data Fim" required="true" showOn="button" locale="pt"/>
+													 <p:message for="terminoProrrogacaoGerente"/>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row marginT10px">
+                                            	<div class="col-xs-2 tex-center"><label for="fim">Fase*</label></div>
+                                                <div class="col-xs-5">
+                                                     <h:selectOneMenu id="faseProrrogacaoGerente" value="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoGerente}" 
+                                                     	styleClass="form-control"
+														required="true" label="Fase" disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}">
+														<f:selectItem itemLabel="Selecione" />
+														<f:selectItems value="#{cicloCalendarioDesenvolvimentoBean.fases}" var="f" itemLabel="#{f.value}" itemValue="#{f}"/>
+														<p:ajax event="change" update=":form-calendario-gerente:pnlEtapasGerente,tblProrrogacoesGerente" process="@this"/>
+													</h:selectOneMenu>
+													<p:message for="faseProrrogacaoGerente"/>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row marginT10px">
+                                                <div class="col-xs-7">
+                                                    <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                                                </div>
+                                                <div class="col-xs-9">
+                                                    <p:commandLink styleClass="btn btn-azul floatR" rendered="#{not cicloCalendarioDesenvolvimentoBean.visualizando}"
+                                                    	actionListener="#{cicloCalendarioDesenvolvimentoBean.adicionarProrrogacaoGerente()}"
+                                                    	update=":form-prorrogacao-gerente">Inserir Parâmetros</p:commandLink>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row marginT10px">
+                                                <div class="col-xs-16">
+                                                	<p:dataTable var="p" value="#{cicloCalendarioDesenvolvimentoBean.prorrogacoesGerente}" 
+													    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+									                  		id="tblProrrogacoesGerente" 
+									                  		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+									                  		emptyMessage="Nenhum registro a ser exibido" rowIndexVar="index">
+												        
+												        <p:column headerText="Unidade" styleClass="text-center">
+												            <h:outputText value="#{p.unidade.descricaoComCodigo}"/>
+												        </p:column>
+												        
+												        <p:column headerText="Colaborador" styleClass="text-center">
+												             <h:outputText value="#{p.usuario.nome}" rendered="#{not empty p.usuario}"/>
+                                                             <h:outputText value="Todos" rendered="#{empty p.usuario}"/>
+												        </p:column>
+												        
+												        <p:column headerText="Fase" styleClass="text-center">
+												             <h:outputText value="#{p.fase.value}"/>
+												        </p:column>
+												        
+												         <p:column headerText="Data Início" styleClass="text-center">
+												             <h:outputText value="#{p.dtInicio}">
+												             	<f:convertDateTime pattern="dd/MM/yyyy"/>
+												             </h:outputText>
+												        </p:column>
+												        
+												        <p:column headerText="Data Fim" styleClass="text-center">
+												             <h:outputText value="#{p.dtFim}">
+												             	<f:convertDateTime pattern="dd/MM/yyyy"/>
+												             </h:outputText>
+												        </p:column>
+												 
+												        <p:column headerText="Editar" styleClass="text-center width-col-peq" 
+												        	rendered="#{not cicloCalendarioDesenvolvimentoBean.visualizando}">
+												            <p:commandLink actionListener="#{cicloCalendarioDesenvolvimentoBean.editarProrrogacaoGerente(p)}"
+																update=":form-prorrogacao-gerente" process="@this">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+															</p:commandLink>
+												        </p:column>
+												 
+												        <p:column headerText="Excluir" styleClass="text-center width-col-peq" 
+												        	rendered="#{not cicloCalendarioDesenvolvimentoBean.visualizando}">
+												            <p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirProrrogacaoGerente').modal('show');" 
+																process="@this">
+																<i class="fa fa-trash-o"></i>
+																<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+																<f:setPropertyActionListener value="#{p}" target="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoGerente}" />
+															</p:commandLink>
+												        </p:column>
+												    </p:dataTable>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </h:form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+						modalTitulo="ATENÇÃO"
+						simAction="#{cicloCalendarioDesenvolvimentoBean.excluirProrrogacaoGerente()}"
+						modalMensagem="O parâmetro será excluído. Deseja continuar?"
+						onComplete="$('#modalConfirmacaoExcluirProrrogacaoGerente').modal('hide')"
+						modalId="modalConfirmacaoExcluirProrrogacaoGerente"
+						update=":form-prorrogacao-gerente"/>
+						
+                    <h:form id="form-calendario-colaborador" rendered="#{not cicloCalendarioDesenvolvimentoBean.cicloConfiguracao.naoParametrizarMetasDesempenhoIndividual}">
+                    
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <label>Configurar Calendário/Colaborador
+                            
+                            <p:commandLink value="Copiar Calendário Gerente" styleClass="btn btn-azul marginL10px"
+                   				process="@this" update=":form-calendario-colaborador" 
+                   				actionListener="#{cicloCalendarioDesenvolvimentoBean.copiarDatasGerenteParaColaborador()}">
+                                   	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                             </p:commandLink>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <p:outputPanel id="pnlEtapasColaborador" style="display:block" styleClass="etapas">
+                        <hr class="calendario" />
+                        <div class="row">
+                            <div class="col-xs-3 col-xs-offset-1">
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <div class="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador eq 'P' ? 'circulo-atual' : 'circulo-normal'}">
+                                            <p:commandLink value="1" process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<f:setPropertyActionListener value="#{'P'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row marginT10px">
+                                    <div class="col-xs-16">
+                                        <p class="fase">
+                                            <p:commandLink value="Pactuação" process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<f:setPropertyActionListener value="#{'P'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <p class="data">
+                                            <p:commandLink process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioPactuacao}">
+			                                        <f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<h:outputText value=" à "/>
+                                           	   	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimPactuacao}">
+                                           	   		<f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<f:setPropertyActionListener value="#{'P'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-3 col-xs-offset-1">
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <div class="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador eq 'R' ? 'circulo-atual' : 'circulo-normal'}">
+                                            <p:commandLink value="2" process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<f:setPropertyActionListener value="#{'R'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row marginT10px">
+                                    <div class="col-xs-16">
+                                        <p class="fase">
+                                            <p:commandLink value="Repactuação" process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<f:setPropertyActionListener value="#{'R'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <p class="data">
+                                            <p:commandLink process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioRepactuacao}">
+			                                        <f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<h:outputText value=" à "/>
+                                           	   	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimRepactuacao}">
+                                           	   		<f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<f:setPropertyActionListener value="#{'R'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-3 col-xs-offset-1">
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <div class="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador eq 'J' ? 'circulo-atual' : 'circulo-normal'}">
+                                            <p:commandLink value="3" process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<f:setPropertyActionListener value="#{'J'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row marginT10px">
+                                    <div class="col-xs-16">
+                                        <p class="fase">
+                                            <p:commandLink value="Ajustes" process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<f:setPropertyActionListener value="#{'J'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <p class="data">
+                                             <p:commandLink process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioAjustes}">
+			                                        <f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<h:outputText value=" à "/>
+                                           	   	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimAjustes}">
+                                           	   		<f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<f:setPropertyActionListener value="#{'J'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}"/>
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-3 col-xs-offset-1">
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <div class="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador eq 'V' ? 'circulo-atual' : 'circulo-normal'}">
+                                            <p:commandLink value="4" process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<f:setPropertyActionListener value="#{'V'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row marginT10px">
+                                    <div class="col-xs-16">
+                                        <p class="fase">
+                                            <p:commandLink value="Validação" process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<f:setPropertyActionListener value="#{'V'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" />
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-16">
+                                        <p class="data">
+                                            <p:commandLink process="@this" update="pnlEtapasColaborador,:form-prorrogacao-colaborador">
+                                            	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioValidacao}">
+			                                        <f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<h:outputText value=" à "/>
+                                           	   	<h:outputText value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimValidacao}">
+                                           	   		<f:convertDateTime pattern="dd/MM"/>
+                                           	   	</h:outputText>
+                                           	   	<f:setPropertyActionListener value="#{'V'}" target="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}"/>
+                                            	<f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+                                            </p:commandLink>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </p:outputPanel>
+                    
+                    <div class="row">
+                        <div class="col-xs-1 text-right">
+                            <label>Inicio</label>
+                        </div>
+                        <div class="col-xs-3">
+                            <p:calendar id="pactuacaoInicio" mask="true" placeholder="Selecione a Data"
+                            	style="min-width:200px;"
+                                value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioPactuacao}"
+                                navigator="true" pattern="dd/MM/yyyy" disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}"
+                                label="Data de Início" showOn="button" locale="pt">
+                                <p:ajax event="dateSelect" update=":form-calendario-colaborador" process="@this" 
+                                	listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                <p:ajax event="change" update=":form-calendario-colaborador" process="@this"
+                                    listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                            </p:calendar>
+                            <p:message for="pactuacaoInicio"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="repactuacaoInicio" mask="true" placeholder="Selecione a Data"
+                                    value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioRepactuacao}"
+                                    navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+                                    disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioPactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+                                    mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimPactuacao}"
+                                    label="Data de Início" showOn="button" locale="pt">
+                                    <p:ajax event="dateSelect" update=":form-calendario-colaborador" process="@this"
+                                        listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                    
+                                    <p:ajax event="change" update=":form-calendario-colaborador" process="@this"
+                                    listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                </p:calendar>
+                                <p:message for="repactuacaoInicio"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="ajustesInicio" mask="true" placeholder="Selecione a Data"
+                                    value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioAjustes}"
+                                    navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+                                    disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioRepactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+                                    mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioPactuacao}"
+                                    label="Data de Início" showOn="button" locale="pt">
+                                    <p:ajax event="dateSelect" update=":form-calendario-colaborador" process="@this"
+                                        listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                        
+                                    <p:ajax event="change" update=":form-calendario-colaborador" process="@this"
+                                    listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                </p:calendar>
+                                <p:message for="ajustesInicio"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="validacaoInicio" mask="true" placeholder="Selecione a Data"
+                                    value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioValidacao}"
+                                    navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+                                    disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioPactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+                                    mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioPactuacao}"
+                                    label="Data de Início" showOn="button" locale="pt">
+                                    <p:ajax event="dateSelect" update=":form-calendario-colaborador" process="@this"
+                                        listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                    <p:ajax event="change" update=":form-calendario-colaborador" process="@this"
+                                    listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                </p:calendar>
+                                <p:message for="validacaoInicio"/>
+                        </div>
+                    </div>
+                    <div class="row marginT10px">
+                        <div class="col-xs-1 text-right">
+                            <label>Fim</label>
+                        </div>
+                        <div class="col-xs-3">
+                           <p:calendar id="pactuacaoFinal" mask="true" placeholder="Selecione a Data"
+                            value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimPactuacao}"
+                            disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioPactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+                            mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioPactuacao}"
+                            navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+                            label="Data de Término" showOn="button" locale="pt">
+                                <p:ajax event="dateSelect" update=":form-calendario-colaborador" process="@this"
+                                        listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                <p:ajax event="change" update=":form-calendario-colaborador" process="@this"
+                                    listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                            </p:calendar>
+                            <p:message for="pactuacaoFinal"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="repactuacaoFinal" mask="true" placeholder="Selecione a Data"
+                                    value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimRepactuacao}"
+                                    disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioRepactuacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+                                    mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioRepactuacao}"
+                                    navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+                                    label="Data de Término" showOn="button" locale="pt">
+                                    <p:ajax event="dateSelect" update=":form-calendario-colaborador" process="@this"
+                                        listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                    <p:ajax event="change" update=":form-calendario-colaborador" process="@this"
+                                    listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                </p:calendar>
+                                <p:message for="repactuacaoFinal"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                 <p:calendar id="ajustesFinal" mask="true" placeholder="Selecione a Data"
+                                    value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimAjustes}"
+                                    disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioAjustes or cicloCalendarioDesenvolvimentoBean.visualizando}"
+                                    mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioAjustes}"
+                                    navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+                                    label="Data de Término" showOn="button" locale="pt">
+                                    <p:ajax event="dateSelect" update=":form-calendario-colaborador" process="@this"
+                                        listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                    <p:ajax event="change" update=":form-calendario-colaborador" process="@this"
+                                    listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                 </p:calendar>
+                                 <p:message for="ajustesFinal"/>
+                        </div>
+                        <div class="col-xs-3 col-xs-offset-1">
+                                <p:calendar id="validacaoFinal" mask="true" placeholder="Selecione a Data"
+                                    value="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtFimValidacao}"
+                                    disabled="#{empty cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioValidacao or cicloCalendarioDesenvolvimentoBean.visualizando}"
+                                    mindate="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador.dtInicioValidacao}"
+                                    navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+                                    label="Data de Término" showOn="button" locale="pt">
+                                    <p:ajax event="dateSelect" update=":form-calendario-colaborador" process="@this"
+                                        listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                    <p:ajax event="change" update=":form-calendario-colaborador" process="@this"
+                                    listener="#{cicloCalendarioDesenvolvimentoBean.validarDatasColaborador()}"/>
+                                </p:calendar>
+                                 <p:message for="validacaoFinal"/>
+                        </div>
+                    </div>
+                    </h:form>
+                    
+                    <ui:fragment rendered="#{not cicloCalendarioDesenvolvimentoBean.cicloConfiguracao.naoParametrizarMetasDesempenhoIndividual}">
+	                    <div class="row marginT10px">
+	                        <div class="col-xs-16">
+	                            <div class="panel-group" id="accordion">
+	                                <div class="panel panel-default">
+	                                    <div class="panel-heading">
+	                                        <h5 class="panel-title">
+	                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="jQuery('i',this).toggleClass('fa-plus-square-o fa-minus-square-o');">
+	                                                <i class="fa fa-plus-square-o"></i> Período de Exceção
+	                                            </a>
+	                                        </h5>
+	                                    </div>
+	                                    <div id="collapseTwo" class="panel-collapse collapse">
+	                                    <h:form id="form-prorrogacao-colaborador">
+	                                        <div class="panel-body">
+	                                            <div class="row">
+	                                                <div class="col-xs-2 tex-center"><label for="unidade">Unidade*</label></div>
+	                                                <div class="col-xs-5">
+	                                                    <p:autoComplete id="unidade" value="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoColaborador.unidade}" 
+															styleClass="form-control2" style="width:100%;"
+															completeMethod="#{cicloCalendarioDesenvolvimentoBean.completeUnidade}"
+										                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+										                	converter="UnidadeConverter" forceSelection="true" 
+										                	disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}">
+										                	<p:ajax event="itemSelect" process="@this" update="nomeUsuario"/>
+										                </p:autoComplete>
+									                	<p:message for="unidade"/>
+	                                                </div>
+	                                                <div class="col-xs-2 col-xs-offset-2"><label for="colaborador">Colaborador*</label></div>
+	                                                <div class="col-xs-5">
+	                                                    <h:selectOneMenu id="nomeUsuario" value="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoColaborador.usuario}" styleClass="form-control"
+	                                                        converter="UsuarioConverter" required="true" label="Colaborador"
+	                                                        disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}">
+	                                                        <f:selectItem itemLabel="Selecione" />
+	                                                        <f:selectItems value="#{cicloCalendarioDesenvolvimentoBean.usuariosColaborador}" var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+	                                                    </h:selectOneMenu>
+	                                                    <p:message for="nomeUsuario"/>
+	                                                </div>
+	                                            </div>
+	                                            <div class="row marginT10px">
+	                                                <div class="col-xs-2 tex-center"><label for="inicio">Inicio*</label></div>
+	                                                <div class="col-xs-5">
+	                                                     <p:calendar id="inicioProrrogacaoColaborador" mask="true" placeholder="Selecione a Data"
+	                                                        value="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoColaborador.dtInicio}"
+	                                                        navigator="true" pattern="dd/MM/yyyy" style="min-width:200px;"
+	                                                        label="Data de Início" required="true" showOn="button" locale="pt"
+	                                                        disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}">
+	                                                        
+	                                                        <p:ajax event="dateSelect" update="terminoProrrogacaoColaborador" process="@this"
+	                                                            listener="#{cicloCalendarioDesenvolvimentoBean.alterouDataInicioProrrogacaoColaborador()}"/>
+	                                                            
+	                                                        <p:ajax event="change" update="terminoProrrogacaoColaborador" process="@this"
+	                                                        listener="#{cicloCalendarioDesenvolvimentoBean.alterouDataInicioProrrogacaoColaborador()}"/>
+	                                                        
+	                                                     </p:calendar>
+	                                                     <p:message for="inicioProrrogacaoColaborador"/>
+	                                                </div>
+	                                                <div class="col-xs-2 col-xs-offset-2"><label for="fim">Fim*</label></div>
+	                                                <div class="col-xs-5">
+	                                                    <p:calendar id="terminoProrrogacaoColaborador" mask="true" placeholder="Selecione a Data"
+	                                                    	style="min-width:200px;"
+	                                                        value="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoColaborador.dtFim}" disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}"
+	                                                        navigator="true" pattern="dd/MM/yyyy" mindate="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoColaborador.dtInicio}"
+	                                                        label="Data Fim" required="true" showOn="button" locale="pt"/>
+	                                                     <p:message for="terminoProrrogacaoColaborador"/>
+	                                                </div>
+	                                            </div>
+	                                            
+	                                           <div class="row marginT10px">
+	                                            	<div class="col-xs-2 tex-center"><label for="fim">Fase*</label></div>
+	                                                <div class="col-xs-5">
+	                                                     <h:selectOneMenu id="faseProrrogacaoColaborador" value="#{cicloCalendarioDesenvolvimentoBean.faseProrrogacaoColaborador}" 
+	                                                     	styleClass="form-control"
+															required="true" label="Fase" disabled="#{cicloCalendarioDesenvolvimentoBean.visualizando}">
+															<f:selectItem itemLabel="Selecione" />
+															<f:selectItems value="#{cicloCalendarioDesenvolvimentoBean.fases}" var="f" itemLabel="#{f.value}" itemValue="#{f}"/>
+															<p:ajax event="change" update=":form-calendario-colaborador:pnlEtapasColaborador,tblProrrogacoesColaborador" process="@this"/>
+														</h:selectOneMenu>
+														<p:message for="faseProrrogacaoColaborador"/>
+	                                                </div>
+	                                            </div>
+	                                            
+	                                            <div class="row marginT10px">
+	                                                <div class="col-xs-7">
+	                                                    <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+	                                                </div>
+	                                                <div class="col-xs-9">
+	                                                    <p:commandLink styleClass="btn btn-azul floatR" rendered="#{not cicloCalendarioDesenvolvimentoBean.visualizando}"
+	                                                        actionListener="#{cicloCalendarioDesenvolvimentoBean.adicionarProrrogacaoColaborador()}"
+	                                                        update=":form-prorrogacao-colaborador">Inserir Parâmetros</p:commandLink>
+	                                                </div>
+	                                            </div>
+	                                            
+	                                            <div class="row marginT10px">
+	                                                <div class="col-xs-16">
+	                                                    <p:dataTable var="p" value="#{cicloCalendarioDesenvolvimentoBean.prorrogacoesColaborador}" 
+	                                                        tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+	                                                            id="tblProrrogacoesColaborador" 
+	                                                            paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+	                                                            emptyMessage="Nenhum registro a ser exibido" rowIndexVar="index">
+	                                                        
+	                                                        <p:column headerText="Unidade" styleClass="text-center">
+	                                                            <h:outputText value="#{p.unidade.descricaoComCodigo}"/>
+	                                                        </p:column>
+	                                                        
+	                                                        <p:column headerText="Colaborador" styleClass="text-center">
+	                                                             <h:outputText value="#{p.usuario.nome}"/>
+	                                                        </p:column>
+	                                                        
+	                                                        <p:column headerText="Fase" styleClass="text-center">
+													             <h:outputText value="#{p.fase.value}"/>
+													        </p:column>
+	                                                        
+	                                                         <p:column headerText="Data Início" styleClass="text-center">
+	                                                             <h:outputText value="#{p.dtInicio}">
+	                                                                <f:convertDateTime pattern="dd/MM/yyyy"/>
+	                                                             </h:outputText>
+	                                                        </p:column>
+	                                                        
+	                                                        <p:column headerText="Data Fim" styleClass="text-center">
+	                                                             <h:outputText value="#{p.dtFim}">
+	                                                                <f:convertDateTime pattern="dd/MM/yyyy"/>
+	                                                             </h:outputText>
+	                                                        </p:column>
+	                                                 
+	                                                        <p:column headerText="Editar" styleClass="text-center width-col-peq" 
+	                                                        	rendered="#{not cicloCalendarioDesenvolvimentoBean.visualizando}">
+	                                                            <p:commandLink actionListener="#{cicloCalendarioDesenvolvimentoBean.editarProrrogacaoColaborador(p)}"
+	                                                                update=":form-prorrogacao-colaborador" process="@this">
+	                                                                <i class="fa fa-pencil-square-o"></i>
+	                                                                <f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+	                                                            </p:commandLink>
+	                                                        </p:column>
+	                                                 
+	                                                        <p:column headerText="Excluir" styleClass="text-center width-col-peq" 
+	                                                        	rendered="#{not cicloCalendarioDesenvolvimentoBean.visualizando}">
+	                                                            <p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirProrrogacaoColaborador').modal('show');" 
+	                                                                process="@this">
+	                                                                <i class="fa fa-trash-o"></i>
+	                                                                <f:param name="cid" value="#{cicloCalendarioDesenvolvimentoBean.conversation.id}"/>
+	                                                                <f:setPropertyActionListener value="#{p}" target="#{cicloCalendarioDesenvolvimentoBean.prorrogacaoColaborador}" />
+	                                                            </p:commandLink>
+	                                                        </p:column>
+	                                                    </p:dataTable>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                        </h:form>
+	                                    </div>
+	                                </div>
+	                            </div>
+	                        </div>
+	                    </div>
+	                    
+	                    <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+							modalTitulo="ATENÇÃO"
+							simAction="#{cicloCalendarioDesenvolvimentoBean.excluirProrrogacaoColaborador()}"
+							modalMensagem="O parâmetro será excluído. Deseja continuar?"
+							onComplete="$('#modalConfirmacaoExcluirProrrogacaoColaborador').modal('hide')"
+							modalId="modalConfirmacaoExcluirProrrogacaoColaborador"
+							update=":form-prorrogacao-colaborador"/>
+						
+					</ui:fragment>
+						
+                    <div class="row">
+                        <div class="col-xs-16">
+                        	<h:form>
+                        		<h:commandLink action="#{cicloCalendarioDesenvolvimentoBean.salvar()}" styleClass="btn btn-azul floatR marginL10px" 
+                        		value="Continuar Configuração" rendered="#{not cicloCalendarioDesenvolvimentoBean.visualizando}"/>
+                            </h:form>
+                        </div>
+                    </div>
+         </div>
+	</ui:define>
+</ui:composition>

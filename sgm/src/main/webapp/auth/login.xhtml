@@ -1,0 +1,151 @@
+<ui:composition template="/layout/login.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+	<ui:define name="corpo">
+	
+		<f:metadata>
+			<f:viewParam id="expirado" name="expirado" value="#{loginBean.expirado}" />
+			<f:event type="preRenderView" listener="#{loginBean.inicializar()}" />
+		</f:metadata>
+			
+		<div class="caixa-login">
+            <div class="row marginT10px">
+                <div class="col-xs-14 col-xs-offset-1">
+                    <img src="#{resource['img:logotipo-sgm-maior.png']}" width="150" height="41" class="logotipo" />
+                </div>
+            </div>
+            <div class="row marginT20px">
+                <div class="col-xs-14 col-xs-offset-1 text-center fontsize12px">Digite o CPF e a SENHA para acessar o Sistema.</div>
+            </div>
+            <div class="row marginT10px">
+                <hr/>
+            </div>
+            
+            <div class="row marginT10px">
+                <div class="col-xs-14 col-xs-offset-1">
+                	<h:form id="frmLogin" onkeypress="if(event.keyCode == 13){jQuery('#frmLogin\\:btnLogin').click();}">
+                        
+                        <div class="form-group">
+                            <p:inputMask styleClass="form-control cpf-msg" id="cpf" placeholder="CPF" size="20" 
+                            	mask="999.999.999-99" value="#{loginBean.cpf}" converter="CPFConverter">
+                            	<p:ajax event="blur" update="pnlUf" listener="#{loginBean.alterouCpf()}"/>
+                            </p:inputMask>
+                            <p:message for="cpf"/>
+                        </div>
+
+                       	<h:panelGroup id="pnlUf">
+                       		<div class="form-group">
+	                        	<h:selectOneMenu id="uf" value="#{loginBean.uf}" 
+	                        		styleClass="form-control uf-msg " rendered="#{loginBean.possuiMaisDeUmaUf}">
+									<f:selectItem itemLabel="Selecione a UF"/>
+									<f:selectItems value="#{loginBean.ufsUsuario}" var="ufUsuario" 
+										itemLabel="#{ufUsuario}" itemValue="#{ufUsuario}"/>
+									<p:ajax event="change" process="@this" update="pnlEsconderMsg"/>
+								</h:selectOneMenu>
+								<p:message for="uf"/>
+							</div>
+						</h:panelGroup>
+						
+						<h:panelGroup id="pnlMatricula">
+                       		<div class="form-group">
+	                        	<h:selectOneMenu id="matricula" value="#{loginBean.colaboradorSelecionado}" 
+	                        		styleClass="form-control" rendered="#{loginBean.possuiMaisUmaMatricula}"
+	                        		converter="RMColaboradorConverter">
+									<f:selectItem itemLabel="Selecione a matrícula"/>
+									<f:selectItems value="#{loginBean.colaboradoresUsuario}" var="colaborador" 
+										itemLabel="#{colaborador.rmColaboradorPK.colaboradorMatricula}" 
+										itemValue="#{colaborador}"/>
+									<p:ajax event="change" process="@this" update="pnlEsconderMsg"/>
+								</h:selectOneMenu>
+								<p:message for="matricula"/>
+							</div>
+						</h:panelGroup>
+						
+                        <div class="form-group">
+                            <p:password id="senha" maxlength="8" value="#{loginBean.senha}" styleClass="form-control senha-msg" placeholder="SENHA" data-toggle="tooltip"
+                            			title="O campo é alfanumérico e deve conter pelo menos uma letra maiúscula, com no mínimo 5 caracteres e um máximo de 8 caracteres." onfocus="hideMensagens()">
+                            	<p:ajax event="change" update="pnlEsconderMsg"/>
+                            </p:password>
+                            <p:message for="senha"/>
+                            <span class="help-block">Ex: (seBrae14)</span>
+                        </div>
+                        
+                        <h:commandLink action="#{loginBean.login}" value="ACESSAR SISTEMA" styleClass="btn btn-default width100"  id="btnLogin"/>
+                        
+                        <ui:fragment rendered="#{facesContext.maximumSeverity.ordinal ge 2}">
+	                        <div id="msgLogin" class="alert alert-danger alert-danger-link" role="alert">
+	                            <button class="close" data-dismiss="alert" type="button">
+	                            <span aria-hidden="true">×</span>
+	                            <span class="sr-only">Fechar</span>
+	                            </button>
+	                            <ui:repeat value="#{facesContext.messageList}" var="facesMessage">
+							            <h:outputText value="#{facesMessage.summary}" escape="false" />
+							    </ui:repeat>
+	                        </div>
+                        </ui:fragment>
+                        
+                        <ui:fragment rendered="#{facesContext.maximumSeverity.ordinal eq 0}">
+	                        <div id="msgLogin" class="alert alert-success alert-success-link" role="alert">
+	                            <button class="close" data-dismiss="alert" type="button">
+	                            <span aria-hidden="true">×</span>
+	                            <span class="sr-only">Fechar</span>
+	                            </button>
+	                            <ui:repeat value="#{facesContext.messageList}" var="facesMessage">
+							         <h:outputText value="#{facesMessage.summary}" escape="false" />
+							    </ui:repeat>
+	                        </div>
+                        </ui:fragment>
+                        
+                        <p:blockUI block="frmLogin" trigger="cpf">
+                        	Carregando...
+                        </p:blockUI>
+                        
+                        <h:panelGroup id="pnlEsconderMsg">
+	                        <script type="text/javascript">
+								// <![CDATA[
+								window.setTimeout(function() {
+									var msg = jQuery("#msgLogin");
+									if(msg){
+										msg.hide();
+										}
+									}, 10000);
+								// ]]>
+								
+								$('document').ready(function() {
+									$('.cpf-msg, .senha-msg, uf-msg').on('focus', function() {
+										$(this).next().hide();
+									});
+								});
+							</script>
+						</h:panelGroup>
+                        
+                    </h:form>
+                </div>
+            </div>
+            <div class="row marginT20px">
+                <div class="col-xs-14 col-xs-offset-1">
+                    <div class="sub-botoes">
+                    	<h:form>
+                    		<h:commandLink action="#{loginBean.primeiroAcesso()}" value="Primeiro acesso? Clique aqui" />
+                    	</h:form>
+                    </div>
+                </div>
+            </div>
+            <div class="row marginT8px">
+                <div class="col-xs-14 col-xs-offset-1">
+                    <div class="sub-botoes">
+                        <h:form>
+                    		<h:commandLink action="#{loginBean.recuperarSenha()}" value="Esqueci minha senha" />
+                    	</h:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</ui:define>
+</ui:composition>

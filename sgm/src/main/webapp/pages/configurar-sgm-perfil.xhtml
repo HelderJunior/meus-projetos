@@ -1,0 +1,311 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+	
+      <h:form id="form_configurar_perfil">
+      
+      	<p:blockUI block=":form_configurar_perfil" trigger="btnInserirParametro,btnSalvarParametro">
+			     Salvando configurações...
+		</p:blockUI>
+			
+		<div class="row marginT10px">
+			<div class="col-xs-8">
+				<label for="uf">UF*</label>
+				<h:selectOneMenu id="unidade" value="#{configurarPerfilSgmBean.uf}" styleClass="form-control"
+					disabled="#{not appBean.usuarioEstaComPerfil('ROLE_ADM_MASTER')}" required="true" label="UF">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems value="#{configurarPerfilSgmBean.ufs}" var="uf" 
+						itemLabel="#{uf}" itemValue="#{uf}"/>
+					<p:ajax event="change" process="@this" update="tblUnidadesSelecionadas,nomeColaborador" 
+						listener="#{configurarPerfilSgmBean.alterouUf()}"/>
+				</h:selectOneMenu>
+				<p:message for="unidade" />
+			</div>
+			
+			<div class="col-xs-8">
+				<label for="perfilAvaliador">Tipo de Perfil Avaliador*</label>
+				<h:selectOneMenu id="perfilAvaliador"
+					value="#{configurarPerfilSgmBean.tipoPerfilAvaliador}"
+					styleClass="form-control" converter="PerfilConverter">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems
+						value="#{configurarPerfilSgmBean.tiposPerfilAvaliador}" var="tpa"
+						itemLabel="#{tpa.descricao}" itemValue="#{tpa}" />
+				</h:selectOneMenu>
+				<p:message for="perfilAvaliador" />
+			</div>
+		</div>
+		<div class="row marginT10px">
+            <div class="col-xs-16">
+                <label for="btmodalUnidade">Unidade*</label>
+                <p:commandLink id="btmodalUnidade" styleClass="btn btn-azul marginL15px" value="Adicionar"
+                            	onsuccess="jQuery('#modalUnidade').modal('show');"
+                            	actionListener="#{configurarPerfilSgmBean.prepararModalVincularUnidades()}"
+                            	update=":formUnidades" process="@this"/>
+            </div>
+        </div>
+        <div class="row marginT10px">
+            <div class="col-xs-16"> 
+               <div class="titulo-tabela bgCorPadrao cinzaFonte">Unidades</div>
+               <p:dataTable var="un" value="#{configurarPerfilSgmBean.unidadesVinculadas}" 
+				    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+                  		id="tblUnidadesSelecionadas" 
+                  		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+                  		emptyMessage="Nenhuma unidade selecionada" rowIndexVar="index">
+
+					<p:column headerText="#" styleClass="text-center width-col-peq">
+			            #{index+1}
+			        </p:column>
+			        
+			        <p:column headerText="Unidade" styleClass="text-center">
+			            #{un.descricaoComCodigo}
+			        </p:column>
+			 
+			        <p:column headerText="Editar" styleClass="text-center width-col-peq">
+			            <p:commandLink actionListener="#{configurarPerfilSgmBean.prepararModalVincularUnidadesEditar()}"
+							oncomplete="jQuery('#modalUnidade').modal('show');" update=":formUnidades" 
+							process="@this">
+							<i class="fa fa-pencil-square-o"></i>
+							<f:param name="cid" value="#{configurarPerfilSgmBean.conversation.id}"/>
+						</p:commandLink>
+			        </p:column>
+			 
+			        <p:column headerText="Excluir" styleClass="text-center width-col-peq">
+			            <p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirUnidade').modal('show');" 
+							process="@this">
+							<i class="fa fa-trash-o"></i>
+							<f:param name="cid" value="#{configurarPerfilSgmBean.conversation.id}"/>
+							<f:setPropertyActionListener value="#{un}" target="#{configurarPerfilSgmBean.unidadeSelecionada}"/>
+						</p:commandLink>
+			        </p:column>
+			    </p:dataTable>
+            </div>
+        </div>
+		<div class="row marginT10px">
+			<div class="col-xs-8">
+				<label for="nomeColaborador">Nome do Colaborador*</label>
+				<h:selectOneMenu id="nomeColaborador" value="#{configurarPerfilSgmBean.usuario}"
+					styleClass="form-control" converter="UsuarioConverter">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems value="#{configurarPerfilSgmBean.usuarios}" 
+						var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+				</h:selectOneMenu>
+				<p:message for="nomeColaborador" />
+			</div>
+		</div>
+		
+		<div class="row marginT20px">
+			<div class="col-xs-8">
+				<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+			</div>
+			<div class="col-xs-8">
+				<p:commandLink value="Inserir Parâmetro"
+					styleClass="btn btn-azul floatR" id="btnInserirParametro"
+					actionListener="#{configurarPerfilSgmBean.inserirParametro()}"
+					update=":form_configurar_perfil" oncomplete="irPara('#content_config_sgm');"
+					rendered="#{not configurarPerfilSgmBean.editando}" />
+					
+				<p:commandLink value="Salvar Parâmetro" id="btnSalvarParametro"
+					styleClass="btn btn-azul floatR" style="margin-left:10px;"
+					actionListener="#{configurarPerfilSgmBean.alterarParametro()}"
+					update=":form_configurar_perfil" oncomplete="irPara('#content_config_sgm');"
+					rendered="#{configurarPerfilSgmBean.editando}"/>
+
+				<p:commandLink value="Cancelar" styleClass="btn btn-azul floatR"
+					actionListener="#{configurarPerfilSgmBean.reset()}"
+					update=":form_configurar_perfil"
+					rendered="#{configurarPerfilSgmBean.editando}" />
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-xs-16">
+				<hr/>
+			</div>
+		</div>
+		
+		<p:messages for="form_configurar_perfil" autoUpdate="true" id="form_configurar_perfil_messages"/>
+		
+		<script type="text/javascript">
+			// <![CDATA[
+			function apagarMensagemConfigurarPerfil(){
+				window.setTimeout(function(){
+					var msg = jQuery("#form_configurar_perfil\\:form_configurar_perfil_messages");
+					if(msg){
+						msg.hide();
+						}
+					}, 10000);
+			}
+			apagarMensagemConfigurarPerfil();
+			// ]]>
+		  </script>
+		
+		<div class="row marginT30px">
+            <div class="col-xs-16">
+                <p class="titulo-sem-marcador">Configurações Salvas</p>
+            </div>
+        </div>
+        
+        <div class="row marginT25px">
+	      <div class="col-xs-3">
+	         <p:commandLink value="Selecionar Todos" id="btnSelecionarTodos" styleClass="btn btn-azul width100 bt-no-padding" >
+	         	<p:ajax event="click" process="@this" listener="#{configurarPerfilSgmBean.selecionarTodos()}" update=":form_configurar_perfil"/> 
+	         </p:commandLink> 
+	      </div>
+	      <div class="col-xs-3">
+        	 <p:commandLink id="btExcluirDados" value="Excluir Todos" styleClass="btn btn-azul width100 btnExcluir" 
+        						oncomplete="jQuery('#modalConfirmacaoExcluirPerfilSelecionados').modal('show');" process="@this"/>
+	      </div>
+	   </div>
+        
+		<div class="row marginT20px">
+			<div class="col-xs-16">
+			<div class="table-responsive" style="overflow-y:auto;">
+				<p:dataTable var="up"
+					value="#{configurarPerfilSgmBean.usuariosChefe}"
+					tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+					id="tblUnidadesPerfil" paginator="true" rows="20" paginatorPosition="bottom"
+					paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+					emptyMessage="Nenhuma registro a ser exibido" rowIndexVar="index">
+					
+					<p:column headerText="#" styleClass="text-center width-col-peq">
+						<h:selectBooleanCheckbox styleClass="ui-selectcheckbox" value="#{up.selecionado}">
+							<p:ajax event="change" process="@this" update=":form_configurar_perfil"/> 
+						</h:selectBooleanCheckbox>
+					</p:column>
+					
+					<p:column headerText="Nome" styleClass="text-center input-width" sortBy="#{up.usuario.nome}" width="400" filterBy="#{up.usuario.nome}" >
+			            #{up.usuario.nome}
+					</p:column>
+					
+					<p:column headerText="CPF" styleClass="text-center input-width" sortBy="#{up.usuario.cpf}" width="400" >
+			            #{up.usuario.cpf}
+					</p:column>
+
+					<p:column headerText="Email" styleClass="text-center" sortBy="#{up.usuario.email}" width="250">
+			            #{up.usuario.email}
+			        </p:column>
+			        
+			        <p:column headerText="Unidade" styleClass="text-center input-width" sortBy="#{up.unidade.descricaoComCodigo}" width="500" filterBy="#{up.unidade.descricaoComCodigo}">
+			        	<h:outputText value="#{up.unidade.descricaoComCodigo}" style="white-space:nowrap;" />
+			        </p:column>
+			        
+					<p:column headerText="Tipo de Perfil" styleClass="text-center" width="150" sortBy="#{up.perfil.descricao}">
+			            #{up.perfil.descricao}
+			        </p:column>
+			        
+			        <p:column headerText="Situação do RM" styleClass="text-center" width="150" sortBy="#{up.usuario.ativoRm}">
+			            #{up.usuario.ativoRm ? 'Ativo':'Inativo'}
+			         </p:column>
+			         
+			        <p:column headerText="Editar" styleClass="text-center width-col-peq" width="60">
+			        	<p:commandLink actionListener="#{configurarPerfilSgmBean.editar(up)}" 
+			        		update=":form_configurar_perfil" process="@this" 
+			        		oncomplete="irPara('#content_config_sgm');"> 
+							<i class="fa fa-pencil-square-o"></i>
+							<f:param name="cid" value="#{configurarPerfilSgmBean.conversation.id}"/>
+						</p:commandLink>
+			        </p:column>
+
+					<p:column headerText="Excluir" styleClass="text-center width-col-peq" width="60">
+			        	<p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirPerfil').modal('show');" process="@this"> 
+							<i class="fa fa-trash-o"></i>
+							<f:setPropertyActionListener value="#{up}" target="#{configurarPerfilSgmBean.usuarioChefe}" />
+							<f:param name="cid" value="#{configurarPerfilSgmBean.conversation.id}"/>
+						</p:commandLink>
+			        </p:column>
+				</p:dataTable>
+				</div>
+			</div>
+		</div>
+	</h:form>
+	
+	<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{configurarPerfilSgmBean.excluir()}"
+			modalMensagem="O parâmetro será excluído. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirPerfil').modal('hide')"
+			modalId="modalConfirmacaoExcluirPerfil" update=":form_configurar_perfil"/>
+			
+	<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{configurarPerfilSgmBean.desvincularUnidade()}"
+			modalMensagem="A Unidade será desvinculada do usuário. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirUnidade').modal('hide')"
+			modalId="modalConfirmacaoExcluirUnidade" update=":form_configurar_perfil"/>
+	
+	<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{configurarPerfilSgmBean.excluirPerfilSelecionadas()}"
+			modalMensagem="Os parâmetros seram excluídos. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirPerfilSelecionados').modal('hide')"
+			modalId="modalConfirmacaoExcluirPerfilSelecionados" update=":form_configurar_perfil"/>
+			
+	<div class="modal fade" id="modalUnidade" tabindex="-1" role="dialog" aria-labelledby="modalUnidade" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="formUnidades">
+	                    <div class="modal-header">
+	                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+	                        <h4 class="modal-title">Adicionar Unidade Associada</h4>
+	                    </div>
+	                    <div class="modal-body">
+	                    	<p:messages for="formUnidades" autoUpdate="true"/>
+	                    	<div class="row">
+	                    		<div class="col-xs-8">
+	                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+	                    				onclick="selecioanarTodosLista();" styleClass="btn"/>  
+	                    		</div>
+	                    	</div>
+	                        <div class="row marginT05px">
+	                            <div class="col-xs-16">
+	                               		<p:selectManyMenu id="nomeBusca" value="#{configurarPerfilSgmBean.unidadesSelecionadasVincular}" 
+	                               			converter="UnidadeAutocompleteConverter"
+                          					var="t" filter="true" filterMatchMode="contains" showCheckbox="true" styleClass="ui-selectlistbox-item input_100P" 
+                          						style="width: 100% !important" ondblclick="jQuery('.btn_add_unidades').click();">
+           						 			<f:selectItems value="#{configurarPerfilSgmBean.unidadesDisponiveis}" 
+           						 				var="unidadeSele" itemLabel="#{unidadeSele.descricaoComCodigo}" itemValue="#{unidadeSele}" />
+	            							 <p:column>
+	                							<h:outputText value="#{t.descricaoComCodigo}" style="float:left;white-space:nowrap;text-align:left;"/>
+	            							 </p:column>                      	
+	                              		</p:selectManyMenu>
+		                             	<p:message for="nomeBusca"/>
+		                             
+		                             <script type="text/javascript">
+		                            	 function marcarTodos() {
+		                            		 jQuery('.ui-selectcheckbox').click();
+		                             	}	
+		                             
+										function selecioanarTodosLista(){
+											if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+												$('#modalConfirmacaoSelecaoLista').modal('show');
+											}else{
+												 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+											}
+										}	 
+		                             </script>
+		                             
+	                            </div>
+	                        </div>
+	                    </div>
+	                    <div class="modal-footer">
+	                        <div class="row">
+	                            <div class="col-xs-8">
+	                                <p class="campos-obrigatorios text-left"></p>
+	                            </div>
+	                            <div class="col-xs-8">
+	                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+	                                <p:commandLink styleClass="btn btn-primary btn_add_unidades" value="Incluir" 
+		                                	actionListener="#{configurarPerfilSgmBean.vincularUnidades()}" 
+		                                	update=":form_configurar_perfil:tblUnidadesSelecionadas,:form_configurar_perfil:nomeColaborador"
+		                                	oncomplete="jQuery('#modalUnidade').modal('hide');">
+		                                	<f:param name="cid" value="#{configurarPerfilSgmBean.conversation.id}"/>
+		                             </p:commandLink>
+	                            </div>  
+	                        </div>
+	                    </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+			modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+			modalId="modalConfirmacaoSelecaoLista"/>
+</ui:composition>

@@ -1,0 +1,237 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><h:commandLink action="/pages/ciclo/listar.xhtml"
+				value="Ciclo de Avaliação" /></li>
+		<li><h:commandLink action="/pages/ciclo/manter.xhtml"
+				value="Manter Ciclo de Avaliação" /></li>
+		<li><a href="#">Marco Crítico</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{cicloConfigurarMarcosCriticosBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<h:form id="form-marco-critico">
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurar Marco Crítico</p>
+					</div>
+				</div>
+
+				<div class="row marginT20px">
+					<div class="col-xs-10 text-right">
+						<label for="marcoInsercao">Unidade*</label>
+					</div>
+					<div class="col-xs-6">
+						<p:autoComplete id="unidadeMarcoCritico" 
+								value="#{cicloConfigurarMarcosCriticosBean.configuracaoMarcoCritico.unidade}" 
+								styleClass="form-control2" style="width:100%;"
+								completeMethod="#{cicloConfigurarMarcosCriticosBean.completeUnidade}"
+			                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+			                	converter="UnidadeConverter" forceSelection="true" 
+			                	disabled="#{cicloConfigurarMarcosCriticosBean.visualizando}">
+			                	<p:ajax event="itemSelect" process="@this"/>
+			             </p:autoComplete>
+						<p:message for="unidadeMarcoCritico" />
+					</div>
+				</div>
+
+				<div class="row marginT20px">
+					<div class="col-xs-10 text-right">
+						<label for="marcoInsercao">Tipo da Meta*</label>
+					</div>
+					<div class="col-xs-6">
+						<h:selectOneMenu id="tipoMeta"
+							value="#{cicloConfigurarMarcosCriticosBean.configuracaoMarcoCritico.tipo}"
+							styleClass="form-control" required="true" label="Tipo da Meta">
+							<f:selectItem itemLabel="Selecione" />
+							<f:selectItems
+								value="#{cicloConfigurarMarcosCriticosBean.tiposMeta}" var="tl"
+								itemLabel="#{tl.value}" itemValue="#{tl}" />
+						</h:selectOneMenu>
+						<p:message for="tipoMeta" />
+					</div>
+				</div>
+
+				<div class="row marginT20px">
+					<div class="col-xs-10 text-right">
+						<label for="marcoInsercao">O campo marco critico deve ser
+							disponibilizado na tela de inserção de metas?*</label>
+					</div>
+					<div class="col-xs-6">
+						<h:selectOneMenu styleClass="form-control" id="marcoInsercao"
+							value="#{cicloConfigurarMarcosCriticosBean.configuracaoMarcoCritico.disponibilizadoInsercaoMetas}"
+							converter="javax.faces.Boolean" required="true">
+							<f:selectItem itemLabel="Sim" itemValue="true" />
+							<f:selectItem itemLabel="Não" itemValue="false" />
+						</h:selectOneMenu>
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-10 text-right">
+						<label for="insercaoObrigatoria">A inserção do Marco
+							Crítico é Obrigatória?*</label>
+					</div>
+					<div class="col-xs-6">
+						<h:selectOneMenu styleClass="form-control"
+							id="insercaoObrigatoria"
+							value="#{cicloConfigurarMarcosCriticosBean.configuracaoMarcoCritico.insercaoObrigatoria}"
+							converter="javax.faces.Boolean" required="true">
+							<f:selectItem itemLabel="Sim" itemValue="true" />
+							<f:selectItem itemLabel="Não" itemValue="false" />
+						</h:selectOneMenu>
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-10 text-right">
+						<label for="qtdMarcos">Quantidade de Marcos Críticos*</label>
+					</div>
+					<div class="col-xs-6">
+						<pe:inputNumber
+							value="#{cicloConfigurarMarcosCriticosBean.configuracaoMarcoCritico.qtdMarcosCriticos}"
+							placeholder="Quantidade de Marcos Críticos" id="qtdMarcos"
+							label="Quantidade de Marcos Críticos" required="true"
+							decimalPlaces="0" minValue="0" maxValue="999"
+							converter="javax.faces.Integer" converterMessage="Número Inválido"
+							styleClass="form-control2" />
+						<p:message for="qtdMarcos" />
+					</div>
+				</div>
+
+				<div class="row marginT10px">
+					<div class="col-xs-16">
+						<div class="alert alert-warning text-center" role="alert">Se
+							a inserção do Marco Critico for obrigatória, cada marco critico
+							deverá ter uma Evidencia de entrega</div>
+					</div>
+				</div>
+
+				<div class="row marginT20px">
+					<div class="col-xs-8">
+						<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+					</div>
+					<div class="col-xs-8">
+						<p:commandLink
+							action="#{cicloConfigurarMarcosCriticosBean.salvar()}"
+							styleClass="btn btn-azul floatR marginL10px"
+							value="Inserir Parâmetro" update=":form-marco-critico"
+							rendered="#{not cicloConfigurarMarcosCriticosBean.visualizando and empty cicloConfigurarMarcosCriticosBean.configuracaoMarcoCritico.id}" />
+
+						<p:commandLink
+							action="#{cicloConfigurarMarcosCriticosBean.alterarParametro()}"
+							styleClass="btn btn-azul floatR marginL10px"
+							value="Salvar Parâmetro" update=":form-marco-critico"
+							rendered="#{not cicloConfigurarMarcosCriticosBean.visualizando and not empty cicloConfigurarMarcosCriticosBean.configuracaoMarcoCritico.id}" />
+					</div>
+				</div>
+
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurações Salvas</p>
+					</div>
+				</div>
+
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<p:dataTable var="obj"
+							value="#{cicloConfigurarMarcosCriticosBean.cicloConfiguracao.configuracoesMarcoCritico}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblParametrosInseridos"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhum parâmetro adicionado" rowIndexVar="index">
+
+							<p:column headerText="Unidade" styleClass="text-center">
+								<h:outputText value="#{obj.unidade.descricaoComCodigo}" />
+							</p:column>
+
+							<p:column headerText="Tipo de Meta" styleClass="text-center">
+								<h:outputText value="#{obj.tipo.value}" />
+							</p:column>
+
+							<p:column headerText="Inserção de Metas" styleClass="text-center">
+								<h:outputText
+									value="#{obj.disponibilizadoInsercaoMetas ? 'SIM':'NÃO'}" />
+							</p:column>
+
+							<p:column headerText="Inserção Obrigatória"
+								styleClass="text-center">
+								<h:outputText value="#{obj.insercaoObrigatoria ? 'SIM':'NÃO'}" />
+							</p:column>
+							
+							<p:column headerText="Quantidade"
+								styleClass="text-center">
+								<h:outputText value="#{obj.qtdMarcosCriticos}"/>
+							</p:column>
+
+							<p:column headerText="Editar"
+								styleClass="text-center width-col-peq"
+								rendered="#{not cicloConfigurarMarcosCriticosBean.visualizando}">
+								<p:commandLink oncomplete="irPara()"
+									actionListener="#{cicloConfigurarMarcosCriticosBean.editar(obj)}"
+									update=":form-marco-critico" process="@this">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarMarcosCriticosBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								styleClass="text-center width-col-peq"
+								rendered="#{not cicloConfigurarMarcosCriticosBean.visualizando}">
+								<p:commandLink
+									oncomplete="jQuery('#modalConfirmacaoExcluirMarcoCritico').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:setPropertyActionListener value="#{obj}"
+										target="#{cicloConfigurarMarcosCriticosBean.configuracaoMarcoCritico}" />
+									<f:param name="cid"
+										value="#{cicloConfigurarMarcosCriticosBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+		</div>
+
+		<div class="row marginT30px">
+			<div class="col-xs-16">
+				<h:form>
+					<h:commandLink styleClass="btn btn-azul floatR marginL10px"
+						immediate="true" action="#{configuracaoMetasService.mensagemSucesso()}">Continuar Configuração</h:commandLink>
+				</h:form>
+			</div>
+		</div>
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{cicloConfigurarMarcosCriticosBean.excluir()}"
+			modalMensagem="O parâmetro será excluído. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoExcluirMarcoCritico').modal('hide')"
+			modalId="modalConfirmacaoExcluirMarcoCritico"
+			update=":form-marco-critico" />
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+	
+	<!--<Resource name="sgm_ds" auth="Container" type="javax.sql.DataSource"
+		maxActive="100" maxIdle="30" maxWait="10000" username="sa" password="Hnkx317314!"
+		driverClassName="net.sourceforge.jtds.jdbc.Driver"
+		url="jdbc:jtds:sqlserver://fabrica.infosolo.com.br:1433/sgm_sebrae26022015" />-->
+	 
+	 
+	<Resource name="sgm_ds" auth="Container" type="javax.sql.DataSource"
+		maxActive="100" maxIdle="30" maxWait="10000" username="postgres" password="postgres"
+		driverClassName="org.postgresql.Driver"
+		url="jdbc:postgresql://localhost:5432/sgm" />
+	
+
+	<Resource auth="Container" mail.smtp.auth="true"
+		mail.smtp.host="mail.infosolo.com.br" mail.smtp.port="587"
+		mail.smtp.user="fabrica@infosolo.com.br" mail.transport.protocol="smtp"
+		name="mail/Session" password="CSPInfo317" type="javax.mail.Session" />
+
+</Context>

@@ -1,0 +1,394 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	
+        <h:form id="form_usuario_externo">
+        <div class="row marginT10px">
+			<div class="col-xs-8">
+				<label for="cpfExterno">CPF*</label> 
+				 <p:inputMask styleClass="form-control" id="cpfExterno" placeholder="CPF" size="20" 
+                 	mask="999.999.999-99" value="#{configurarSgmUsuarioExternoBean.usuarioExterno.cpf}" 
+                 	converter="CPFConverter" label="CPF" required="true" 
+                 		disabled="#{not empty configurarSgmUsuarioExternoBean.usuarioExterno.id}">
+                 		<p:ajax event="change" process="@this" update=":form_usuario_externo"
+                 			listener="#{configurarSgmUsuarioExternoBean.alterouCpf()}"/>
+                 </p:inputMask>
+                 <p:message for="cpfExterno"/>
+			</div>
+			
+			<div class="col-xs-8">
+				<label for="nomeExterno">Nome*</label> 
+				<p:inputText value="#{configurarSgmUsuarioExternoBean.usuarioExterno.nome}" 
+					styleClass="form-control" id="nomeExterno" label="Nome" required="true" placeholder="Nome">
+				</p:inputText>
+				<p:message for="nomeExterno"/>
+			</div>
+		</div>
+		<div class="row marginT10px">
+			<div class="col-xs-8">
+				<label for="emailExterno">E-mail*</label> 
+				<p:inputText value="#{configurarSgmUsuarioExternoBean.usuarioExterno.email}" 
+					styleClass="form-control" id="emailExterno" label="E-mail" required="true" placeholder="E-mail" />
+				<p:message for="emailExterno"/>
+			</div>
+			<div class="col-xs-8">
+				<label for="confirmaEmailExterno">Confirmar E-mail*</label> 
+				<p:inputText value="#{configurarSgmUsuarioExternoBean.usuarioExterno.emailConfirmacao}"  placeholder="Confirmar E-mail"
+					styleClass="form-control" id="confirmaEmailExterno" label="Confirmar E-mail" required="true"/>
+				<p:message for="confirmaEmailExterno"/>
+			</div>
+		</div>
+		
+		<div class="row marginT10px">
+            <div class="col-xs-16">
+                <label for="btmodalPropriedades">Período Acesso*</label>
+                <p:commandLink id="btmodalPropriedades" styleClass="btn btn-azul marginL15px" value="Adicionar"
+                            	onsuccess="jQuery('#modalPropriedades').modal({backdrop: 'static', keyboard: false, show:true});"
+                            	actionListener="#{configurarSgmUsuarioExternoBean.adicionarPropriedades()}"
+                            	update=":formPropriedadesUsuario" process="@this"/>
+            </div>
+        </div>
+        
+        <div class="row marginT10px">
+            <div class="col-xs-16"> 
+               <p:message for="tblPropriedadesUsuarioExterno"/>
+               <div class="titulo-tabela bgCorPadrao cinzaFonte"></div>
+               <p:dataTable var="prop" value="#{configurarSgmUsuarioExternoBean.usuarioExterno.propriedadesUsuarioExterno}" 
+				    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+                  		id="tblPropriedadesUsuarioExterno"
+                  		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+                  		emptyMessage="Nenhum acesso adicionado" rowIndexVar="index">
+
+					<p:column headerText="#" styleClass="text-center width-col-peq">
+			            #{index+1}
+			        </p:column>
+			        
+			        <p:column headerText="Perfil" styleClass="text-center">
+			            <h:outputText value="#{prop.perfil.descricao}"/>
+			        </p:column>
+			        
+			        <p:column headerText="Período" styleClass="text-center">
+			            <h:outputText value="#{prop.dtInicio}">
+			            	<f:convertDateTime pattern="dd/MM/yyyy"/>
+			            </h:outputText>
+			            à
+			            <h:outputText value="#{prop.dtFim}">
+			            	<f:convertDateTime pattern="dd/MM/yyyy"/>
+			            </h:outputText>
+			        </p:column>
+			        
+			        <p:column headerText="UF's" styleClass="text-center">
+			            <ui:repeat var="uf" value="#{prop.ufs.toArray()}">
+			            	#{uf}/
+			            </ui:repeat>
+			        </p:column>
+			 
+			        <p:column headerText="Editar" styleClass="text-center width-col-peq">
+			            <p:commandLink actionListener="#{configurarSgmUsuarioExternoBean.editarPropriedade(prop)}"
+							oncomplete="jQuery('#modalPropriedades').modal({backdrop: 'static', keyboard: false, show:true});" update=":formPropriedadesUsuario" 
+							process="@this">
+							<i class="fa fa-pencil-square-o"></i>
+							<f:param name="cid" value="#{configurarSgmUsuarioExternoBean.conversation.id}"/>
+						</p:commandLink>
+			        </p:column>
+			 
+			        <p:column headerText="Excluir" styleClass="text-center width-col-peq">
+			            <p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirPropriedade').modal('show');" 
+							process="@this">
+							<i class="fa fa-trash-o"></i>
+							<f:param name="cid" value="#{configurarSgmUsuarioExternoBean.conversation.id}"/>
+							<f:setPropertyActionListener value="#{index}" target="#{configurarSgmUsuarioExternoBean.index}"/>
+						</p:commandLink>
+			        </p:column>
+			    </p:dataTable>
+            </div>
+        </div>
+        
+		<div class="row marginT10px">
+			<div class="col-xs-8" jsf:id="pnl_senha">
+				<label for="senhaExterno">Senha*</label> 
+				<div style="display:block;">
+					<p:password id="senhaExterno" value="#{configurarSgmUsuarioExternoBean.usuarioExterno.senhaVo}" styleClass="form-control" 
+	                	label="Senha" placeholder="Senha" required="#{empty configurarSgmUsuarioExternoBean.usuarioExterno.id}" 
+						title="Com no minimo uma maiúscula,alfanumerica e de 5 a 8 caracteres" maxlength="8" redisplay="true"
+						rendered="#{not configurarSgmUsuarioExternoBean.usuarioExterno.exibirSenha}"
+						style="float:left;"/>
+					
+					<p:inputText value="#{configurarSgmUsuarioExternoBean.usuarioExterno.senhaVo}" placeholder="Senha"
+						styleClass="form-control" id="senhaExternoAberto" label="Senha" required="true" maxlength="8"
+						style="float:left;" title="Com no minimo uma maiúscula,alfanumerica e de 5 a 8 caracteres"
+						rendered="#{configurarSgmUsuarioExternoBean.usuarioExterno.exibirSenha}"/>
+					
+					<p:commandLink update="pnl_senha" process="@this,senhaExterno" oncomplete="carregarConfiguracoesTolltips();" 
+						title="Ocultar/Exibir Senha" style="float:left;margin-left:-20px;margin-top:7px;">
+					 	 <i class="fa fa-eye"></i>
+					 	<f:setPropertyActionListener value="#{not configurarSgmUsuarioExternoBean.usuarioExterno.exibirSenha}" 
+					 		target="#{configurarSgmUsuarioExternoBean.usuarioExterno.exibirSenha}"/>
+					</p:commandLink>
+				</div>
+                <p:message for="senhaExterno"/>
+                <p:message for="senhaExternoAberto"/>
+			</div>
+			<div class="col-xs-8" jsf:id="pnl_senha_conf">
+				<label for="confirmarSenhaExterno">Confirmar Senha*</label> 
+				<div style="display:block;">
+					<p:password id="senhaConfirmacao" value="#{configurarSgmUsuarioExternoBean.usuarioExterno.senhaConfirmacao}" styleClass="form-control" 
+	                label="Confirmar Senha" placeholder="Confirmar Senha" required="#{empty configurarSgmUsuarioExternoBean.usuarioExterno.id}"  
+	                rendered="#{not configurarSgmUsuarioExternoBean.usuarioExterno.exibirSenhaConfirmacao}"
+	                title="Com no minimo uma maiúscula,alfanumerica e de 5 a 8 caracteres" redisplay="true"
+	                maxlength="8" style="float:left;"/>
+	                
+	                <p:inputText value="#{configurarSgmUsuarioExternoBean.usuarioExterno.senhaConfirmacao}" placeholder="Confirmar Senha"
+						styleClass="form-control" id="senhaConfirmacaoAberto" label="Confirmar Senha" required="true" maxlength="8"
+						style="float:left;" title="Com no minimo uma maiúscula,alfanumerica e de 5 a 8 caracteres"
+						rendered="#{configurarSgmUsuarioExternoBean.usuarioExterno.exibirSenhaConfirmacao}"/>
+						
+					<p:commandLink update="pnl_senha_conf" process="@this,senhaConfirmacao" oncomplete="carregarConfiguracoesTolltips();" 
+						title="Ocultar/Exibir Senha" style="float:left;margin-left:-20px;margin-top:7px;">
+					 	 <i class="fa fa-eye"></i>
+					 	<f:setPropertyActionListener value="#{not configurarSgmUsuarioExternoBean.usuarioExterno.exibirSenhaConfirmacao}" 
+					 		target="#{configurarSgmUsuarioExternoBean.usuarioExterno.exibirSenhaConfirmacao}"/>
+					</p:commandLink>
+				</div>
+                <p:message for="senhaConfirmacao"/>
+                <p:message for="senhaConfirmacaoAberto"/>
+			</div>
+		</div>
+		<div class="row marginT10px">
+			<div class="col-xs-8">
+				<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+			</div>
+			<div class="col-xs-2 col-xs-offset-6">
+				<p:commandLink styleClass="btn btn-azul floatR marginL10px width100" 
+					actionListener="#{configurarSgmUsuarioExternoBean.salvar()}"
+				 	value="Salvar" update=":form_usuario_externo" oncomplete="irPara('#content_config_sgm');"/>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-xs-16">
+				<hr/>
+			</div>
+		</div>
+		
+		<p:messages autoUpdate="true" for="form_usuario_externo" id="form_usuario_externo_messages"/>
+		
+		<script type="text/javascript">
+			// <![CDATA[
+				function apagarMensagemUsuarioExterno(){
+					window.setTimeout(function(){
+						var msg = jQuery("#form_usuario_externo\\:form_usuario_externo_messages");
+						if(msg){
+							msg.hide();
+							}
+						}, 5000);
+				}
+				apagarMensagemUsuarioExterno();
+			// ]]>
+		  </script>
+		
+		<div class="row marginT30px">
+            <div class="col-xs-16">
+                <p class="titulo-sem-marcador">Configurações Salvas</p>
+            </div>
+        </div>
+        
+		<div class="row marginT20px">
+			<div class="col-xs-16">
+				<p:dataTable var="u"
+					value="#{configurarSgmUsuarioExternoBean.usuariosExterno}"
+					tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+					id="tbl_listar_usuarios" paginator="true" rows="20"
+					paginatorPosition="bottom"
+					paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+					emptyMessage="Nenhum resultado a ser exibido">
+
+					<p:column headerText="Nome" styleClass="text-center" sortBy="#{u.nome}">
+						<h:outputText value="#{u.nome}"  />
+					</p:column>
+
+					<p:column headerText="CPF" styleClass="text-center" width="130" sortBy="#{u.cpf}">
+						<h:outputText value="#{u.cpf}" converter="CPFConverter"/>
+					</p:column>
+					
+					<p:column headerText="E-mail" styleClass="text-center" sortBy="#{u.email}">
+						<h:outputText value="#{u.email}" />
+					</p:column>
+					
+					<p:column headerText="Acessos">
+						<table>
+							<thead>
+								<tr>
+									<th>Período</th>
+									<th>Perfil</th>
+									<th>UF's</th>
+								</tr>
+							</thead>
+							<tbody>
+								<ui:repeat var="prop" value="#{u.propriedadesUsuarioExterno}">
+									<tr>
+										<td> 
+											<h:outputText value="#{prop.dtInicio}">
+								            	<f:convertDateTime pattern="dd/MM/yyyy"/>
+								            </h:outputText>
+								            à
+								            <h:outputText value="#{prop.dtFim}">
+								            	<f:convertDateTime pattern="dd/MM/yyyy"/>
+								            </h:outputText>
+								        </td>
+										<td>#{prop.perfil.descricao}</td>
+										<td>
+											<ui:repeat var="uf" value="#{prop.ufs.toArray()}">
+												#{uf}/
+											</ui:repeat>
+										</td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+						</table>
+					</p:column>
+					
+					<p:column headerText="Editar"
+						styleClass="text-center width-col-peq">
+						<p:commandLink
+							actionListener="#{configurarSgmUsuarioExternoBean.editar(u)}" update=":form_usuario_externo"
+							process="@this" oncomplete="irPara('#content_config_sgm');">
+							<i class="fa fa-pencil-square-o"></i>
+							<f:param name="cid" value="#{configurarSgmUsuarioExternoBean.conversation.id}" />
+						</p:commandLink>
+					</p:column>
+
+					<p:column headerText="Excluir"
+						styleClass="text-center width-col-peq">
+						<p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirUsuarioExterno').modal('show');" process="@this">
+							<i class="fa fa-trash-o"></i>
+							<f:setPropertyActionListener value="#{u}" target="#{configurarSgmUsuarioExternoBean.usuarioExterno}" />
+							<f:param name="cid"	value="#{configurarSgmUsuarioExternoBean.conversation.id}" />
+						</p:commandLink>
+					</p:column>
+				</p:dataTable>
+			</div>
+		</div>
+	</h:form>
+	
+	
+	<div class="modal fade" id="modalPropriedades" tabindex="-1" role="dialog" aria-labelledby="modalPropriedades" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="formPropriedadesUsuario">
+	                    <div class="modal-header">
+	                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+	                        <h4 class="modal-title">Adicionar Perfil</h4>
+	                    </div>
+	                    <div class="modal-body">
+	                    	<p:messages for="formPropriedadesUsuario" autoUpdate="true"/>
+	                        <div jsf:id="pnlDatas" class="row marginT10px">
+								<div class="col-xs-8">
+									<label for="dataInicioExterno">Data de Início*</label>
+									<p:calendar id="dataInicioExterno" mask="true" placeholder="Selecione a Data"
+										style="min-width:200px;"
+										value="#{configurarSgmUsuarioExternoBean.propriedadeUsuarioExterno.dtInicio}"
+										navigator="true" pattern="dd/MM/yyyy"
+										label="Data de Início" required="true" showOn="button" locale="pt">
+										<p:ajax event="dateSelect" update="pnlDatas" process="@this"
+														listener="#{configurarSgmUsuarioExternoBean.validarDatas()}"/>
+										<p:ajax event="change" update="pnlDatas" process="@this"
+														listener="#{configurarSgmUsuarioExternoBean.validarDatas()}"/>
+									</p:calendar>
+									<p:message for="dataInicioExterno"/>
+								</div>
+								<div class="col-xs-8">
+									<label for="dataFimExterno">Data Fim*</label>
+									<p:calendar id="dataFimExterno" mask="true" placeholder="Selecione a Data"
+										style="min-width:200px;"
+										value="#{configurarSgmUsuarioExternoBean.propriedadeUsuarioExterno.dtFim}"
+										navigator="true" pattern="dd/MM/yyyy" 
+										mindate="#{configurarSgmUsuarioExternoBean.propriedadeUsuarioExterno.dtInicio}"
+										label="Data Fim" required="true" showOn="button" locale="pt">
+										<p:ajax event="dateSelect" update="pnlDatas" process="@this"
+														listener="#{configurarSgmUsuarioExternoBean.validarDatas()}"/>
+										<p:ajax event="change" update="pnlDatas" process="@this"
+														listener="#{configurarSgmUsuarioExternoBean.validarDatas()}"/>
+										</p:calendar>
+									<p:message for="dataFimExterno"/>
+								</div>
+								
+								<script type="text/javascript">
+									$('.ui-datepicker-trigger').click(function(){setTimeout(function() {
+					                    $('#ui-datepicker-div').css('z-index', 1050);
+					                }, 251);});
+								</script>
+							</div>
+							
+							<div class="row marginT10px">
+								<div class="col-xs-8">
+									<label for="tipoPerfilExterno">Tipo de Perfil*</label> 
+									<h:selectOneMenu id="tipoPerfilExterno" value="#{configurarSgmUsuarioExternoBean.propriedadeUsuarioExterno.perfil}" 
+										styleClass="form-control"
+										converter="PerfilConverter" label="Tipo de Perfil" required="true">
+										<f:selectItem itemLabel="Selecione"/>
+										<f:selectItems value="#{configurarSgmUsuarioExternoBean.perfis}" var="p" 
+											itemLabel="#{p.descricao}" itemValue="#{p}" />
+									</h:selectOneMenu>
+									<p:message for="tipoPerfilExterno"/>
+								</div>
+								
+								<div class="col-xs-8">
+									<label for="UfExterno">UF's*</label> 
+							        <h:selectManyListbox id="UfExterno" value="#{configurarSgmUsuarioExternoBean.ufsSelecioandas}" 
+							        	styleClass="form-control" required="true" label="UF" style="height:100px;" 
+							        	converter="UFConverter">
+							        	<f:selectItems value="#{configurarSgmUsuarioExternoBean.ufs}" var="uf" itemLabel="#{uf}" itemValue="#{uf}"/>
+							        </h:selectManyListbox>
+									<p:message for="UfExterno"/>
+								</div>
+							</div>
+							
+	                    </div>
+	                    <div class="modal-footer">
+	                        <div class="row">
+	                            <div class="col-xs-8">
+	                                <p class="campos-obrigatorios text-left"></p>
+	                            </div>
+	                            <div class="col-xs-8">
+	                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+	                                <p:commandLink styleClass="btn btn-primary" value="Incluir" 
+	                                		rendered="#{not configurarSgmUsuarioExternoBean.editandoPropriedade}"
+		                                	actionListener="#{configurarSgmUsuarioExternoBean.salvarPropriedadeUsuarioExterno()}" 
+		                                	update=":form_usuario_externo:tblPropriedadesUsuarioExterno"
+		                                	oncomplete="jQuery('#modalPropriedades').modal('hide');">
+		                                	<f:param name="cid" value="#{configurarSgmUsuarioExternoBean.conversation.id}"/>
+		                             </p:commandLink>
+		                             
+		                             <p:commandLink styleClass="btn btn-primary" value="Salvar" 
+		                             		rendered="#{configurarSgmUsuarioExternoBean.editandoPropriedade}"
+		                                	actionListener="#{configurarSgmUsuarioExternoBean.salvarPropriedadeUsuarioExterno()}" 
+		                                	update=":form_usuario_externo:tblPropriedadesUsuarioExterno"
+		                                	oncomplete="jQuery('#modalPropriedades').modal('hide');">
+		                                	<f:param name="cid" value="#{configurarSgmUsuarioExternoBean.conversation.id}"/>
+		                             </p:commandLink>
+	                            </div>  
+	                        </div>
+	                    </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+	
+	
+	<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"	modalTitulo="ATENÇÃO"
+		simAction="#{configurarSgmUsuarioExternoBean.excluir()}" modalMensagem="O Usuário Externo será excluído. Deseja continuar?"
+		onComplete="$('#modalConfirmacaoExcluirUsuarioExterno').modal('hide')" modalId="modalConfirmacaoExcluirUsuarioExterno"
+		update=":form_usuario_externo"/>
+		
+	<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{configurarSgmUsuarioExternoBean.excluirPropriedade()}"
+			modalMensagem="O acesso será excluído. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirPropriedade').modal('hide')"
+			modalId="modalConfirmacaoExcluirPropriedade" update=":form_usuario_externo"/>
+		
+</ui:composition>

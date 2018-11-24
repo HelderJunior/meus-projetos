@@ -1,0 +1,239 @@
+* {
+	padding: 0;
+	margin: 0;
+	color: #0072ba;
+	font-size: 14px;
+	font-family: 'Open Sans', sans-serif;
+}
+
+body {
+	background-color: #F8F8F8;
+}
+
+.marginT05px {
+	margin-top: 5px;
+}
+
+.marginT8px {
+	margin-top: 8px;
+}
+
+.marginT10px {
+	margin-top: 10px;
+}
+
+.marginT15px {
+	margin-top: 15px;
+}
+
+.marginT20px {
+	margin-top: 20px;
+}
+
+.marginT25px {
+	margin-top: 25px;
+}
+
+.marginT30px {
+	margin-top: 30px;
+}
+
+.marginT35px {
+	margin-top: 35px;
+}
+
+.marginT40px {
+	margin-top: 40px;
+}
+
+.marginT45px {
+	margin-top: 45px;
+}
+
+.marginT50px {
+	margin-top: 50px;
+}
+
+.marginT55px {
+	margin-top: 55px;
+}
+
+.marginT60px {
+	margin-top: 60px;
+}
+
+.marginT65px {
+	margin-top: 65px;
+}
+
+.marginT70px {
+	margin-top: 70px;
+}
+
+.marginT75px {
+	margin-top: 75px;
+}
+
+.marginT80px {
+	margin-top: 80px;
+}
+
+.marginT85px {
+	margin-top: 85px;
+}
+
+.marginT90px {
+	margin-top: 90px;
+}
+
+.marginT95px {
+	margin-top: 95px;
+}
+
+.fontsize12px {
+	font-size: 12px;
+}
+
+.fontsize20px {
+	font-size: 20px;
+}
+
+.fontsize30px {
+	font-size: 30px;
+}
+
+.width100 {
+	width: 100%;
+}
+
+h1,h2,h3,h4,h5,h6 {
+	font-weight: 600;
+}
+
+.btn-azul {
+	background-color: #0072ba;
+	border-color: #0072ba;
+	color: #fff;
+}
+
+.btn-azul:hover,.btn-azul:focus,.btn-azul:active,.btn-azul.active,.open>.dropdown-toggle.btn-azul d
+	{
+	background-color: #01497A;
+	border-color: #01497A;
+	color: #fff;
+}
+
+label.error {
+	color: red;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+.caixa-login {
+	width: 350px;
+	height: auto !important;
+	background-color: #E2E2E2;
+	margin: 0 auto;
+	padding: 20px 0;
+}
+
+.caixa-login hr {
+	width: 80%;
+	margin: 0 auto;
+	border-bottom: dashed 1px #cccccc;
+}
+
+.caixa-login .logotipo {
+	display: block;
+	margin: 0 auto;
+}
+
+.caixa-login .sub-botoes {
+	width: 100%;
+	height: 30px;
+	background-color: #fff;
+}
+
+.caixa-login .sub-botoes a {
+	display: block;
+	width: 100%;
+	height: 100%;
+	line-height: 30px;
+	font-size: 12px;
+	text-align: center;
+	background-color: #fff;
+	text-decoration: underline;
+}
+/* SOBRESCREVENDO BOOTSTRAP */
+table th,table td {
+	text-align: center;
+}
+
+a {
+	text-decoration: none;
+	color: #666666;
+}
+
+label {
+	color: #666666;
+}
+
+label.error {
+	color: #eb3030;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+.panel-title>a {
+	color: #666666;
+	font-weight: bold;
+}
+
+.panel-title {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.borderWarning {
+	border: 1px solid red;
+}
+
+.alert-danger-link {
+	background-color: #eb3030;
+	text-align: center;
+	border: none;
+	color: #fff;
+	font-weight: 600;
+	margin: 10px 0 10px 0;
+}
+
+.alert-danger-link a {
+	text-decoration: none;
+	text-decoration: underline;
+	font-weight: 600;
+	color: #fff !important;
+	text-align: center;
+}
+
+.alert-success-link {
+	background-color: #01af0e;
+	text-align: center;
+	border: none;
+	color: #fff;
+	font-weight: 600;
+	margin: 10px 0 10px 0;
+}
+
+.alert-success-link a {
+	text-decoration: none;
+	text-decoration: underline;
+	font-weight: 600;
+	color: #fff !important;
+	text-align: center;
+}
+
+.btn-azul {
+	background-color: #0072ba;
+	border-color: #0072ba;
+	color: #fff;
+}

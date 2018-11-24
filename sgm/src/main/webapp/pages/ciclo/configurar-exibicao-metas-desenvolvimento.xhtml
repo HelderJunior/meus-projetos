@@ -1,0 +1,96 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<h:commandLink action="/pages/ciclo/listar.xhtml" value="Ciclo de Avaliação" />
+		</li>
+		<li>
+			<h:commandLink action="/pages/ciclo/manter.xhtml" value="Manter Ciclo de Avaliação" />
+		</li>
+		<li>
+			<a href="#">Configurar Visualização de Metas de Desenvolvimento</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+		 #{cicloConfigurarExibicaoMetasDesenvolvimentoBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+		 
+		 <div class="content">
+			 <h:form id="form-exibicao-metas">
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Configurar Visualização de Metas de Desenvolvimento</p>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <h:selectBooleanCheckbox value="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizacaoMeta.somenteSuasMetas}" 
+                            	disabled="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizando}">
+                            	<p:ajax event="change" update=":form-exibicao-metas" process="@this" 
+                            		listener="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.selecionouSomenteSuasMetas()}"/>
+                            </h:selectBooleanCheckbox>
+                           As Metas Individuais de desenvolvimento de colaboradores da equipe ao qual pertence.
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-16">
+                            <h:selectBooleanCheckbox value="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizacaoMeta.demaisUnidades}" 
+                            	disabled="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizando}">
+                            	<p:ajax event="change" update=":form-exibicao-metas" process="@this" 
+                            	listener="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.selecionouDemaisUnidades()}"/>
+                            </h:selectBooleanCheckbox> 
+                            Visualizar as Metas Individuais de desenvolvimento de colaboradores de outras unidades.
+                        </div>
+                    </div>
+                    <ui:fragment rendered="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizacaoMeta.demaisUnidades}">
+	                    <div class="checkbox-nivel2 marginT20px">
+		                        <div class="row checkbox-nivel3 marginT20px">
+		                            <div class="col-xs-14 col-xs-offset-2">
+		                                <h:selectBooleanCheckbox value="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizacaoMeta.individualUnidadesMestaDiretoria}" disabled="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizando}">
+			                            	<p:ajax event="change" update=":form-exibicao-metas" listener="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.selecionouMetasIndividualUnidadesMestaDiretoria()}"/>
+			                            </h:selectBooleanCheckbox> 
+		                                Unidades pertencentes à mesma diretoria
+		                            </div>
+		                        </div>
+		                        <div class="row checkbox-nivel3 marginB20px">
+		                            <div class="col-xs-14 col-xs-offset-2">
+		                                <h:selectBooleanCheckbox value="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizacaoMeta.individualTodos}" disabled="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizando}">
+			                            	<p:ajax event="change" update=":form-exibicao-metas" listener="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.selecionouMetasIndividualTodos()}"/>
+			                            </h:selectBooleanCheckbox> 
+		                                Todos
+		                            </div>
+		                        </div>
+	                    </div>
+                    </ui:fragment>
+                    
+                    <div class="row marginT10px">
+                        <div class="col-xs-16">
+                            <h:commandLink action="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.salvar()}" 
+                            	styleClass="btn btn-azul floatR marginL10px" value="Continuar Configuração" 
+                            	rendered="#{not cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizando}"/>
+                        </div>
+                    </div>
+			 </h:form>
+         </div>
+	</ui:define>
+</ui:composition>

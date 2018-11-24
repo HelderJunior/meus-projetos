@@ -1,0 +1,51 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="#{appBean.back()}">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<a href="#">Ajuda</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+		<div class="content">
+             <div class="row marginT30px">
+                 <div class="col-xs-16">
+                     <p class="titulo-sem-marcador">Sobre o GSM</p>
+                 </div>
+             </div>
+             <div class="row marginT20px">
+                 <div class="col-xs-16">
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quae dicta dignissimos sed adipisci maiores, rem. Porro tempore repellat sapiente ipsam minus, harum quos fugit veritatis at reprehenderit tenetur, eius ad error pariatur quidem, recusandae doloremque assumenda ex quas vero consequuntur earum. Maxime commodi eos, doloribus repellat veritatis earum accusantium voluptatibus saepe dolor recusandae dignissimos vero, distinctio nostrum amet iusto sit quos ex eveniet impedit. Quod distinctio, totam cum similique et corrupti quia voluptatum doloribus, omnis accusantium numquam adipisci mollitia iste minus excepturi earum iure quisquam eius ad vel expedita beatae consequatur dolorum. Perspiciatis, eaque. Dignissimos velit pariatur ea molestias ipsa similique necessitatibus placeat reiciendis incidunt consequatur iste possimus eaque nobis deserunt, voluptas ipsam esse ab ducimus consequuntur voluptate, optio repellat, alias voluptatum quasi. Magni quia saepe accusamus in rem distinctio cum nemo non culpa consectetur fugit dolorem, debitis error. Possimus, repudiandae iure quasi et asperiores illum quae consequatur dicta, culpa totam quam aspernatur doloribus itaque. Culpa non, expedita numquam molestias consectetur ducimus ea est harum cumque odit nesciunt blanditiis aperiam voluptate omnis quo rem. Placeat rem incidunt autem velit, doloribus, enim tenetur, dolor saepe voluptate optio mollitia, cupiditate qui fugit ipsum maiores natus impedit labore. Alias enim voluptatibus, expedita dignissimos.
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum accusamus quidem dicta id consequuntur, ex nemo animi aperiam ipsum dolore, cum corrupti repellendus unde adipisci nesciunt quaerat beatae quo et modi totam nam nisi suscipit laudantium? Culpa cum, sit unde veniam impedit, eos a rem labore asperiores est adipisci laboriosam fugit praesentium error ipsum iste nihil quae quibusdam nulla pariatur ea perspiciatis vitae, iusto ullam? Aut labore alias sunt maiores explicabo velit eligendi earum doloribus quod optio commodi voluptates minima nemo consectetur sint reprehenderit debitis amet qui sed, soluta, numquam officiis modi voluptate! Obcaecati alias dolorem eligendi fugit qui, odio.  
+                 </div>
+             </div>
+             <div class="row marginT30px">
+                 <div class="col-xs-16">
+                     <p class="titulo-sem-marcador">Versão</p>
+                 </div>
+             </div>
+             <div class="row marginT20px">
+                 <div class="col-xs-16">
+                     Sistema de Gestão de Metas - Versão Beta 1.0
+                 </div>
+             </div>
+         </div>
+	</ui:define>
+</ui:composition>

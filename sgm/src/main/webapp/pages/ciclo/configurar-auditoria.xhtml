@@ -1,0 +1,799 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/manter.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+ 
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml"
+				value="#{appBean.nomeBreadcrumbinicial}" /></li>
+		<li><h:commandLink action="/pages/ciclo/listar.xhtml"
+				value="Ciclo de Avaliação" /></li>
+		<li><h:commandLink action="/pages/ciclo/manter.xhtml"
+				value="Manter Ciclo de Avaliação" /></li>
+		<li><a href="#">Auditoria</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{cicloConfigurarAuditoriaBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<h:form id="form-auditoria">
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<p class="titulo-sem-marcador">Configurar Auditoria</p>
+					</div>
+				</div>
+				<div class="row marginT30px">
+					<div class="col-xs-1">
+						<label for="inicioAuditoria">Início*</label>
+					</div>
+					<div class="col-xs-3">
+						<p:calendar id="dtInicioAuditoria" mask="true"
+							placeholder="Selecione a Data"
+							value="#{cicloConfigurarAuditoriaBean.configuracaoAuditoria.dtInicio}"
+							navigator="true" pattern="dd/MM/yyyy" required="true"
+							label="Data de Início" showOn="button" locale="pt"
+							style="min-width:200px;"
+							disabled="#{cicloConfigurarAuditoriaBean.visualizando}">
+							<p:ajax event="dateSelect" update=":form-auditoria"
+								process="@this" />
+							<p:ajax event="change" update=":form-auditoria" process="@this" />
+						</p:calendar>
+						<p:message for="dtInicioAuditoria" />
+					</div>
+					<div class="col-xs-1">
+						<label for="fimAuditoria">Fim*</label>
+					</div>
+					<div class="col-xs-3">
+						<p:calendar id="dtFimAuditoria" mask="true"
+							placeholder="Selecione a Data"
+							value="#{cicloConfigurarAuditoriaBean.configuracaoAuditoria.dtFim}"
+							required="true" navigator="true" pattern="dd/MM/yyyy"
+							style="min-width:200px;" label="Data de Fim" showOn="button"
+							locale="pt"
+							disabled="#{cicloConfigurarAuditoriaBean.visualizando}">
+							<p:ajax event="dateSelect" update=":form-auditoria"
+								process="@this" />
+							<p:ajax event="change" update=":form-auditoria" process="@this" />
+						</p:calendar>
+						<p:message for="dtFimAuditoria" />
+					</div>
+				</div>
+				<div class="row marginT20px">
+					<div class="col-xs-8">
+						<label for="obsAuditoria">Parecer da Auditoria</label>
+						<p:inputTextarea id="obsAuditoria" rows="3"
+							placeholder="Observações da Auditoria" styleClass="form-control"
+							data-toggle="tooltip" title="Descreva nesse campo dados referentes à auditoria. 
+							Ex. Empresa  ou consultores contratados, metodologia de escolha da amostra a ser auditada, percentual de colaboradores auditadas e etc."
+							value="#{cicloConfigurarAuditoriaBean.configuracaoAuditoria.observacao}"
+							label="Observações da Auditoria">
+							<p:ajax event="change" process="@this" update=":form-auditoria" />
+						</p:inputTextarea>						
+					</div>
+				</div>
+				<div class="row marginT20px">
+					<div class="col-xs-8">
+						<label>Anexos <p:commandLink
+								styleClass="btn btn-azul marginL20px floatR" process="@this"
+								oncomplete="PF('dlgArquivoAuditoria').show();"
+								update=":form_upload_arquivo">Enviar Anexo</p:commandLink>
+						</label>
+						<p:message for="tblAnexos" />
+						<p:dataTable var="obj"
+							value="#{cicloConfigurarAuditoriaBean.configuracaoAuditoria.anexos}"
+							tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+							id="tblAnexos"
+							paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							emptyMessage="Nenhum anexo adicionado" rowIndexVar="index">
+
+							<p:column headerText="Arquivo" styleClass="text-center">
+					            #{obj.nomeExibicao}
+					        </p:column>
+
+							<p:column headerText="Tipo" styleClass="text-center">
+					            #{obj.tipoDescricao}
+					        </p:column>
+
+							<p:column headerText="Visualizar"
+								styleClass="text-center width-col-peq">
+								<p:commandLink styleClass="btn btn-mini" id="downloadLink"
+									process="@this"
+									oncomplete="jQuery('#form-download-link\\:downloadLink').click();">
+									<i class="fa fa-eye"></i>
+									<f:setPropertyActionListener
+										target="#{cicloConfigurarAuditoriaBean.indiceAnexo}"
+										value="#{index}" />
+									<f:param name="cid"
+										value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+								styleClass="text-center width-col-peq">
+								<p:commandLink styleClass="btn btn-mini"
+									oncomplete="jQuery('#modalConfirmacaoExcluirAnexo').modal('show');"
+									process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:param name="cid"
+										value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+									<f:setPropertyActionListener
+										target="#{cicloConfigurarAuditoriaBean.indiceAnexo}"
+										value="#{index}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+
+			<div class="row marginT30px">
+				<div class="col-xs-16 tabs-padrao">
+					<ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+						<li class="active"><a href="#equipe-auditadas"
+							class="bold600">Metas de Equipes Auditadas</a></li>
+						<li><a href="#colaboradores-auditados" class="bold600">Colaboradores
+								Auditados</a></li>
+					</ul>
+					<div class="tab-content">
+						<div id="equipe-auditadas" class="tab-pane active">
+							<h:form id="form-metas-equipes">
+								<div class="row marginT30px">
+									<div class="col-xs-16">
+										<label for="btmodalUnidade">Unidade</label>
+										<p:commandLink id="btmodalUnidade"
+											styleClass="btn btn-azul marginL15px" value="Adicionar"
+											onsuccess="jQuery('#modalUnidade').modal('show');"
+											rendered="#{not cicloConfigurarAuditoriaBean.visualizando}"
+											actionListener="#{cicloConfigurarAuditoriaBean.prepararModalVincularUnidades()}"
+											update=":formUnidade" process="@this" />
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<div class="col-xs-16">
+										<div class="titulo-tabela bgCorPadrao cinzaFonte">Unidades</div>
+										<p:message for="tblUnidadesSelecionadas" />
+										<p:dataTable var="un"
+											value="#{cicloConfigurarAuditoriaBean.parametroAuditoriaEquipe.unidades}"
+											tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+											id="tblUnidadesSelecionadas"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhuma unidade selecionada"
+											rowIndexVar="index">
+
+											<p:column headerText="#"
+												styleClass="text-center width-col-peq">
+											            #{index+1}
+											    </p:column>
+
+											<p:column headerText="Unidade" styleClass="text-center">
+											            #{un.descricaoComCodigo}
+											    </p:column>
+
+											<p:column headerText="Editar"
+												rendered="#{not cicloConfigurarAuditoriaBean.visualizando}"
+												styleClass="text-center width-col-peq">
+												<p:commandLink
+													actionListener="#{cicloConfigurarAuditoriaBean.prepararModalVincularUnidadesEditar()}"
+													oncomplete="jQuery('#modalUnidade').modal('show');"
+													update=":formUnidade" process="@this">
+													<i class="fa fa-pencil-square-o"></i>
+													<f:param name="cid"
+														value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Excluir"
+												rendered="#{not cicloConfigurarAuditoriaBean.visualizando}"
+												styleClass="text-center width-col-peq">
+												<p:commandLink
+													oncomplete="jQuery('#modalConfirmacaoExcluirUnidade').modal('show');"
+													process="@this">
+													<i class="fa fa-trash-o"></i>
+													<f:param name="cid"
+														value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+													<f:setPropertyActionListener value="#{un}"
+														target="#{cicloConfigurarAuditoriaBean.unidadeSelecionada}" />
+												</p:commandLink>
+											</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="ufUsuario">UF do Colaborador*</label>
+										<h:selectOneMenu id="ufUsuario"
+											value="#{cicloConfigurarAuditoriaBean.parametroAuditoriaEquipe.ufUsuario}"
+											styleClass="form-control"
+											disabled="#{cicloConfigurarAuditoriaBean.visualizando}"
+											required="true" label="UF do Usuário">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems value="#{cicloConfigurarAuditoriaBean.ufs}"
+												var="uf" itemLabel="#{uf}" itemValue="#{uf}" />
+											<p:ajax event="change" process="@this"
+												update="usuarioEscolhido"
+												listener="#{cicloConfigurarAuditoriaBean.alterouUfPerfilUsuarioEquipe()}" />
+										</h:selectOneMenu>
+										<p:message for="ufUsuario" />
+									</div>
+									<div class="col-xs-8">
+										<label for="tipoPerfil">Tipo de Perfil*</label>
+										<h:selectOneMenu id="tipoPerfil" required="true"
+											label="Tipo de Perfil"
+											value="#{cicloConfigurarAuditoriaBean.parametroAuditoriaEquipe.perfil}"
+											disabled="#{cicloConfigurarAuditoriaBean.visualizando}"
+											styleClass="form-control" converter="PerfilConverter">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems value="#{cicloConfigurarAuditoriaBean.perfis}"
+												var="pa" itemLabel="#{pa.descricao}" itemValue="#{pa}" />
+											<p:ajax event="change" process="@this"
+												update="usuarioEscolhido"
+												listener="#{cicloConfigurarAuditoriaBean.alterouUfPerfilUsuarioEquipe()}" />
+										</h:selectOneMenu>
+										<p:message for="tipoPerfil" />
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="usuarioEscolhido">Colaborador*</label>
+										<h:selectOneMenu id="usuarioEscolhido"
+											value="#{cicloConfigurarAuditoriaBean.parametroAuditoriaEquipe.usuario}"
+											disabled="#{cicloConfigurarAuditoriaBean.visualizando}"
+											styleClass="form-control" converter="UsuarioConverter"
+											required="true" label="Usuário">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarAuditoriaBean.usuarios}" var="u"
+												itemLabel="#{u.nome}" itemValue="#{u}" />
+										</h:selectOneMenu>
+										<p:message for="usuarioEscolhido" />
+									</div>
+								</div>
+								<div class="row marginT20px">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left">*Campos
+											Obrigatórios</p>
+									</div>
+									<div class="col-xs-8">
+										<p:commandLink value="Inserir Parâmetro"
+											styleClass="btn btn-azul floatR marginL10px"
+											actionListener="#{cicloConfigurarAuditoriaBean.inserirParametroEquipe()}"
+											update=":form-metas-equipes,:form-auditoria" process=":form-metas-equipes,:form-auditoria"
+											rendered="#{empty cicloConfigurarAuditoriaBean.parametroAuditoriaEquipe.id and not cicloConfigurarAuditoriaBean.visualizando}" />
+
+										<p:commandLink value="Salvar Parâmetro"
+											styleClass="btn btn-azul floatR marginL10px"
+											style="margin-left:10px;"
+											actionListener="#{cicloConfigurarAuditoriaBean.alterarParametroEquipe()}"
+											update=":form-metas-equipes,:form-auditoria" process=":form-metas-equipes,:form-auditoria"
+											rendered="#{not empty cicloConfigurarAuditoriaBean.parametroAuditoriaEquipe.id and not cicloConfigurarAuditoriaBean.visualizando}" />
+									</div>
+								</div>
+								<div class="row marginT30px">
+									<div class="col-xs-16">
+										<p class="titulo-sem-marcador">Configurações Salvas</p>
+									</div>
+								</div>
+								<div class="row marginT20px">
+									<div class="col-xs-16">
+										<p:dataTable var="obj"
+											value="#{cicloConfigurarAuditoriaBean.cicloConfiguracao.configuracaoAuditoria.parametrosAuditoriaEquipe}"
+											tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+											id="tblParametros"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhum parâmetro a ser exibido"
+											rowIndexVar="index">
+
+											<p:column headerText="UF" styleClass="text-center">
+												<h:outputText value="#{obj.ufUsuario}" />
+											</p:column>
+
+											<p:column headerText="Unidade" styleClass="text-center">
+												<dl>
+													<ui:repeat var="un" value="#{obj.unidades}">
+														<dd>#{un.descricaoComCodigo}</dd>
+													</ui:repeat>
+												</dl>
+											</p:column>
+
+											<p:column headerText="Nome do Auditor"
+												styleClass="text-center">
+												<h:outputText value="#{obj.usuario.nome}" />
+											</p:column>
+
+											<p:column headerText="CPF do Auditor"
+												styleClass="text-center">
+												<h:outputText value="#{obj.usuario.cpf}"
+													converter="CPFConverter" />
+											</p:column>
+
+											<p:column headerText="Editar"
+												styleClass="text-center width-col-peq"
+												rendered="#{not cicloConfigurarAuditoriaBean.visualizando}">
+												<p:commandLink
+													actionListener="#{cicloConfigurarAuditoriaBean.editarEquipe(obj)}"
+													update=":form-metas-equipes" process="@this" oncomplete="irPara();">
+													<i class="fa fa-pencil-square-o"></i>
+													<f:param name="cid"
+														value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Excluir"
+												styleClass="text-center width-col-peq"
+												rendered="#{not cicloConfigurarAuditoriaBean.visualizando}">
+												<p:commandLink
+													oncomplete="jQuery('#modalConfirmacaoExcluirParametroEquipe').modal('show');"
+													process="@this">
+													<i class="fa fa-trash-o"></i>
+													<f:setPropertyActionListener value="#{obj}"
+														target="#{cicloConfigurarAuditoriaBean.parametroAuditoriaEquipe}" />
+													<f:param name="cid"
+														value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+							</h:form>
+						</div>
+						<div id="colaboradores-auditados" class="tab-pane">
+							<h:form id="form-colaborador">
+								<div class="row marginT30px">
+									<div class="col-xs-16">
+										<label for="btmodalColaborador">Colaborador</label>
+										<p:commandLink id="btmodalUsuario"
+											styleClass="btn btn-azul marginL15px" value="Adicionar"
+											onsuccess="jQuery('#modalUsuario').modal('show');" onclick="PrimeFaces.zindex = 1500;"
+											rendered="#{not cicloConfigurarAuditoriaBean.visualizando}"
+											actionListener="#{cicloConfigurarAuditoriaBean.prepararModalVincularUsuarios()}"
+											update=":formUsuario" process="@this" />
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<div class="col-xs-16">
+										<div class="titulo-tabela bgCorPadrao cinzaFonte">Colaboradores</div>
+										<p:message for="tblUsuariosAdicionados" />
+										<p:dataTable var="obj"
+											value="#{cicloConfigurarAuditoriaBean.parametroAuditoriaColaborador.usuarios}"
+											tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+											id="tblUsuariosAdicionados"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhum usuário selecionado" rowIndexVar="index">
+
+											<p:column headerText="#"
+												styleClass="text-center width-col-peq">
+										            #{index+1}
+										        </p:column>
+
+											<p:column headerText="Colaborador" styleClass="text-center">
+										            #{obj.nome}
+										        </p:column>
+
+											<p:column headerText="Editar"
+												styleClass="text-center width-col-peq">
+												<p:commandLink 
+													actionListener="#{cicloConfigurarAuditoriaBean.prepararModalVincularUsuarioEditar()}"
+													oncomplete="jQuery('#modalUsuario').modal('show');"
+													update=":formUsuario" process="@this" onclick="PrimeFaces.zindex = 1500;">
+													<i class="fa fa-pencil-square-o"></i>
+													<f:param name="cid"
+														value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Excluir"
+												styleClass="text-center width-col-peq">
+												<p:commandLink
+													oncomplete="jQuery('#modalConfirmacaoExcluirUsuario').modal('show');"
+													process="@this">
+													<i class="fa fa-trash-o"></i>
+													<f:param name="cid"
+														value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+													<f:setPropertyActionListener value="#{obj}"
+														target="#{cicloConfigurarAuditoriaBean.usuarioSelecionado}" />
+												</p:commandLink>
+											</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="ufUsuarioAuditados">UF do Colaborador*</label>
+										<h:selectOneMenu id="ufUsuario"
+											value="#{cicloConfigurarAuditoriaBean.parametroAuditoriaColaborador.ufUsuario}"
+											styleClass="form-control"
+											disabled="#{cicloConfigurarAuditoriaBean.visualizando}"
+											required="true" label="UF do Usuário">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems value="#{cicloConfigurarAuditoriaBean.ufs}"
+												var="uf" itemLabel="#{uf}" itemValue="#{uf}" />
+											<p:ajax event="change" process="@this"
+												update="usuarioEscolhido"
+												listener="#{cicloConfigurarAuditoriaBean.alterouUfPerfilUsuarioColaborador()}" />
+										</h:selectOneMenu>
+										<p:message for="ufUsuario" />
+									</div>
+									<div class="col-xs-8">
+										<label for="tipoPerfilAuditado">Tipo de Perfil*</label>
+										<h:selectOneMenu id="tipoPerfil" required="true"
+											label="Tipo de Perfil"
+											value="#{cicloConfigurarAuditoriaBean.parametroAuditoriaColaborador.perfil}"
+											disabled="#{cicloConfigurarAuditoriaBean.visualizando}"
+											styleClass="form-control" converter="PerfilConverter">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems value="#{cicloConfigurarAuditoriaBean.perfis}"
+												var="pa" itemLabel="#{pa.descricao}" itemValue="#{pa}" />
+											<p:ajax event="change" process="@this"
+												update="usuarioEscolhido"
+												listener="#{cicloConfigurarAuditoriaBean.alterouUfPerfilUsuarioColaborador()}" />
+										</h:selectOneMenu>
+										<p:message for="tipoPerfil" />
+									</div>
+								</div>
+								<div class="row marginT10px">
+									<div class="col-xs-8">
+										<label for="usuarioEscolhidoAuditado">Colaborador*</label>
+										<h:selectOneMenu id="usuarioEscolhido"
+											value="#{cicloConfigurarAuditoriaBean.parametroAuditoriaColaborador.usuario}"
+											disabled="#{cicloConfigurarAuditoriaBean.visualizando}"
+											styleClass="form-control" converter="UsuarioConverter"
+											required="true" label="Usuário">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems
+												value="#{cicloConfigurarAuditoriaBean.usuariosColaborador}"
+												var="u" itemLabel="#{u.nome}" itemValue="#{u}" />
+										</h:selectOneMenu>
+										<p:message for="usuarioEscolhido" />
+									</div>
+								</div>
+								<div class="row marginT20px">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+									</div>
+									<div class="col-xs-8">
+										<p:commandLink value="Inserir Parâmetro"
+											styleClass="btn btn-azul floatR marginL10px"
+											actionListener="#{cicloConfigurarAuditoriaBean.inserirParametroColaborador()}"
+											update=":form-colaborador,:form-auditoria" process=":form-colaborador,:form-auditoria"
+											rendered="#{empty cicloConfigurarAuditoriaBean.parametroAuditoriaColaborador.id and not cicloConfigurarAuditoriaBean.visualizando}" />
+
+										<p:commandLink value="Salvar Parâmetro"
+											styleClass="btn btn-azul floatR marginL10px"
+											style="margin-left:10px;"
+											actionListener="#{cicloConfigurarAuditoriaBean.alterarParametroColaborador()}"
+											update=":form-colaborador,:form-auditoria"
+											rendered="#{not empty cicloConfigurarAuditoriaBean.parametroAuditoriaColaborador.id and not cicloConfigurarAuditoriaBean.visualizando}" />
+									</div>
+								</div>
+								<div class="row marginT30px">
+									<div class="col-xs-16">
+										<p class="titulo-sem-marcador">Configurações Salvas</p>
+									</div>
+								</div>
+								<div class="row marginT20px">
+									<div class="col-xs-16">
+										<p:dataTable var="obj"
+											value="#{cicloConfigurarAuditoriaBean.cicloConfiguracao.configuracaoAuditoria.parametrosAuditoriaColaborador}"
+											tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+											id="tblParametros"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhum parâmetro a ser exibido"
+											rowIndexVar="index">
+
+											<p:column headerText="UF" styleClass="text-center">
+												<h:outputText value="#{obj.ufUsuario}" />
+											</p:column>
+
+											<p:column headerText="Colaborador" styleClass="text-center">
+												<dl>
+													<ui:repeat var="un" value="#{obj.usuarios}">
+														<dd>#{un.nome}</dd>
+													</ui:repeat>
+												</dl>
+											</p:column>
+
+											<p:column headerText="Nome do Auditor"
+												styleClass="text-center">
+												<h:outputText value="#{obj.usuario.nome}" />
+											</p:column>
+
+											<p:column headerText="CPF do Auditor"
+												styleClass="text-center">
+												<h:outputText value="#{obj.usuario.cpf}"
+													converter="CPFConverter" />
+											</p:column>
+
+											<p:column headerText="Editar"
+												styleClass="text-center width-col-peq"
+												rendered="#{not cicloConfigurarAuditoriaBean.visualizando}">
+												<p:commandLink oncomplete="irPara();"
+													actionListener="#{cicloConfigurarAuditoriaBean.editarColaborador(obj)}"
+													update=":form-colaborador" process="@this">
+													<i class="fa fa-pencil-square-o"></i>
+													<f:param name="cid"
+														value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Excluir"
+												styleClass="text-center width-col-peq"
+												rendered="#{not cicloConfigurarAuditoriaBean.visualizando}">
+												<p:commandLink
+													oncomplete="jQuery('#modalConfirmacaoExcluirParametroColaborador').modal('show');"
+													process="@this">
+													<i class="fa fa-trash-o"></i>
+													<f:setPropertyActionListener value="#{obj}"
+														target="#{cicloConfigurarAuditoriaBean.parametroAuditoriaColaborador}" />
+													<f:param name="cid"
+														value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+												</p:commandLink>
+											</p:column>
+										</p:dataTable>
+
+									</div>
+								</div>
+							</h:form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<h:form id="form-download-link">
+			<p:commandLink id="downloadLink" ajax="false" style="display:none;">
+				<f:param name="cid"
+					value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+				<p:fileDownload value="#{cicloConfigurarAuditoriaBean.arquivo}" />
+			</p:commandLink>
+		</h:form>
+
+		<div class="row marginT30px">
+			<div class="col-xs-16">
+				<h:form>
+					<h:commandLink styleClass="btn btn-azul floatR marginL10px"
+						immediate="true" 
+						action="#{cicloConfigurarAuditoriaBean.continuarConfiguracao()}">Continuar Configuração</h:commandLink>
+				</h:form>
+			</div>
+		</div>
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{cicloConfigurarAuditoriaBean.excluirArquivo()}"
+			modalMensagem="O Anexo será removido. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoExcluirAnexo').modal('hide')"
+			modalId="modalConfirmacaoExcluirAnexo"
+			update=":form-auditoria:tblAnexos" />
+
+		<p:dialog id="arquivoDialogAuditoria" header="Enviar Arquivo"
+			widgetVar="dlgArquivoAuditoria" modal="true" height="150" width="600">
+			<h:form id="form_upload_arquivo">
+				<p:fileUpload
+					fileUploadListener="#{cicloConfigurarAuditoriaBean.uploadArquivo}"
+					mode="advanced" cancelLabel="Cancelar" label="Escolher"
+					update=":form-auditoria:tblAnexos" auto="true" sizeLimit="50000000"
+					oncomplete="PF('dlgArquivoAuditoria').hide();">
+					<f:param name="cid"
+						value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+				</p:fileUpload>
+			</h:form>
+		</p:dialog>
+
+
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{cicloConfigurarAuditoriaBean.excluirParametroEquipe()}"
+			modalMensagem="O parâmetro será excluído. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoExcluirParametroEquipe').modal('hide')"
+			modalId="modalConfirmacaoExcluirParametroEquipe"
+			update=":form-metas-equipes" />
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{cicloConfigurarAuditoriaBean.desvincularUnidade()}"
+			modalMensagem="A Unidade será desvinculada. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoExcluirUnidade').modal('hide')"
+			modalId="modalConfirmacaoExcluirUnidade"
+			update=":form-metas-equipes:tblUnidadesSelecionadas" />
+
+		<div class="modal fade" id="modalUnidade" tabindex="-1" role="dialog"
+			aria-labelledby="modalUnidade" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<h:form id="formUnidade">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">
+								<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+							</button>
+							<h4 class="modal-title">Adicionar Unidade Associada</h4>
+						</div>
+						<div class="modal-body">
+							<p:messages for="formUnidade" autoUpdate="true" />
+							<div class="row">
+	                    		<div class="col-xs-8">
+	                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+	                    				onclick="selecioanarTodosLista();" styleClass="btn"/>  
+	                    		</div>
+	                    	</div>
+	                    	
+							<div class="row marginT05px">
+								<div class="col-xs-16">
+									<p:selectManyMenu id="nomeBusca"
+										value="#{cicloConfigurarAuditoriaBean.unidadesSelecionadasVincular}"
+										converter="UnidadeAutocompleteConverter" var="t" filter="true"
+										filterMatchMode="contains" showCheckbox="true"
+										styleClass="ui-selectlistbox-item input_100P"
+										style="width: 100% !important"
+										ondblclick="jQuery('.btn_add_unidades').click();">
+										<f:selectItems
+											value="#{cicloConfigurarAuditoriaBean.unidadesDisponiveis}" var="uv"
+											itemLabel="#{uv.descricaoComCodigo}" itemValue="#{uv}" />
+										<p:column>
+											<h:outputText value="#{t.descricaoComCodigo}" style="float:left;white-space:nowrap;text-align:left;" />
+										</p:column>
+									</p:selectManyMenu>
+									<p:message for="nomeBusca" />
+
+									<SCRIPT type="text/javascript">
+										function selecioanarTodosLista(){
+											if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+												$('#modalConfirmacaoSelecaoLista').modal('show');
+											}else{
+												 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+											}
+										}
+		                             </SCRIPT>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<div class="row">
+								<div class="col-xs-8">
+									<p class="campos-obrigatorios text-left"></p>
+								</div>
+								<div class="col-xs-8">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Cancelar</button>
+									<p:commandLink styleClass="btn btn-primary btn_add_unidades" value="Incluir"
+										actionListener="#{cicloConfigurarAuditoriaBean.vincularUnidades()}"
+										update=":form-metas-equipes:tblUnidadesSelecionadas"
+										oncomplete="jQuery('#modalUnidade').modal('hide');">
+										<f:param name="cid"
+											value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+									</p:commandLink>
+								</div>
+							</div>
+						</div>
+					</h:form>
+				</div>
+			</div>
+		</div>
+
+<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+			modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+			modalId="modalConfirmacaoSelecaoLista"/>
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{cicloConfigurarAuditoriaBean.excluirParametroColaborador()}"
+			modalMensagem="O parâmetro será excluído. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoExcluirParametroColaborador').modal('hide')"
+			modalId="modalConfirmacaoExcluirParametroColaborador"
+			update=":form-colaborador" />
+
+
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{cicloConfigurarAuditoriaBean.desvincularUsuario()}"
+			modalMensagem="O Usuário será desvinculado. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoExcluirUsuario').modal('hide')"
+			modalId="modalConfirmacaoExcluirUsuario"
+			update=":form-colaborador:tblUsuariosAdicionados" />
+
+		<div class="modal fade" id="modalUsuario" tabindex="-1" role="dialog"
+			aria-labelledby="modalUsuario" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<h:form id="formUsuario">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">
+								<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+							</button>
+							<h4 class="modal-title">Adicionar Usuário</h4>
+						</div>
+						<div class="modal-body">
+							<p:messages for="formUsuario" autoUpdate="true" />
+							<div class="row">
+	                    		<div class="col-xs-8">
+	                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+	                    				onclick="selecioanarTodosListaUsuario();" styleClass="btn"/>  
+	                    		</div>
+	                    		
+	                    		<div class="col-xs-8">
+	                    			<p:autoComplete id="unidade" 
+										value="#{cicloConfigurarAuditoriaBean.unidadeUsuario}" 
+										styleClass="form-control2" style="width:100%;" label="Unidade"
+										completeMethod="#{cicloConfigurarAuditoriaBean.completeUnidade}"
+					                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+					                	converter="UnidadeConverter" forceSelection="true"
+					                	disabled="#{cicloConfigurarAuditoriaBean.visualizando}" placeholder="Filtrar por Unidade">
+					                	<p:ajax event="itemSelect" process="@this" update=":formUsuario" 
+					                		listener="#{cicloConfigurarAuditoriaBean.alterouUnidadeFiltroColaborador()}"/>
+					             	</p:autoComplete>
+	                    		</div>
+	                    	</div>
+							<div class="row marginT10px">
+								<div class="col-xs-16">
+									<p:selectManyMenu id="listaVincular" value="#{cicloConfigurarAuditoriaBean.usuariosSelecionadasVincular}"
+                               			converter="UsuarioConverter"
+                         				var="t" filter="true" filterMatchMode="contains" showCheckbox="true" styleClass="ui-selectlistbox-item input_100P" 
+                         				style="width: 100% !important" ondblclick="jQuery('.btn_add_usuario').click();">
+          						 		 <f:selectItems value="#{cicloConfigurarAuditoriaBean.usuariosDisponiveis}"
+											var="uv" itemLabel="#{uv.nome}" itemValue="#{uv}" />
+            							 <p:column>
+                							<h:outputText value="#{t.nome}" style="float:left;white-space:nowrap;text-align:left;"/>
+            							 </p:column>                      	
+                              		</p:selectManyMenu>
+									<p:message for="listaVincular" />
+									
+									<SCRIPT type="text/javascript">
+										function selecioanarTodosListaUsuario(){
+											if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+												$('#modalConfirmacaoSelecaoListarUsuarios').modal('show');
+											}else{
+												 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+											}
+										}
+		                             </SCRIPT>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<div class="row">
+								<div class="col-xs-8">
+									<p class="campos-obrigatorios text-left"></p>
+								</div>
+								<div class="col-xs-8">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Cancelar</button>
+									<p:commandLink styleClass="btn btn-primary btn_add_usuario" value="Incluir"
+										actionListener="#{cicloConfigurarAuditoriaBean.vincularUsuarios()}"
+										update=":form-colaborador:tblUsuariosAdicionados"
+										oncomplete="jQuery('#modalUsuario').modal('hide');">
+										<f:param name="cid"
+											value="#{cicloConfigurarAuditoriaBean.conversation.id}" />
+									</p:commandLink>
+								</div>
+							</div>
+						</div>
+					</h:form>
+				</div>
+			</div>
+		</div>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+			modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoListarUsuarios').modal('hide');return false;"
+			modalId="modalConfirmacaoSelecaoListarUsuarios"/>
+
+
+	</ui:define>
+</ui:composition>

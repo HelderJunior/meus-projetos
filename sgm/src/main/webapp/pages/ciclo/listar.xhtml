@@ -1,0 +1,539 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/index.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<a href="#">Ciclo de Avaliação</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+		#{listarCicloBean.init()}
+		
+		<p:messages autoUpdate="true" globalOnly="true" />
+		
+		<h:form id="form_listar_ciclos">
+			<div class="content">
+                <div class="row marginT30px">
+                    <div class="col-xs-16">
+                        <p class="titulo-sem-marcador">Ciclo de Avaliação</p>
+                    </div>
+                </div>
+                <div class="row marginT20px">
+                    <div class="col-xs-16">
+                        <h:commandLink action="#{appBean.inserirNovoCiclo()}" styleClass="btn btn-azul floatR">
+                    		Inserir Novo Ciclo
+                    		<f:param name="nocid" value="true"/>
+                    	</h:commandLink>
+                    </div>
+                </div>
+                <div class="row marginT20px">
+                    <div class="col-xs-16">
+                       	<div class="titulo-tabela bgCorPadraoAzul">Ciclo de Avaliação</div>
+                       	<div class="table-responsive" style="overflow-y:auto;">
+                       	 <table class="table table-striped table-bordered" jsf:id="tbl_listar_ciclos">
+                                    <thead class="bgCorPadraoFraco">
+                                        <tr>    
+                                            <th>Nome</th>   
+                                            <th>Vigência</th>
+                                            <th>Tipo de Meta</th>
+                                            <th>Status da Configuração</th>   
+                                            <th>Status do Ciclo</th>
+                                            <th>Exportar</th>
+                                            <th>P</th>
+                                            <th>R</th>
+                                            <th>M/A</th>
+                                            <th>V</th>
+                                            <th>A</th>
+                                            <th class="width-col-peq">Editar</th>
+                                            <th class="width-col-peq">Excluir</th>
+                                            <th class="width-col-peq">Visualizar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+	                                    <ui:repeat var="c" value="#{listarCicloBean.ciclos}">
+	                                    	<tr>
+	                                    		<td rowspan="2">
+	                                    			<h:outputText value="#{c.descricao}" />
+	                                    		</td>
+	                                    		<td rowspan="2">
+	                                    			<h:outputText value="#{c.vigencia}" />
+	                                    		</td>
+	                                    		
+                                    			<td>
+                                    				<h:outputText value="#{c.configuracoes[0].tipoConfiguracao.value}" />
+                                    			</td>
+                                    			
+                                    			<td>
+                                    				<h:outputText value="#{c.configuracoes[0].statusConfiguracao.value}" />
+                                    			</td>
+	                                    			
+                                    			<td rowspan="2">
+                                    				<h:outputText value="#{c.status.value}" />
+                                    			</td>
+                                    			
+                                    			<td>
+                                    				<p:commandLink oncomplete="jQuery('#modalConfirmarExportacao').modal('show');" title="Exportar Ciclo">
+										        		<i class="fa fa-external-link"></i>
+										        		<f:setPropertyActionListener value="#{c.configuracoes[0]}" target="#{listarCicloBean.cicloConfiguracaoSel}"/>
+										        		<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+										        	</p:commandLink> - 
+										        	<p:commandLink action="#{listarCicloBean.listarExportacoes()}" title="Exportar Ciclo"
+										        		oncomplete="jQuery('#modalListagem').modal('show');" update=":form_exportacao_listagem">
+										        		<f:setPropertyActionListener value="#{c.configuracoes[0]}" target="#{listarCicloBean.cicloConfiguracaoSel}"/>
+										        		<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+										        		<i class="fa fa-eye"></i>
+										        	</p:commandLink>
+                                    			</td>
+                                    			
+                                    			<td>
+                                    				<ui:fragment rendered="#{cicloConfiguracaoService.getStatusPactuacao(c.configuracoes[0]) eq 'I'}">
+										        		<a href="#" title="Fase de pactuação iniciada"><i class="fa fa-check-square-o verde"></i></a>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusPactuacao(c.configuracoes[0]) eq 'N'}">
+										        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarPactuacao').modal('show');" 
+															process="@this" title="Iniciar fase de pactuação">
+															<i class="fa fa-square-o vermelho"></i>
+															<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+															<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[0]}"/>
+														</p:commandLink>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusPactuacao(c.configuracoes[0]) eq 'F'}">
+										        		<a href="#" title="Fase de pactuação finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+										        	</ui:fragment>
+                                    			</td>
+                                    			
+                                    			<td>
+                                    				<ui:fragment rendered="#{cicloConfiguracaoService.getStatusRepactuacao(c.configuracoes[0]) eq 'I'}">
+										        		<a href="#" title="Fase de repactuação iniciada"><i class="fa fa-check-square-o verde"></i></a>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusRepactuacao(c.configuracoes[0]) eq 'N'}">
+										        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarRepactuacao').modal('show');" 
+															process="@this" title="Iniciar fase de repactuação">
+															<i class="fa fa-square-o vermelho"></i>
+															<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+															<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[0]}"/>
+														</p:commandLink>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusRepactuacao(c.configuracoes[0]) eq 'F'}">
+										        		<a href="#" title="Fase de repactuação finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+										        	</ui:fragment>
+                                    			</td>
+                                    			
+                                    			<td>
+                                    				<ui:fragment rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(c.configuracoes[0]) eq 'I'}">
+										        		<a href="#" title="Fase de monitoramento/ajustes iniciada"><i class="fa fa-check-square-o verde"></i></a>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(c.configuracoes[0]) eq 'N'}">
+										        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarAjustes').modal('show');" 
+															process="@this" title="Iniciar fase de monitoramento/ajustes">
+															<i class="fa fa-square-o vermelho"></i>
+															<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+															<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[0]}"/>
+														</p:commandLink>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(c.configuracoes[0]) eq 'F'}">
+										        		<a href="#" title="Fase de monitoramento/ajustes finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+										        	</ui:fragment>
+                                    			</td>
+                                    			
+                                    			<td>
+                                    				<ui:fragment rendered="#{cicloConfiguracaoService.getStatusValidacao(c.configuracoes[0]) eq 'I'}">
+										        		<a href="#" title="Fase de validação iniciada"><i class="fa fa-check-square-o verde"></i></a>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusValidacao(c.configuracoes[0]) eq 'N'}">
+										        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarValidacao').modal('show');" 
+															process="@this" title="Iniciar fase de validação">
+															<i class="fa fa-square-o vermelho"></i>
+															<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+															<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[0]}"/>
+														</p:commandLink>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusValidacao(c.configuracoes[0]) eq 'F'}">
+										        		<a href="#" title="Fase de validação finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+										        	</ui:fragment>
+                                    			</td>
+                                    			
+                                    			<td>
+                                    				<ui:fragment rendered="#{c.configuracoes[0].tipoConfiguracao eq 'DESEMP'}">
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusAuditoria(c.configuracoes[0]) eq 'I'}">
+											        		<a href="#" title="Fase de auditoria iniciada"><i class="fa fa-check-square-o verde"></i></a>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusAuditoria(c.configuracoes[0]) eq 'N'}">
+											        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarAuditoria').modal('show');" 
+																process="@this" title="Iniciar fase de auditoria">
+																<i class="fa fa-square-o vermelho"></i>
+																<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+																<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[0]}"/>
+															</p:commandLink>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusAuditoria(c.configuracoes[0]) eq 'F'}">
+											        		<a href="#" title="Fase de auditoria finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+											        	</ui:fragment>
+										        	</ui:fragment>
+										        	<ui:fragment rendered="#{c.configuracoes[0].tipoConfiguracao eq 'DESENV'}">
+										        		<a href="#" title="Não possui fase de auditoria"><i class="fa fa-check-square-o desabilitado"></i></a>
+										        	</ui:fragment>
+                                    			</td>
+	                                    		
+	                                    		<td rowspan="2">
+	                                    			<h:commandLink action="/pages/ciclo/manter">
+														<i class="fa fa-pencil-square-o"></i>
+														<f:setPropertyActionListener value="#{c}" target="#{manterCicloBean.ciclo}" />
+														<f:setPropertyActionListener value="#{false}" target="#{manterCicloBean.visualizando}"/>
+														<f:setPropertyActionListener value="desempenho" target="#{manterCicloBean.aba}"/>
+														<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+													</h:commandLink>
+	                                    		</td>
+	                                    		<td rowspan="2">
+	                                    			<p:commandLink oncomplete="jQuery('#modalConfirmacao').modal('show');"> 
+														<i class="fa fa-trash-o"></i>
+														<f:setPropertyActionListener value="#{c}" target="#{listarCicloBean.cicloSelecionado}" />
+														<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+													</p:commandLink>
+	                                    		</td>
+	                                    		<td rowspan="2">
+	                                    		 	<h:commandLink action="/pages/ciclo/manter">
+														<i class="fa fa-eye"></i>
+														<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+														<f:setPropertyActionListener value="#{c}" target="#{manterCicloBean.ciclo}" />
+														<f:setPropertyActionListener value="#{true}" target="#{manterCicloBean.visualizando}"/>
+														<f:setPropertyActionListener value="/pages/ciclo/listar" target="#{appBean.back}"/>
+														<f:setPropertyActionListener value="desempenho" target="#{manterCicloBean.aba}"/>
+													</h:commandLink>
+	                                    		</td>
+	                                    	</tr>
+	                                    	
+	                                    		<tr>
+	                                    			<td>
+	                                    				<h:outputText value="#{c.configuracoes[1].tipoConfiguracao.value}" />
+	                                    			</td>
+	                                    			
+	                                    			<td>
+	                                    				<h:outputText value="#{c.configuracoes[1].statusConfiguracao.value}" />
+	                                    			</td>
+	                                    			
+	                                    			<td>
+	                                    				<p:commandLink oncomplete="jQuery('#modalConfirmarExportacao').modal('show');" title="Exportar Ciclo">
+											        		<i class="fa fa-external-link"></i>
+											        		<f:setPropertyActionListener value="#{c.configuracoes[1]}" target="#{listarCicloBean.cicloConfiguracaoSel}"/>
+											        		<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+											        	</p:commandLink> - 
+											        	<p:commandLink action="#{listarCicloBean.listarExportacoes()}"  title="Exportar Ciclo"
+											        		oncomplete="jQuery('#modalListagem').modal('show');" update=":form_exportacao_listagem">
+											        		<f:setPropertyActionListener value="#{c.configuracoes[1]}" target="#{listarCicloBean.cicloConfiguracaoSel}"/>
+											        		<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+											        		<i class="fa fa-eye"></i>
+											        	</p:commandLink>
+	                                    			</td>
+	                                    			<td>
+	                                    				<ui:fragment rendered="#{cicloConfiguracaoService.getStatusPactuacao(c.configuracoes[1]) eq 'I'}">
+											        		<a href="#" title="Fase de pactuação iniciada"><i class="fa fa-check-square-o verde"></i></a>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusPactuacao(c.configuracoes[1]) eq 'N'}">
+											        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarPactuacao').modal('show');" 
+																process="@this" title="Iniciar fase de pactuação">
+																<i class="fa fa-square-o vermelho"></i>
+																<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+																<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[1]}"/>
+															</p:commandLink>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusPactuacao(c.configuracoes[1]) eq 'F'}">
+											        		<a href="#" title="Fase de pactuação finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+											        	</ui:fragment>
+	                                    			</td>
+	                                    			<td>
+	                                    				<ui:fragment rendered="#{cicloConfiguracaoService.getStatusRepactuacao(c.configuracoes[1]) eq 'I'}">
+											        		<a href="#" title="Fase de repactuação iniciada"><i class="fa fa-check-square-o verde"></i></a>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusRepactuacao(c.configuracoes[1]) eq 'N'}">
+											        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarRepactuacao').modal('show');" 
+																process="@this" title="Iniciar fase de repactuação">
+																<i class="fa fa-square-o vermelho"></i>
+																<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+																<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[1]}"/>
+															</p:commandLink>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusRepactuacao(c.configuracoes[1]) eq 'F'}">
+											        		<a href="#" title="Fase de repactuação finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+											        	</ui:fragment>
+	                                    			</td>
+	                                    			<td>
+	                                    				<ui:fragment rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(c.configuracoes[1]) eq 'I'}">
+											        		<a href="#" title="Fase de monitoramento/ajustes iniciada" ><i class="fa fa-check-square-o verde"></i></a>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(c.configuracoes[1]) eq 'N'}">
+											        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarAjustes').modal('show');" 
+																process="@this" title="Iniciar fase de monitoramento/ajustes">
+																<i class="fa fa-square-o vermelho"></i>
+																<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+																<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[1]}"/>
+															</p:commandLink>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusMonitoramentoAjustes(c.configuracoes[1]) eq 'F'}">
+											        		<a href="#" title="Fase de monitoramento/ajustes finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+											        	</ui:fragment>
+	                                    			</td>
+	                                    			<td>
+	                                    				<ui:fragment rendered="#{cicloConfiguracaoService.getStatusValidacao(c.configuracoes[1]) eq 'I'}">
+											        		<a href="#" title="Fase de validação iniciada"><i class="fa fa-check-square-o verde"></i></a>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusValidacao(c.configuracoes[1]) eq 'N'}">
+											        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarValidacao').modal('show');" 
+																process="@this" title="Iniciar fase de validação">
+																<i class="fa fa-square-o vermelho"></i>
+																<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+																<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[1]}"/>
+															</p:commandLink>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusValidacao(c.configuracoes[1]) eq 'F'}">
+											        		<a href="#" title="Fase de validação finalizada"><i class="fa fa-check-square-o desabilitado"></i></a>
+											        	</ui:fragment>
+	                                    			</td>
+	                                    			<td>
+	                                    				<ui:fragment rendered="#{cc.tipoConfiguracao eq 'DESEMP'}">
+												        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusAuditoria(c.configuracoes[1]) eq 'I'}">
+												        		<a href="#" title="Fase de auditoria iniciada"><i class="fa fa-check-square-o verde"></i></a>
+												        	</ui:fragment>
+												        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusAuditoria(c.configuracoes[1]) eq 'N'}">
+												        		<p:commandLink oncomplete="jQuery('#modalConfirmacaoIniciarAuditoria').modal('show');" 
+																	process="@this" title="Iniciar fase de auditoria">
+																	<i class="fa fa-square-o vermelho"></i>
+																	<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+																	<f:setPropertyActionListener target="#{listarCicloBean.cicloConfiguracaoSel}" value="#{c.configuracoes[1]}"/>
+																</p:commandLink>
+												        	</ui:fragment>
+												        	<ui:fragment rendered="#{cicloConfiguracaoService.getStatusAuditoria(c.configuracoes[1]) eq 'F'}">
+												        		<a href="#"><i class="fa fa-check-square-o desabilitado"></i></a>
+												        	</ui:fragment>
+											        	</ui:fragment>
+											        	<ui:fragment rendered="#{cc.tipoConfiguracao eq 'DESENV'}">
+											        		<a href="#" title="Não possui fase de auditoria"><i class="fa fa-check-square-o desabilitado"></i></a>
+											        	</ui:fragment>
+	                                    			</td>
+	                                    		</tr>
+	                                    </ui:repeat>
+                                    </tbody>
+                          </table>
+					    </div>
+					    <p:blockUI block="tbl_listar_ciclos" trigger="tbl_listar_ciclos">
+					        Carregando...<br />
+					    </p:blockUI>
+               		</div>
+            	</div>
+           	</div>
+        </h:form>
+        
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{listarCicloBean.excluir()}"
+		modalMensagem="O ciclo será excluído. Deseja continuar?" onComplete="$('#modalConfirmacao').modal('toggle')"
+		modalId="modalConfirmacao" update=":form_listar_ciclos:tbl_listar_ciclos"/>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{listarCicloBean.iniciarPactuacao()}"
+		modalMensagem="Tem certeza que deseja iniciar a fase de pactuação para este ciclo?" 
+		onComplete="$('#modalConfirmacaoIniciarPactuacao').modal('hide')"
+		modalId="modalConfirmacaoIniciarPactuacao" update=":form_listar_ciclos"/>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{listarCicloBean.iniciarRepactuacao()}"
+		modalMensagem="Tem certeza que deseja iniciar a fase de repactuação para este ciclo?" 
+		onComplete="$('#modalConfirmacaoIniciarRepactuacao').modal('hide')"
+		modalId="modalConfirmacaoIniciarRepactuacao" update=":form_listar_ciclos"/>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{listarCicloBean.iniciarMonitoramentoAjustes()}"
+		modalMensagem="Tem certeza que deseja iniciar a fase de monitoramento/ajustes para este ciclo?" 
+		onComplete="$('#modalConfirmacaoIniciarAjustes').modal('hide')"
+		modalId="modalConfirmacaoIniciarAjustes" update=":form_listar_ciclos"/>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{listarCicloBean.iniciarValidacao()}"
+		modalMensagem="Tem certeza que deseja iniciar a fase de validação para este ciclo?" 
+		onComplete="$('#modalConfirmacaoIniciarValidacao').modal('hide')"
+		modalId="modalConfirmacaoIniciarValidacao" update=":form_listar_ciclos"/>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{listarCicloBean.iniciarAuditoria()}"
+		modalMensagem="Tem certeza que deseja iniciar a fase de auditoria para este ciclo?" 
+		onComplete="$('#modalConfirmacaoIniciarAuditoria').modal('hide')"
+		modalId="modalConfirmacaoIniciarAuditoria" update=":form_listar_ciclos"/>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{listarCicloBean.exportarResultados()}"
+		modalMensagem="Deseja Exportar os resultados para a tabela de consolidação?" 
+		onComplete="$('#modalConfirmarExportacao').modal('hide'); $('#modalVisualiza').modal('show');"
+		modalId="modalConfirmarExportacao" update=":form_dados_exportacao"/>
+		
+		<div class="modal fade" id="modalListagem" tabindex="-1" role="dialog" aria-labelledby="modalListagem" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                	<h:form id="form_exportacao_listagem">
+                	<div id="printModalListagem">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <img class="logotipo-sgm" width="270" height="49" alt="Sistema de Gestão de Metas" src="#{resource['img:logotipo-sgm-maior.png']}"/>
+                            </div>
+                            <div class="col-xs-10 text-center">
+                                Relatório da Dados Exportados - Resultados de Desempenho
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                    	<p:messages for="form_exportacao_listagem"/>
+                        <div class="row marginT20px">
+                            <div class="col-xs-16">
+                                <p:dataTable var="e" value="#{listarCicloBean.exportacoesCiclo}" 
+								    tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+			                   		id="tblExportacoes" paginator="false" 
+			                   		emptyMessage="Nenhum registro a ser exibido" rowIndexVar="index">
+							        
+							        <p:column headerText="Data/Hora exportação" styleClass="text-center">
+							          	<h:outputText value="#{e.dtHoraExportacao}">
+							          		<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+							          	</h:outputText>
+							        </p:column>
+							        
+							        <p:column headerText="Usuário" styleClass="text-center">
+							          	<h:outputText value="#{e.usuarioExportador.nome}">
+							          	</h:outputText>
+							        </p:column>
+							        
+							        <p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+							            <p:commandLink 
+											oncomplete="jQuery('#modalListagem').modal('hide');jQuery('#modalVisualiza').modal('show');" 
+												update=":form_dados_exportacao" process="@this">
+											<i class="fa fa-eye"></i>
+											<f:param name="cid" value="#{listarCicloBean.conversation.id}"/>
+											<f:setPropertyActionListener value="#{e}" target="#{listarCicloBean.exporatacaoSelecionada}" />
+										</p:commandLink>
+							        </p:column>
+							    </p:dataTable>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <button type="button" class="btn btn-azul floatR marginL10px" onclick="printById('printModalListagem'); return false;">Imprimir</button>
+                                <button type="button" class="btn btn-azul floatR" data-dismiss="modal">Cancelar</button>
+                            </div>  
+                        </div>
+                    </div>
+                     </h:form>
+                </div>
+            </div>
+        </div>
+		
+		<div class="modal fade" id="modalVisualiza" tabindex="-1" role="dialog" aria-labelledby="modalVisualiza" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div id="modalContentExportacao" class="modal-content">
+                	<h:form id="form_dados_exportacao">
+                		<div id="printExportacao">
+	                    <div class="modal-header">
+	                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+	                        <div class="row">
+	                            <div class="col-xs-6">
+	                                <img class="logotipo-sgm" width="270" height="49" alt="Sistema de Gestão de Metas" src="#{resource['img:logotipo-sgm-maior.png']}"/>
+	                            </div>
+	                            <div class="col-xs-10 text-center">
+	                                Relatório da Dados Exportados - Resultados de Desempenho
+	                            </div>
+	                        </div>
+	                        <div class="row marginT20px">
+	                            <div class="col-xs-2 text-right">
+	                                <label>Data:</label>
+	                            </div>
+	                            <div class="col-xs-2 text-left">
+	                                <h:outputText value="#{listarCicloBean.exporatacaoSelecionada.dtHoraExportacao}">
+	                                	<f:convertDateTime pattern="dd/MM/yyyy"/>
+	                                </h:outputText>
+	                            </div>
+	                            <div class="col-xs-2 text-right">
+	                                <label>Hora:</label>
+	                            </div>
+	                            <div class="col-xs-2 text-left">
+	                                 <h:outputText value="#{listarCicloBean.exporatacaoSelecionada.dtHoraExportacao}">
+	                                	<f:convertDateTime pattern="HH:mm:ss"/>
+	                                </h:outputText>
+	                            </div>
+	                            <div class="col-xs-2 text-right">
+	                                <label>Matrícula:</label>
+	                            </div>
+	                            <div class="col-xs-2 text-left">
+	                                #{listarCicloBean.exporatacaoSelecionada.usuarioExportador.matricula}
+	                            </div>
+	                            <div class="col-xs-2 text-right">
+	                                <label>Versão:</label>
+	                            </div>
+	                            <div class="col-xs-2 text-left">
+	                                #{listarCicloBean.exporatacaoSelecionada.id}
+	                            </div>
+	                        </div>
+	                    </div>
+	                    <div class="modal-body">
+	                    	<p:messages for="form_dados_exportacao"/>
+	                        <div class="row marginT20px">
+	                            <div class="col-xs-16">
+	                                <table class="table table-striped table-bordered">
+	                                    <thead class="bgCorPadraoFraco">
+	                                      <tr>
+	                                        <th>CPF</th>
+	                                        <th>Matrícula</th>
+	                                        <th>Nome</th>
+	                                        <th>Unidade UF</th>
+	                                        <th>Ano Vigência</th>
+	                                        <th>Metas Estipuladas</th>
+	                                        <th>Metas Alcançadas</th>
+	                                        <th>Usuário</th>
+	                                      </tr>
+	                                    </thead>
+	                                    <tbody>
+	                                    	<ui:repeat var="detalhe" value="#{listarCicloBean.exporatacaoSelecionada.detalhesExportacao}">
+		                                        <tr>
+		                                            <td>
+		                                            	<h:outputText value="#{detalhe.usuario.cpf}" converter="CPFConverter"/>
+		                                            </td>
+		                                            <td>#{detalhe.usuario.matricula}</td>
+		                                            <td>#{detalhe.usuario.nome}</td>
+		                                            <td>#{detalhe.unidade.descricao}</td>
+		                                            <td>#{detalhe.anoVigencia}</td>
+		                                            <td>#{detalhe.metasEstipuladas}</td>
+		                                            <td>#{detalhe.metasAlcancadas}</td>
+		                                            <td>#{listarCicloBean.exporatacaoSelecionada.usuarioExportador.nome}</td>
+		                                        </tr>
+	                                        </ui:repeat>
+	                                    </tbody>
+	                                </table>
+	                            </div>
+	                        </div>
+	                    </div>
+	                    </div>
+	                    <div class="modal-footer">
+	                        <div class="row">
+	                            <div class="col-xs-16">
+	                                <button type="button" class="btn btn-azul floatR marginL10px" onclick="printById('printExportacao'); return false;">Imprimir</button>
+	                                <button type="button" class="btn btn-azul floatR" data-dismiss="modal">Cancelar</button>
+	                            </div>  
+	                        </div>
+	                    </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+		
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,274 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+		
+        <h:form id="form_alterar_senha">
+		<div class="row marginT20px">
+			<div class="col-xs-8">
+				<label for="uf">UF</label> 
+				<h:selectOneMenu id="uf" value="#{configurarSgmAlterarSenhaBean.uf}" styleClass="form-control">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems value="#{configurarSgmAlterarSenhaBean.ufs}" var="uf" itemLabel="#{uf}" itemValue="#{uf}" />
+					<p:ajax event="change" process="@this" update="unidade" listener="#{configurarSgmAlterarSenhaBean.alterouUF()}"/>
+				</h:selectOneMenu>
+				<p:message for="uf"/>
+			</div>
+			<div class="col-xs-8">
+				<label for="unidade">Unidade</label> 
+				<p:autoComplete id="unidade" value="#{configurarSgmAlterarSenhaBean.unidade}" 
+					styleClass="form-control2 input-unidade" style="width:100%;"
+					completeMethod="#{configurarSgmAlterarSenhaBean.completeUnidade}"
+                	var="un" itemLabel="#{un.descricaoComCodigo}" itemValue="#{un}" 
+                	converter="UnidadeConverter" forceSelection="true" disabled="#{configurarSgmAlterarSenhaBean.desbilitarUnidades}" onblur="disabledInputNomeUsuario();">
+                	<p:ajax event="itemSelect" update="nomeUsuario" process="@this" listener="#{configurarSgmAlterarSenhaBean.alterouUnidade()}"/>
+                </p:autoComplete>
+                <p:message for="unidade"/>
+			</div>
+		</div>
+		<div class="row marginT10px">
+			<div class="col-xs-8">
+				<label for="tipoPerfil">Tipo de Perfil</label> 
+				<h:selectOneMenu id="tipoPerfil" value="#{configurarSgmAlterarSenhaBean.perfil}" styleClass="form-control"
+					converter="PerfilConverter">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems value="#{configurarSgmAlterarSenhaBean.perfis}" var="p" itemLabel="#{p.descricao}" itemValue="#{p}" />
+				</h:selectOneMenu>
+		   </div>
+			
+		  <div class="col-xs-8">
+			<label for="nomeUsuario">Nome do Usuário</label>
+			<p:autoComplete id="nomeUsuario"
+				value="#{configurarSgmAlterarSenhaBean.usuarioPesquisa}"
+				styleClass="form-control2 input-nomeusuario" style="width:100%;"
+				completeMethod="#{configurarSgmAlterarSenhaBean.completeUsuariosInterno}"
+				var="us" itemLabel="#{us.nome}" itemValue="#{us}"
+				converter="UsuarioConverter" forceSelection="true" disabled="#{configurarSgmAlterarSenhaBean.desabilitarNomeUsuario}" />
+		  </div> 
+			
+		</div>
+		<div class="row marginT20px">
+			<div class="col-xs-2 col-xs-offset-14">
+				<p:commandLink styleClass="btn btn-azul floatR width100" value="Buscar" 
+					actionListener="#{configurarSgmAlterarSenhaBean.buscarUsuarios()}"
+					update="tbl_listar_usuarios">
+					<f:param name="cid" value="#{configurarSgmAlterarSenhaBean.conversation.id}"/>
+				</p:commandLink>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-xs-16">
+				<hr/>
+			</div>
+		</div>
+		
+		<p:messages for="form_alterar_senha" autoUpdate="true" id="form_alterar_senha_messages"/>
+		
+		<script type="text/javascript">
+			// <![CDATA[
+			function apagarMensagemAlterarSenha(){
+				window.setTimeout(function(){
+					var msg = jQuery("#form_alterar_senha\\:form_alterar_senha_messages");
+					if(msg){
+						msg.hide();
+						}
+					}, 5000);
+			}
+			apagarMensagemAlterarSenha();
+			function disabledInputNomeUsuario(){
+				if ( $('.input-unidade input:first-child').val() == '') {						
+					$('.input-nomeusuario input:first-child').prop('disabled', true);
+				}
+			}
+			// ]]>			
+		  </script>
+		
+		<div class="row marginT30px">
+            <div class="col-xs-16">
+                <p class="titulo-sem-marcador">Configurações Salvas</p>
+            </div>
+        </div>
+        
+		<div class="row marginT20px">
+			<div class="col-xs-16">
+				<div class="titulo-tabela bgCorPadrao cinzaFonte">Resultado</div>
+				<p:dataTable var="u"
+					value="#{configurarSgmAlterarSenhaBean.usuarios}"
+					tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+					id="tbl_listar_usuarios" paginator="true" rows="20"
+					paginatorPosition="bottom"
+					paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+					emptyMessage="Nenhum resultado a ser exibido">
+
+					<p:column headerText="CPF" styleClass="text-center" width="130" sortBy="#{u.cpf}">
+						<h:outputText value="#{u.cpf}" converter="CPFConverter" />
+					</p:column>
+
+					<p:column headerText="Nome" styleClass="text-center" sortBy="#{u.nome}">
+						<p:commandLink value="#{u.nome}" styleClass="underline" oncomplete="jQuery('#modalEditarPerfil').modal('show');" 
+							update=":formEditarPerfil" process="@this" actionListener="#{configurarSgmAlterarSenhaBean.prepararEdicaoUsuario()}">
+							<f:setPropertyActionListener value="#{u}" target="#{configurarSgmAlterarSenhaBean.usuario}" />
+							<f:param name="cid" value="#{configurarSgmAlterarSenhaBean.conversation.id}"/>
+						</p:commandLink>
+					</p:column>
+
+					<p:column headerText="UF" styleClass="text-center" width="40" sortBy="#{u.unidades[0].unidadePK.uf}">
+						<h:outputText value="#{u.unidades[0].unidadePK.uf}" />
+					</p:column>
+
+					<p:column headerText="Status SGM" styleClass="text-center" width="100" sortBy="#{u.ativo ? 'Ativo':'Inativo'}">
+						<h:outputText value="#{u.ativo ? 'Ativo':'Inativo'}" />
+					</p:column>
+					
+					<p:column headerText="Unidade" styleClass="text-center" sortBy="#{u.unidades[0].descricaoComCodigo}">
+						<h:outputText value="#{u.unidades[0].descricaoComCodigo}" />
+					</p:column>
+					
+					<p:column headerText="Tipo de Perfil" styleClass="text-center" width="130" sortBy="#{u.perfis[0].perfil.descricao}">
+						<dl>
+							<ui:repeat var="perf" value="#{u.perfisSistema}">
+									<dd>#{perf.descricao}</dd>
+							</ui:repeat>
+						</dl>
+					</p:column>
+				</p:dataTable>
+			</div>
+		</div>
+	</h:form>
+	
+	<div class="modal fade" id="modalEditarPerfil" tabindex="-1" role="dialog" aria-labelledby="modalEditarPerfil" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                	<h:form id="formEditarPerfil">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Dados do Usuário</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <label for="nome">Nome</label>
+                                <p:inputText styleClass="form-control" disabled="true" value="#{configurarSgmAlterarSenhaBean.usuario.nome}"/>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="matricula">Matrícula</label>
+                                <p:inputText styleClass="form-control" disabled="true" value="#{configurarSgmAlterarSenhaBean.usuario.matricula}"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-8">
+                                <label for="cpf">CPF</label>
+                                <p:inputText styleClass="form-control" disabled="true" value="#{configurarSgmAlterarSenhaBean.usuario.cpf}" 
+                                	converter="CPFConverter"/>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="tipoPerfil">Tipo de Perfil</label>
+                                <input type="text" id="tipoPerfil" class="form-control" name="status" value="#{configurarSgmAlterarSenhaBean.usuario.perfis[0].perfil.descricao}" disabled="disabled" />
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-8">
+                                <label for="espacoOcupacional">Espaço Ocupacional</label>
+                                <p:inputText styleClass="form-control" disabled="true" value="#{not empty configurarSgmAlterarSenhaBean.usuario.espacoOcupacional ? configurarSgmAlterarSenhaBean.usuario.espacoOcupacional.descricao:''}"/>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="uf">UF</label>
+                                 <p:inputText styleClass="form-control" disabled="true" value="#{configurarSgmAlterarSenhaBean.usuario.unidades[0].unidadePK.uf}"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-16">
+                                <label for="unidadeAssociada">Unidade Associada</label>
+                                <p:inputText styleClass="form-control" disabled="true" value="#{configurarSgmAlterarSenhaBean.usuario.unidades[0].descricao}"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-8">
+                                <label for="statusRm">Status no RM</label>
+                                <p:inputText styleClass="form-control" disabled="true" value="#{configurarSgmAlterarSenhaBean.usuario.ativoRm ? 'Ativo':'Inativo'}"/>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="statusSgm">Status no SGM</label>
+                                <h:selectOneMenu id="statusSGM" value="#{configurarSgmAlterarSenhaBean.usuario.ativo}" styleClass="form-control"
+									converter="javax.faces.Boolean">
+									<f:selectItem itemLabel="Ativo" itemValue="true"/>
+									<f:selectItem itemLabel="Inativo" itemValue="false"/>
+								</h:selectOneMenu>
+								<p:message for="statusSGM"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-8">
+                                <label for="ultimoAcesso">Último Acesso em</label>
+                                <p:inputText styleClass="form-control" disabled="true" value="#{configurarSgmAlterarSenhaBean.usuario.ultimoAcesso}">
+                                	<f:convertDateTime pattern="dd/MM/yyyy"/>
+                                </p:inputText>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="emailAtual">E-mail atual</label>
+                                <p:inputText styleClass="form-control" disabled="true" value="#{configurarSgmAlterarSenhaBean.usuario.email}"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-8">
+                                <label for="novoEmail">Novo E-mail</label>
+                                <p:inputText label="Novo E-mail" id="novoEmail" styleClass="form-control" value="#{configurarSgmAlterarSenhaBean.novoEmail}"/>
+                                <p:message for="novoEmail"/>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="confirmarEmail">Confirmar E-mail</label>
+                                <p:inputText label="Confirmar E-mail" id="confirmarEmail" styleClass="form-control" value="#{configurarSgmAlterarSenhaBean.novoEmailConfirmacao}"/>
+                                <p:message for="confirmarEmail"/>
+                            </div>
+                        </div>
+                        <div class="row marginT20px">
+                            <div class="col-xs-8">
+                                <label for="novaSenha">Senha</label>
+                                <p:password id="senha" styleClass="form-control" value="#{configurarSgmAlterarSenhaBean.novaSenha}" match="confirmacaoSenha"
+                                 label="Senha" maxlength="8"/>
+                                 <p:message for="senha"/>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="confirmarSenha">Confirmar Senha</label>
+                                <p:password label="Confirmar Senha" id="confirmacaoSenha" styleClass="form-control" value="#{configurarSgmAlterarSenhaBean.novaSenhaConfirmacao}" maxlength="8"/>
+                                <p:message for="confirmacaoSenha"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                            </div>
+                            <div class="col-xs-8">
+                                <button type="button" class="btn btn-azul" data-dismiss="modal">Cancelar</button>
+                                <p:commandLink styleClass="btn btn-azul" value="Salvar" 
+                                	actionListener="#{configurarSgmAlterarSenhaBean.salvar()}" 
+                                	update="panelMessages,:form_alterar_senha:tbl_listar_usuarios,:formEditarPerfil"
+                                	oncomplete="fecharModal();apagarMensagemAlterarSenha();">
+                                	<f:param name="cid" value="#{configurarSgmAlterarSenhaBean.conversation.id}"/>
+                             	</p:commandLink>
+                            </div>  
+                            
+                            <h:panelGroup id="panelMessages">
+                            	<script type="text/javascript">
+									var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+									function fecharModal(){
+										if(!maximunSeverity || maximunSeverity != '2'){
+											jQuery('#modalEditarPerfil').modal('hide');
+										}
+									}
+                            	</script>
+                            </h:panelGroup>
+                        </div>
+                    </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+</ui:composition>

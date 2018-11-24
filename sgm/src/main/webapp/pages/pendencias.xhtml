@@ -1,0 +1,245 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:func="http://br.gov.sebrae/funcoes">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/index.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<a href="#">Listagem de Pendências</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+	
+	#{pendenciasBean.init()}
+	
+	<p:messages autoUpdate="true" globalOnly="true" />
+	
+	<h:form id="formPendencias">
+	
+		<div class="content">
+	           <div class="row marginT30px">
+	               <div class="col-xs-16">
+	                   <p class="titulo-sem-marcador">Listagem de Pendências</p>
+	               </div>
+	           </div>
+	            <div class="row marginT20px">
+                      <div class="col-xs-3">
+                      	  <label>Filtro por Colaborador</label>
+                          <h:selectOneMenu id="colaborador" value="#{pendenciasBean.colaborador}" converter="UsuarioConverter" 
+	                    	styleClass="form-control">
+							<f:selectItem itemLabel="Selecione"/>
+							<f:selectItems value="#{pendenciasBean.colaboradores}" var="o" itemLabel="#{o.nome}" itemValue="#{o}"/>
+							<p:ajax event="change" process="@this" update="tbPendencias" listener="#{pendenciasBean.getFiltrarPedencias()}"/>
+						 </h:selectOneMenu>
+                      </div>
+                      <div class="col-xs-3">
+                          <label>Filtro por Unidade</label>
+                          <h:selectOneMenu id="unidade" value="#{pendenciasBean.unidade}" converter="UnidadeConverter" 
+	                    	styleClass="form-control">
+							<f:selectItem itemLabel="Selecione"/>
+							<f:selectItems value="#{pendenciasBean.unidades}" var="o" itemLabel="#{o.descricaoComCodigo}" itemValue="#{o}"/>
+							<p:ajax event="change" process="@this" update="tbPendencias" listener="#{pendenciasBean.getFiltrarPedencias()}"/>
+						 </h:selectOneMenu>
+                      </div>
+                      <div class="col-xs-3">
+                        <label>Filtro por Status da Meta</label>
+                        <h:selectOneMenu id="statusMeta" value="#{pendenciasBean.statusMetaSelecionado}" 
+	                    	styleClass="form-control">
+							<f:selectItem itemLabel="Selecione"/>
+							<f:selectItems value="#{pendenciasBean.statusMeta}" var="acao" itemLabel="#{acao.value}" itemValue="#{acao}"/>
+							<p:ajax event="change" process="@this" update="tbPendencias" listener="#{pendenciasBean.getFiltrarPedencias()}"/>
+						</h:selectOneMenu>
+                      </div>
+                      <div class="col-xs-3">
+                        <label>Filtro por tipo de Meta</label>
+                        <h:selectOneMenu id="tipoMeta" value="#{pendenciasBean.tipoMetaSelecionado}" 
+	                    	styleClass="form-control">
+							<f:selectItem itemLabel="Selecione"/>
+							<f:selectItems value="#{pendenciasBean.tiposMeta}" var="acao" itemLabel="#{acao.value}" itemValue="#{acao}"/>
+							<p:ajax event="change" process="@this" update="tbPendencias" listener="#{pendenciasBean.getFiltrarPedencias()}"/>
+						</h:selectOneMenu>
+                      </div>
+                      
+                      <ui:fragment rendered="#{not pendenciasBean.isPerfilSlelecionado()}">
+	                      <div class="col-xs-2">
+	                         <label for="selecioneAcao">Ação</label>
+	                         <h:selectOneMenu id="acaoPendencias" value="#{pendenciasBean.acaoPendencia}" 
+		                    	styleClass="form-control fontsize12px">
+								<f:selectItem itemLabel="Selecione"/>
+								<f:selectItems value="#{pendenciasBean.acoesComboPendencia}" var="acao" itemLabel="#{acao.value}" itemValue="#{acao}"/>
+							</h:selectOneMenu>
+	                      </div>
+	                      <div class="col-xs-2">
+	                          <p:commandLink id="btnEnviar" value="Enviar" styleClass="btn btn-azul width100 marginT25px"
+	                          		process="acaoPendencias" update=":pnlAcaoCombo" oncomplete="verificaAcao();"/>
+	                      </div>
+                      </ui:fragment>
+               </div>
+	           
+	           <div class="row marginT30px">
+	               <div class="col-xs-16">
+	                   <div class="titulo-tabela bgCorPadraoAzul">Listagem de Pendências</div>
+	                   <p:dataTable var="meta" value="#{pendenciasBean.getFiltrarPedencias()}" tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+	                   		id="tbPendencias" paginator="true" rows="20" paginatorPosition="bottom" 
+	                   		paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+	                   		emptyMessage="Você não possui pendências">
+	                   		
+					        <ui:fragment rendered="#{not pendenciasBean.isPerfilSlelecionado()}">
+						        <p:column headerText="#" styleClass="text-center width-col-peq">
+						            <h:selectBooleanCheckbox value="#{meta.selecionado}">
+						            	<p:ajax event="change" process="@this" update=":formPendencias:acaoPendencias"/>
+						            </h:selectBooleanCheckbox>
+						        </p:column>
+					        </ui:fragment>
+					 
+					        <p:column headerText="Tipo de Meta" sortBy="#{meta.tipo.value}" styleClass="text-center">
+					            <h:outputText value="#{meta.tipo.value}" />
+					        </p:column>
+					 
+					        <p:column headerText="Colaborador" sortBy="#{meta.colaborador.nome}" styleClass="text-center">
+					            <h:outputText value="#{meta.colaborador.nome}" />
+					        </p:column>
+					 
+					        <p:column headerText="Descrição da Meta" sortBy="#{meta.resultadosEsperados}" styleClass="text-center">
+					            <h:outputText value="#{func:limitaString(20, meta.resultadosEsperados)}" />
+					            <p:commandLink rendered="#{meta.resultadosEsperados.length() gt 30}" oncomplete="jQuery('#lerDescricao').modal('show');"
+					            update=":frmDescricaoMeta" process="@this">
+					            	<i class="fa fa-external-link"></i>
+					            	<f:param name="cid" value="#{pendenciasBean.conversation.id}"/>
+					            	<f:setPropertyActionListener value="#{meta}" target="#{pendenciasBean.metaSelecionada}" />
+					            </p:commandLink>
+					        </p:column>
+					        
+					        <p:column headerText="Status da Meta" sortBy="#{meta.statusAtual.value}" styleClass="text-center">
+					            <h:outputText value="#{meta.statusAtual.value}" />
+					        </p:column>
+					        
+					        <p:column headerText="Sanar Pendência" styleClass="text-center">
+					        	<ui:fragment rendered="#{not pendenciasBean.isPerfilSlelecionado()}">
+					            	<h:commandLink action="/pages/meta-individual/manter" rendered="#{meta.tipo eq 'I'}">
+						            	<i class="fa fa-pencil-square-o"></i>
+						            	<f:param name="cid" value="#{pendenciasBean.conversation.id}"/>
+										<f:setPropertyActionListener value="#{meta}" target="#{manterMetaIndividualBean.meta}" />
+										<f:setPropertyActionListener value="/pages/pendencias" target="#{appBean.back}"/>
+					            	</h:commandLink>
+					            
+						            <h:commandLink action="/pages/meta-equipe/manter" rendered="#{meta.tipo eq 'E'}">
+						            	<i class="fa fa-pencil-square-o"></i>
+						            	<f:param name="cid" value="#{pendenciasBean.conversation.id}"/>
+										<f:setPropertyActionListener value="#{meta}" target="#{manterMetaEquipeBean.meta}" />
+										<f:setPropertyActionListener value="/pages/pendencias" target="#{appBean.back}"/>
+						            </h:commandLink>
+					            
+						            <h:commandLink action="/pages/meta-desenvolvimento/manter" rendered="#{meta.tipo eq 'D'}">
+						            	<i class="fa fa-pencil-square-o"></i>
+										<f:setPropertyActionListener value="#{meta}" target="#{manterMetaDesenvolvimentoBean.meta}" />
+										<f:setPropertyActionListener value="/pages/pendencias" target="#{appBean.back}"/>
+						            </h:commandLink>
+					            </ui:fragment>
+					            
+					            <ui:fragment rendered="#{pendenciasBean.isPerfilSlelecionado()}">
+						            <h:commandLink action="/pages/gestor/desempenho/validacao-desempenho" rendered="#{meta.tipo eq 'E' or meta.tipo eq 'I'}">
+		                                <i class="fa fa-external-link"></i>
+		                                <f:setPropertyActionListener value="#{meta}" target="#{gestorValidacaoDesempenhoBean.meta}" />
+		                                <f:setPropertyActionListener value="/pages/pendencias" target="#{appBean.back}" />
+		                            </h:commandLink>
+		                         
+		                            <h:commandLink action="/pages/gestor/desenvolvimento/validacao-desenvolvimento" rendered="#{meta.tipo eq 'D'}">
+		                                <i class="fa fa-external-link"></i>
+		                                <f:setPropertyActionListener value="#{meta}" target="#{gestorValidacaoDesenvolvimentoBean.meta}" />
+		                                <f:setPropertyActionListener value="/pages/pendencias" target="#{appBean.back}" />
+		                            </h:commandLink>
+					            </ui:fragment>
+					            
+					        </p:column>
+					    </p:dataTable>
+	               </div>
+	           </div>
+	       </div>
+	       
+	       <p:blockUI block="tbPendencias" trigger="tbPendencias,acaoPendencias">
+		        Carregando...<br />
+		   </p:blockUI>
+		   
+		   <p:blockUI block="tbPendencias" trigger="colaborador,unidade,statusMeta,tipoMeta">
+		        Consultando...<br />
+		   </p:blockUI>
+		   
+		</h:form>
+		
+		
+		<h:panelGroup id="pnlAcaoCombo">
+			<script type="text/javascript">
+				// <![CDATA[
+					var acaoSelecionada = '#{pendenciasBean.acaoPendencia}';
+					function verificaAcao() {
+						if(acaoSelecionada == 'EA'){
+							$('#modalConfirmacaoAprovacao').modal('show');
+						}
+	
+						if(acaoSelecionada == 'EX'){
+							$('#modalConfirmacaoExclusao').modal('show');
+						}
+
+						if(acaoSelecionada == 'CA'){
+							$('#modalConfirmacaoCancelamento').modal('show');
+						}
+					}
+				// ]]>
+			  </script>
+		</h:panelGroup>
+		
+		
+		<div class="modal fade" id="lerDescricao" tabindex="-1" role="dialog" aria-labelledby="lerDescricao" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <h:form id="frmDescricaoMeta">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Descrição</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <p>
+                                    #{pendenciasBean.metaSelecionada.resultadosEsperados}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        
+        <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{pendenciasBean.excluirMetasSelecionadas()}"
+		modalMensagem="As metas selecionadas serão excluídas do sistema. Deseja continuar?" onComplete="$('#modalConfirmacaoExclusao').modal('hide')"
+		modalId="modalConfirmacaoExclusao" update=":formPendencias"/>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{pendenciasBean.enviarAprovacaoMetasSelecionadas()}"
+		modalMensagem="As metas selecionadas serão enviadas para aprovação. Deseja continuar?" onComplete="$('#modalConfirmacaoAprovacao').modal('hide')"
+		modalId="modalConfirmacaoAprovacao" update=":formPendencias"/>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{pendenciasBean.cancelarMetasSelecionadas()}"
+		modalMensagem="As metas selecionadas serão canceladas. Deseja continuar?" onComplete="$('#modalConfirmacaoCancelamento').modal('hide')"
+		modalId="modalConfirmacaoCancelamento" update=":formPendencias"/>
+		
+	</ui:define>
+</ui:composition>

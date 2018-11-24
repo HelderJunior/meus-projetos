@@ -1,0 +1,23 @@
+div.dd {
+	display: block;
+	float: left;
+	width: 100%;
+	height: 18px;
+	border: 1px solid grey;
+}
+
+div.dd div.progresso {
+	background: #fb040c;
+	background: -moz-linear-gradient(left,  #fb040c 0%, #fb040c 15%, #f90e0a 18%, #fa2f0e 23%, #fb400d 25%, #fb9b10 36%, #fca40f 37%, #fbaa12 37%, #fab00f 38%, #fbc70f 41%, #fcd412 43%, #fbe810 46%, #fdf113 47%, #f9f412 48%, #fbfd13 50%, #f2fc12 53%, #c5ed13 60%, #9ce00f 64%, #8fdc12 66%, #37c00e 76%, #13b40e 81%, #00ae0e 85%, #01af0f 100%);
+	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#fb040c), color-stop(15%,#fb040c), color-stop(18%,#f90e0a), color-stop(23%,#fa2f0e), color-stop(25%,#fb400d), color-stop(36%,#fb9b10), color-stop(37%,#fca40f), color-stop(37%,#fbaa12), color-stop(38%,#fab00f), color-stop(41%,#fbc70f), color-stop(43%,#fcd412), color-stop(46%,#fbe810), color-stop(47%,#fdf113), color-stop(48%,#f9f412), color-stop(50%,#fbfd13), color-stop(53%,#f2fc12), color-stop(60%,#c5ed13), color-stop(64%,#9ce00f), color-stop(66%,#8fdc12), color-stop(76%,#37c00e), color-stop(81%,#13b40e), color-stop(85%,#00ae0e), color-stop(100%,#01af0f));
+	background: -webkit-linear-gradient(left,  #fb040c 0%,#fb040c 15%,#f90e0a 18%,#fa2f0e 23%,#fb400d 25%,#fb9b10 36%,#fca40f 37%,#fbaa12 37%,#fab00f 38%,#fbc70f 41%,#fcd412 43%,#fbe810 46%,#fdf113 47%,#f9f412 48%,#fbfd13 50%,#f2fc12 53%,#c5ed13 60%,#9ce00f 64%,#8fdc12 66%,#37c00e 76%,#13b40e 81%,#00ae0e 85%,#01af0f 100%);
+	background: -o-linear-gradient(left,  #fb040c 0%,#fb040c 15%,#f90e0a 18%,#fa2f0e 23%,#fb400d 25%,#fb9b10 36%,#fca40f 37%,#fbaa12 37%,#fab00f 38%,#fbc70f 41%,#fcd412 43%,#fbe810 46%,#fdf113 47%,#f9f412 48%,#fbfd13 50%,#f2fc12 53%,#c5ed13 60%,#9ce00f 64%,#8fdc12 66%,#37c00e 76%,#13b40e 81%,#00ae0e 85%,#01af0f 100%);
+	background: -ms-linear-gradient(left,  #fb040c 0%,#fb040c 15%,#f90e0a 18%,#fa2f0e 23%,#fb400d 25%,#fb9b10 36%,#fca40f 37%,#fbaa12 37%,#fab00f 38%,#fbc70f 41%,#fcd412 43%,#fbe810 46%,#fdf113 47%,#f9f412 48%,#fbfd13 50%,#f2fc12 53%,#c5ed13 60%,#9ce00f 64%,#8fdc12 66%,#37c00e 76%,#13b40e 81%,#00ae0e 85%,#01af0f 100%);
+	background: linear-gradient(to right,  #fb040c 0%,#fb040c 15%,#f90e0a 18%,#fa2f0e 23%,#fb400d 25%,#fb9b10 36%,#fca40f 37%,#fbaa12 37%,#fab00f 38%,#fbc70f 41%,#fcd412 43%,#fbe810 46%,#fdf113 47%,#f9f412 48%,#fbfd13 50%,#f2fc12 53%,#c5ed13 60%,#9ce00f 64%,#8fdc12 66%,#37c00e 76%,#13b40e 81%,#00ae0e 85%,#01af0f 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fb040c', endColorstr='#01af0f',GradientType=1 );
+	height: 16px;
+	width: 100%;
+	text-align: right;
+	display: block;
+	float: left;
+}

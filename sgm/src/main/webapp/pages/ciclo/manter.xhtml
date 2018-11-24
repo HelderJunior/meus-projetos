@@ -1,0 +1,851 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/ciclo/listar.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}"/></li>
+		<li><h:commandLink action="/pages/ciclo/listar.xhtml" value="Ciclo de Avaliação" /></li>
+		<li>
+			<ui:fragment rendered="#{manterCicloBean.cicloConfiguracaoDesempenho.id eq null}">
+				<a href="#">Inserir</a>
+			</ui:fragment> 
+			<ui:fragment rendered="#{manterCicloBean.cicloConfiguracaoDesempenho.id ne null}">
+				<a href="#">Editar</a>
+			</ui:fragment>
+		</li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{manterCicloBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<ui:fragment rendered="#{manterCicloBean.cicloConfiguracaoDesempenho.id eq null}">
+						<p class="titulo-sem-marcador">Inserir Ciclo de Avaliação</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{manterCicloBean.cicloConfiguracaoDesempenho.id ne null and not manterCicloBean.visualizando}">
+						<p class="titulo-sem-marcador">Editar Ciclo de Avaliação</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{manterCicloBean.cicloConfiguracaoDesempenho.id ne null and  manterCicloBean.visualizando}">
+						<p class="titulo-sem-marcador">Visualizar Ciclo de Avaliação</p>
+					</ui:fragment>
+				</div>
+			</div>
+			<h:form styleClass="form-horizontal" role="form" id="form_manter_ciclo">
+				<div class="row marginT20px">
+					<div class="col-xs-3 text-right">
+						<label>Código do Ciclo</label>
+					</div>
+					<div class="col-xs-4">
+						<p:inputText value="#{manterCicloBean.ciclo.codigo}" styleClass="form-control" disabled="true"/>
+					</div>
+					<div class="col-xs-2 text-right">
+						<label for="anoCiclo">Ano do Ciclo*</label>
+					</div>
+					<div jsf:id="div_ano" class="col-xs-4">
+						<p:inputMask id="anoCiclo" styleClass="form-control floatL" placeholder="Ano do Ciclo" size="4" 
+		                  	mask="9999" value="#{manterCicloBean.ciclo.vigencia}" converter="javax.faces.Integer"
+		                  	disabled="#{manterCicloBean.visualizando}" required="true" label="Ano do Ciclo">
+		                  	<p:ajax event="change" process="@this" update="div_ano" 
+		                  		listener="#{manterCicloBean.verificarCiclo()}"/>
+		                </p:inputMask>
+						<p:message for="anoCiclo" />
+					</div>
+				</div>
+
+				<div class="row marginT20px">
+					<div class="col-xs-3 text-right">
+						<label for="descricaoCiclo">Descrição do Ciclo*</label>
+					</div>
+					<div class="col-xs-4">
+						<p:inputText id="descricaoCiclo" maxlength="50"
+							value="#{manterCicloBean.ciclo.descricao}"
+							styleClass="form-control floatL" placeholder="Descrição do Ciclo" 
+							required="true" label="Descrição do Ciclo"/>
+						<p:message for="descricaoCiclo" />
+					</div>
+					<div class="col-xs-2 text-right">
+						<label for="uf">UF*</label>
+					</div>
+					<div class="col-xs-4">
+						<h:selectOneMenu id="ufCiclo" value="#{manterCicloBean.ciclo.uf}" 
+							styleClass="form-control" required="true" label="UF" 
+							disabled="#{not empty manterCicloBean.ciclo.id}">
+							<f:selectItem itemLabel="Selecione a UF"/>
+							<f:selectItems value="#{manterCicloBean.ufs}" var="uf" 
+								itemLabel="#{uf}" itemValue="#{uf}"/>
+							<p:ajax event="change" process="@this" update="div_ano" 
+		                  		listener="#{manterCicloBean.verificarCiclo()}"/>
+						</h:selectOneMenu>
+						<p:message for="ufCiclo" />
+					</div>
+					<div class="col-xs-3 text-right">
+						<h:commandLink styleClass="btn btn-azul floatR marginL10px" 
+								rendered="#{not manterCicloBean.visualizando and empty manterCicloBean.ciclo.id}" 
+								action="#{manterCicloBean.salvar()}">Salvar Configuração</h:commandLink>
+					</div>
+				</div>
+				
+				<p:remoteCommand id="setarAbaDesempenho" name="setarAbaDesempenho" actionListener="#{manterCicloBean.setarAbaDesempenho()}"/>
+				<p:remoteCommand id="setarAbaDesenvolvimento" name="setarAbaDesenvolvimento" actionListener="#{manterCicloBean.setarAbaDesenvolvimento()}"/>
+				
+				<div class="row marginT30px">
+					<div class="col-xs-16">
+						<ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+							<ui:fragment rendered="#{usuarioPerfilService.podeConfigurarParametro(appBean.usuarioAutenticado, 'P', 'A')}">
+								<li class="#{manterCicloBean.aba eq 'desempenho' ? 'active' : ''}"><a href="#metas-desempenho" onclick="setarAbaDesempenho();" class="branco bgCorDesempenho">Metas de Desempenho</a></li>
+							</ui:fragment>
+							<ui:fragment rendered="#{usuarioPerfilService.podeConfigurarParametro(appBean.usuarioAutenticado, 'D', 'A')}">
+								<li class="#{manterCicloBean.aba eq 'desenvolvimento' ? 'active' : ''}"><a href="#metas-desenvolvimento" onclick="setarAbaDesenvolvimento();" class="branco bgCorDesenvolvimento">Metas de Desenvolvimento</a></li>
+							</ui:fragment>
+						</ul>
+						<div class="tab-content">
+							<ui:fragment rendered="#{usuarioPerfilService.podeConfigurarParametro(appBean.usuarioAutenticado, 'P', 'A')}">
+							<div id="metas-desempenho" class="tab-pane #{manterCicloBean.aba eq 'desempenho' ? 'active' : ''} linhaDesempenho">
+								<div class="row">
+									<div class="col-xs-8 marginT20px">
+										<div class="row">
+											<div class="col-xs-16">
+												<h:selectBooleanCheckbox value="#{manterCicloBean.cicloConfiguracaoDesempenho.avaliarMetaIndividualDiretor}" 
+													disabled="#{manterCicloBean.visualizando}">
+													<p:ajax event="change" process="@this"/>
+												</h:selectBooleanCheckbox>
+												Avaliar Meta Individual de Diretor
+											</div>
+											<div class="col-xs-16">
+												<h:selectBooleanCheckbox value="#{manterCicloBean.cicloConfiguracaoDesempenho.impedirRepactuacaoAposPrevisaoConclusaoMeta}" 
+													disabled="#{manterCicloBean.visualizando}">
+													<p:ajax event="change" process="@this"/>
+												</h:selectBooleanCheckbox>
+												Impedir Repactuação Após previsão de conclusão de Meta
+											</div>
+											<div class="col-xs-16">
+												<h:selectBooleanCheckbox
+													value="#{manterCicloBean.cicloConfiguracaoDesempenho.naoParametrizarMetasDesempenhoIndividual}" 
+														disabled="#{manterCicloBean.visualizando}">
+													<p:ajax event="change" process="@this" listener="#{manterCicloBean.alterouNaoParametrizarMetasDesempenhoIndividual()}"/>
+												</h:selectBooleanCheckbox>
+												Não parametrizar Metas de Desempenho Individual
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-8 marginT20px">
+										<div class="row">
+											<div class="col-xs-16">
+												<h:selectBooleanCheckbox value="#{manterCicloBean.cicloConfiguracaoDesempenho.naoParametrizarMetasDesempenhoEquipe}" 
+													disabled="#{manterCicloBean.visualizando}">
+													<p:ajax event="change" process="@this" listener="#{manterCicloBean.naoParametrizarMetasDesempenhoEquipe()}"/>
+												</h:selectBooleanCheckbox>
+												Não parametrizar Metas de Desempenho de Equipe
+											</div>
+											<div class="col-xs-16">
+												<h:selectBooleanCheckbox value="#{manterCicloBean.cicloConfiguracaoDesempenho.campoVinculoProjetoObrigatorio}" 	
+													disabled="#{manterCicloBean.visualizando}">
+													<p:ajax event="change" process="@this"/>
+												</h:selectBooleanCheckbox>
+												O campo Vínculo ao projeto será obrigatório?
+											</div>
+											<div class="col-xs-16">
+												<h:selectBooleanCheckbox value="#{manterCicloBean.cicloConfiguracaoDesempenho.permitirInsercaoAnexoAposPrazoConcluzaoMeta}" 
+													disabled="#{manterCicloBean.visualizando}">
+													<p:ajax event="change" process="@this"/>
+												</h:selectBooleanCheckbox>
+												Permitir inserção de anexo após o prazo de conclusão da meta.
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row marginT20px">
+									<div class="col-xs-16">
+									
+									<ui:fragment rendered="#{not empty manterCicloBean.ciclo.id}">
+										<table class="table table-striped table-bordered">
+											<thead class="bgCorDesempenhoFraco">
+												<tr>
+													<th>Configurar Ciclo de Desempenho</th>
+													<th class="width-col-peq">Visualizar</th>
+													<th class="width-col-peq">Editar</th>
+													<th class="width-col-peq">Limpar</th>
+													<th>Status da Configuração</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center">Configurar Calendário</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-calendario.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloCalendarioBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloCalendarioBean.visualizando}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioBean.calendarioGerente}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioBean.calendarioColaborador}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioBean.calendarioEquipe}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-calendario.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloCalendarioBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloCalendarioBean.visualizando}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioBean.calendarioGerente}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioBean.calendarioColaborador}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioBean.calendarioEquipe}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+															rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="datas" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoCalendario.value}"/>
+													</td>
+												</tr>
+												<tr>
+													<td class="text-center">Configurar Avaliadores para o Ciclo</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-avaliadores.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloAvaliadoresBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloAvaliadoresExternosBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloAvaliadoresBean.outroCicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloAvaliadoresBean.visualizando}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloAvaliadoresExternosBean.visualizando}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloAvaliadoresBean.arvoreUnidades}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloAvaliadoresExternosBean.arvoreUnidades}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-avaliadores.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloAvaliadoresBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloAvaliadoresExternosBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloAvaliadoresBean.outroCicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloAvaliadoresBean.visualizando}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloAvaliadoresExternosBean.visualizando}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloAvaliadoresBean.arvoreUnidades}" />
+															<f:setPropertyActionListener value="#{null}" target="#{cicloAvaliadoresExternosBean.arvoreUnidades}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+															rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="avaliadores" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoAvaliadores.value}"/>
+													</td>
+												</tr>
+												
+												<tr>
+													<td class="text-center">Configurar Metas Individuais e de Equipe</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-metas.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarMetasEquipeBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarMetasEquipeBean.visualizando}" />
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarMetasIndividualBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarMetasIndividualBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-metas.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarMetasEquipeBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarMetasEquipeBean.visualizando}" />
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarMetasIndividualBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarMetasIndividualBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+															rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="metas_individuais_equipe_desenvolvimento" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoMetas.value}"/>
+													</td>
+												</tr>
+												<tr>
+													<td class="text-center">Configurar E-mail</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-email.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarEmailBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarEmailBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-email.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarEmailBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarEmailBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="emails" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoEmail.value}"/>
+													</td>
+												</tr>
+												
+												<tr>
+													<td class="text-center">Configurar Visualização de Metas</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-exibicao-metas.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarExibicaoMetasBean.cicloConfiguracao}"/>
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarExibicaoMetasBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-exibicao-metas.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarExibicaoMetasBean.cicloConfiguracao}"/>
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarExibicaoMetasBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+															rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="exibicao_metas" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoVisualizacaoMetas.value}"/>
+													</td>
+												</tr>
+												<tr>
+													<td class="text-center">Configurar Exceção de Responsabilidades</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-excecao-responsabilidades.xhtml">
+															<i class="fa fa-eye"></i> 
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarExcecaoMetasMonitoramentoBean.cicloConfiguracao}"/>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarExcecaoMetasResultadosBean.cicloConfiguracao}"/>
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarExcecaoMetasMonitoramentoBean.visualizando}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarExcecaoMetasResultadosBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-excecao-responsabilidades.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarExcecaoMetasMonitoramentoBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarExcecaoMetasResultadosBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarExcecaoMetasMonitoramentoBean.visualizando}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarExcecaoMetasResultadosBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="excessao_responsabilidades" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoExcecaoResponsabilidades.value}"/>
+													</td>
+												</tr>
+												
+												<tr>
+													<td class="text-center">Configurar Fluxo de Aprovação das metas</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-fluxo-aprovacao-metas.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloFluxoAprovacaoMetasBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloFluxoAprovacaoMetasBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-fluxo-aprovacao-metas.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloFluxoAprovacaoMetasBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloFluxoAprovacaoMetasBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+															rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="fluxo_aprovacao_metas_desempenho" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoFluxoAprovacaoDesempenho.value}"/>
+													</td>
+												</tr>
+												
+												<tr>
+													<td class="text-center">Configurar Marcos Críticos de um Ciclo</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-marco-critico.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarMarcosCriticosBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarMarcosCriticosBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-marco-critico.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarMarcosCriticosBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarMarcosCriticosBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+															rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="marcos_criticos" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoMarcosCriticos.value}"/>
+													</td>
+												</tr>
+												
+												<tr>
+													<td class="text-center">Configurar Auditoria</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-auditoria.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarAuditoriaBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarAuditoriaBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-auditoria.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarAuditoriaBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarAuditoriaBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+															rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="auditoria" target="#{manterCicloBean.itemLimpar}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoAuditoria.value}"/>
+													</td>
+												</tr>
+												
+												<tr>
+													<td class="text-center">Configurar Avaliação do Comitê</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-avaliacao-comite.xhtml">
+															<i class="fa fa-eye"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarAvaliacaoComiteBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarAvaliacaoComiteBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<h:commandLink action="/pages/ciclo/configurar-avaliacao-comite.xhtml" rendered="#{not manterCicloBean.visualizando}">
+															<i class="fa fa-pencil-square-o"></i>
+															<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloConfigurarAvaliacaoComiteBean.cicloConfiguracao}" />
+															<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarAvaliacaoComiteBean.visualizando}" />
+														</h:commandLink>
+													</td>
+													<td class="text-center">
+														<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+															rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+															<i class="fa fa-eraser"></i>
+															<f:setPropertyActionListener value="avaliacao_comite" target="#{manterCicloBean.itemLimpar}"/>
+															<f:setPropertyActionListener value="#{'DESEMP'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+														</p:commandLink>
+													</td>
+													<td class="text-center">
+														<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesempenho.statusConfiguracaoComite.value}"/>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+										</ui:fragment>
+									</div>
+								</div>
+								
+								<div class="row marginB20px">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+									</div>
+									<div class="col-xs-8">
+										<h:commandLink styleClass="btn btn-azul floatR marginL10px" 
+											rendered="#{not manterCicloBean.visualizando and not empty manterCicloBean.ciclo.id}" action="#{manterCicloBean.salvarEdicoes()}">Salvar Configurações
+										</h:commandLink>
+									</div>
+								</div>
+							</div>
+							</ui:fragment>
+							
+							<ui:fragment rendered="#{usuarioPerfilService.podeConfigurarParametro(appBean.usuarioAutenticado, 'D', 'A')}">
+							<div id="metas-desenvolvimento" class="tab-pane #{manterCicloBean.aba eq 'desenvolvimento' ? 'active' : ''} linhaDesenvolvimento">
+                                    <div class="row">
+                                        <div class="col-xs-16 marginT20px">
+                                            <div class="row">
+                                                <div class="col-xs-16">
+													<h:selectBooleanCheckbox value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.avaliarMetaIndividualDiretor}" 
+														disabled="#{manterCicloBean.visualizando}">
+														<p:ajax event="change" process="@this"/>
+													</h:selectBooleanCheckbox>
+													Avaliar Meta Individual de Diretor
+												</div>
+												<div class="col-xs-16">
+													<h:selectBooleanCheckbox value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.naoParametrizarMetasDesenvolvimento}" 
+														disabled="#{manterCicloBean.visualizando}">
+														<p:ajax event="change" process="@this"/>
+													</h:selectBooleanCheckbox>
+													Não parametrizar Metas de Desenvolvimento
+												</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row marginT20px">
+                                        <div class="col-xs-16">
+                                        	<ui:fragment rendered="#{not empty manterCicloBean.ciclo.id}">
+                                            <table class="table table-striped table-bordered">
+                                                <thead class="bgCorDesenvolvimentoFraco">
+                                                    <tr>
+                                                        <th>Configurar Ciclo de Desenvolvimento</th>        
+                                                        <th class="width-col-peq">Visualizar</th>
+                                                        <th class="width-col-peq">Editar</th>
+                                                        <th class="width-col-peq">Limpar</th>
+                                                        <th>Status da Configuração</th>                                                    
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="text-center">Configurar Calendário</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-calendario-desenvolvimento.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloCalendarioDesenvolvimentoBean.cicloConfiguracao}"/>
+																<f:setPropertyActionListener value="#{true}" target="#{cicloCalendarioDesenvolvimentoBean.visualizando}"/>
+																<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente}" />
+																<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-calendario-desenvolvimento.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloCalendarioDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloCalendarioDesenvolvimentoBean.visualizando}" />
+																<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioDesenvolvimentoBean.calendarioGerente}" />
+																<f:setPropertyActionListener value="#{null}" target="#{cicloCalendarioDesenvolvimentoBean.calendarioColaborador}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+																rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="datas" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoCalendario.value}"/>
+														</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Configurar Metas</td>
+                                                        <td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-metas-desenvolvimento.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarMetasDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarMetasDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-metas-desenvolvimento.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarMetasDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarMetasDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+																rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="metas_individuais_equipe_desenvolvimento" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoMetas.value}"/>
+														</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Configurar E-mail</td>
+                                                        <td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-email-desenvolvimento.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarEmailDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarEmailDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-email-desenvolvimento.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarEmailDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarEmailDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+																rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="emails" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoEmail.value}"/>
+														</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Configurar Avaliadores para o Ciclo</td>
+                                                        <td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-avaliadores-desenvolvimento.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloAvaliadoresBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloAvaliadoresBean.outroCicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloAvaliadoresComiteBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{true}" target="#{cicloAvaliadoresBean.visualizando}" />
+																<f:setPropertyActionListener value="#{true}" target="#{cicloAvaliadoresComiteBean.visualizando}" />
+																<f:setPropertyActionListener value="#{null}" target="#{cicloAvaliadoresBean.arvoreUnidades}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-avaliadores-desenvolvimento.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloAvaliadoresBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloAvaliadoresComiteBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesempenho}" target="#{cicloAvaliadoresBean.outroCicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloAvaliadoresBean.visualizando}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloAvaliadoresComiteBean.visualizando}" />
+																<f:setPropertyActionListener value="#{null}" target="#{cicloAvaliadoresBean.arvoreUnidades}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+																rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="avaliadores" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoAvaliadores.value}"/>
+														</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Configurar Fluxo de Aprovação das metas</td>
+                                                        <td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-fluxo-aprovacao-metas-desenvolvimento.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{true}" target="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-fluxo-aprovacao-metas-desenvolvimento.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloFluxoAprovacaoMetasDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+																rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="fluxo_aprovacao_metas_desempenho" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoFluxoAprovacaoDesempenho.value}"/>
+														</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Configurar Visualização de Metas</td>
+                                                       <td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-exibicao-metas-desenvolvimento.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.cicloConfiguracao}"/>
+																<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-exibicao-metas-desenvolvimento.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.cicloConfiguracao}"/>
+																<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarExibicaoMetasDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+																rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="exibicao_metas" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoVisualizacaoMetas.value}"/>
+														</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Configurar Exceção de Responsabilidades</td>
+                                                        <td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-excecao-responsabilidades-desenvolvimento.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarExcecaoDesenvolvimentoBean.cicloConfiguracao}"/>
+																<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-excecao-responsabilidades-desenvolvimento.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarExcecaoDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarExcecaoDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="excessao_responsabilidades" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoExcecaoResponsabilidades.value}"/>
+														</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Configurar Avaliação do Comitê</td>
+                                                        <td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-avaliacao-comite-desenvolvimento.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarAvaliacaoComiteDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarAvaliacaoComiteDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-avaliacao-comite-desenvolvimento.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarAvaliacaoComiteDesenvolvimentoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarAvaliacaoComiteDesenvolvimentoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" 
+																rendered="#{not manterCicloBean.visualizando and manterCicloBean.ciclo.status ne 'I' and manterCicloBean.ciclo.status ne 'F'}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="avaliacao_comite" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoComite.value}"/>
+														</td>
+                                                    </tr>
+                                                    <tr>
+                                                       <td>Configurar Forma de Aquisição</td>
+                                                       <td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-forma-aquisicao.xhtml">
+																<i class="fa fa-eye"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarFormaAquisicaoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{true}" target="#{cicloConfigurarFormaAquisicaoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<h:commandLink action="/pages/ciclo/configurar-forma-aquisicao.xhtml" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-pencil-square-o"></i>
+																<f:setPropertyActionListener value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento}" target="#{cicloConfigurarFormaAquisicaoBean.cicloConfiguracao}" />
+																<f:setPropertyActionListener value="#{false}" target="#{cicloConfigurarFormaAquisicaoBean.visualizando}" />
+															</h:commandLink>
+														</td>
+														<td class="text-center">
+															<p:commandLink oncomplete="$('#modalConfirmacaoLimparConfiguracoes').modal('show')" rendered="#{not manterCicloBean.visualizando}">
+																<i class="fa fa-eraser"></i>
+																<f:setPropertyActionListener value="forma_aquisicao" target="#{manterCicloBean.itemLimpar}"/>
+																<f:setPropertyActionListener value="#{'DESENV'}" target="#{manterCicloBean.tipoConfiguracaoCiclo}"/>
+															</p:commandLink>
+														</td>
+														<td class="text-center">
+															<h:outputText value="#{manterCicloBean.cicloConfiguracaoDesenvolvimento.statusConfiguracaoFormaAquisicao.value}"/>
+														</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            </ui:fragment>
+                                        </div>
+                                    </div>
+                                    <div class="row marginB20px">
+                                        <div class="col-xs-8">
+                                            <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                                        </div>
+                                       <div class="col-xs-8">
+											<h:commandLink styleClass="btn btn-azul floatR marginL10px" 
+												rendered="#{not manterCicloBean.visualizando and not empty manterCicloBean.ciclo.id}" 
+												action="#{manterCicloBean.salvarEdicoes()}">Salvar Configurações</h:commandLink>
+										</div>
+                                    </div>
+                            </div>
+                            </ui:fragment>
+						</div>
+					</div>
+				</div>
+				
+				<script type="text/javascript">
+					$(document).ready(function() {
+						$('.tab-insercao a').click(function(e) {
+							e.preventDefault()
+							$(this).tab('show')
+						});
+					});
+				</script>
+			</h:form>
+		</div>
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{manterCicloBean.limparConfiguracoes()}"
+			modalMensagem="Deseja realmente limpar as configurações deste Ciclo?" onComplete="$('#modalConfirmacaoLimparConfiguracoes').modal('hide')"
+			modalId="modalConfirmacaoLimparConfiguracoes" update=":form_manter_ciclo"/>
+			
+	</ui:define>
+</ui:composition>

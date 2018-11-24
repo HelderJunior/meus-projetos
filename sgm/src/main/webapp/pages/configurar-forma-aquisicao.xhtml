@@ -1,0 +1,347 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:func="http://br.gov.sebrae/funcoes"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/index.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+	</ui:define>
+	
+  <ui:define name="corpo">
+	 #{manterFormaAquisicaoBean.init()}
+		<p:messages autoUpdate="true" globalOnly="true" />
+    		<div class="content">
+        		<div class="row marginT30px">
+            		<div class="col-xs-16">
+                		<p class="titulo-sem-marcador">Inserir Forma de Aquisição</p>
+            		</div>
+        		</div>
+        	  <h:form id="form_forma_Aquisicao"> 
+        		<div class="row marginT15px">
+            		<div class="col-xs-8">
+            		<label for="cargaHoraria">Tipo de Carga Horária*</label><br/>
+						<h:selectOneMenu label="Tipo de Carga Horária" id="cargaHoraria"  value="#{manterFormaAquisicaoBean.formaAquisicao.tipoCargaHoraria}" required="true" styleClass="form-control">
+							<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+							<f:selectItems value="#{manterFormaAquisicaoBean.tipoCargaHorarias}" var="tch"  
+       							itemValue="#{tch}" itemLabel="#{tch.value}"/>
+       							<p:ajax event="change" listener="#{manterFormaAquisicaoBean.ControleExibirComponente}" update="form_forma_Aquisicao"/>
+       					</h:selectOneMenu>
+       					<p:message for="cargaHoraria"/>
+                	</div>
+            		<div class="col-xs-8">
+                		<label for="categoria">Categoria*</label><br/>
+						<h:selectOneMenu converter="CategoriaConverter" label="Categoria" id="categoria" value="#{manterFormaAquisicaoBean.formaAquisicao.categoria}" required="true" styleClass="form-control">
+							<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+							<f:selectItems value="#{manterFormaAquisicaoBean.categorias}" var="cat" 
+								itemValue="#{cat}" itemLabel="#{cat.nome}"/>
+						</h:selectOneMenu>
+						<p:message for="categoria"/>
+            		</div>
+        		</div>
+        		<div class="row marginT15px">
+            		<div class="col-xs-8">
+            			<label for="nome">Nome*</label><br/>
+                        <h:inputText id="nome" label="Nome" value="#{manterFormaAquisicaoBean.formaAquisicao.nome}" required="true" styleClass="form-control" size="63"/>
+                        <p:message for="nome"/>
+                		
+            		</div>
+            		<div class="col-xs-8">
+            		
+                		<label for="validacao">Validação*</label><br/>
+						<h:selectOneMenu converter="VConverter" label="Validação" id="validacao" required="true" value="#{manterFormaAquisicaoBean.formaAquisicao.validacao}" styleClass="form-control">
+							<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+							<f:selectItems value="#{manterFormaAquisicaoBean.validacoes}" var="v" 
+								itemValue="#{v}" itemLabel="#{v.nome}"/>
+						</h:selectOneMenu>
+						<p:message for="validacao"/>
+            		</div>
+        		</div>
+        		<div class="row marginT15px">
+            		<div class="col-xs-8">
+            			<label for="descricao">Descrição*</label><br/>
+                		<p:inputTextarea label="Descrição" id="descricao" value="#{manterFormaAquisicaoBean.formaAquisicao.descricao}" 
+                			required="true" styleClass="form-control" rows="3" maxlength="1000" addLine="false" autoResize="false"/>
+                		<p:message for="descricao"/>
+                	
+            		</div>
+            		<div class="col-xs-6">
+                		<label for="abrangencia">Abrangência</label><br/>
+						<h:selectOneMenu label="Abragência" id="abrangencia" value="#{manterFormaAquisicaoBean.formaAquisicao.abrangencia}" styleClass="form-control">
+							<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+							<f:selectItems value="#{manterFormaAquisicaoBean.abrangencias}" var="abr"  
+       							itemValue="#{abr}" itemLabel="#{abr.value}"/>
+       					</h:selectOneMenu>
+       					<p:message for="abrangencia"/>
+            		</div>
+            		<div class="col-xs-2">
+                		<label for="ufAbrangencia">UF Abrangência</label>
+                		<p class="text-center marginT10px">#{appBean.ufSelecionada}</p>
+            		</div>
+        		</div>
+        		<div class="row marginT15px">
+            		<div class="col-xs-8">
+                	<label for="status">Status*</label><br/>
+						<h:selectOneMenu label="Status" id="status" value="#{manterFormaAquisicaoBean.formaAquisicao.status}" required="true" styleClass="form-control">
+							<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+							<f:selectItems value="#{manterFormaAquisicaoBean.listStatus}" var="st"  
+       							itemValue="#{st}" itemLabel="#{st.value}"/>
+						</h:selectOneMenu>
+						<p:message for="status"/>
+            		</div>
+            		<div class="col-xs-6">
+                		<label for="uniMedida">Unidade de Medida*</label>
+                		<h:inputText id="uniMedida" label="Unidade de Medida" value="#{manterFormaAquisicaoBean.formaAquisicao.unidadeMedida}" required="true" styleClass="form-control" size="63"/>
+                        <p:message for="uniMedida"/>
+            		</div>
+            		<div class="col-xs-2" id="mudaCarga">
+                		<label for="mudaCarga">Carga Horária*</label>
+                		<h:inputText id="mudaCarga" label="Carga Horária" value="#{manterFormaAquisicaoBean.formaAquisicao.cargaHoraria}" 
+                		required="true" styleClass="form-control" size="63"  disabled="#{manterFormaAquisicaoBean.desabilitarCampoCargaHoraria}"/>
+                        <p:message for="mudaCarga"/>
+            		</div>
+        		</div>
+        		
+        		<div id="solucaoEducacionalControle" > 
+                    <div class="row marginT15px">
+                         <div class="col-xs-16">
+                           	<label for="solucoesEducacionais">Solução Educacional</label>
+                         	<p:commandLink id="solucoesEducacionais" styleClass="btn btn-azul marginL15px" value="Adicionar" disabled="#{manterFormaAquisicaoBean.desabilitarBotaoSolucaoEducacional}"
+                                        	oncomplete="jQuery('#modalSolucoesEducacionais').modal('show');"
+                                        	actionListener="#{manterFormaAquisicaoBean.prepararAdicionarSolucaoEducacional()}"
+                                        	update=":form_modalSolucoesEducacionais" process="@this"/>
+                         </div>
+                     </div>
+                     <div class="row marginT15px">
+                         <div class="col-xs-16">
+                         	<p:dataTable var="se" rendered="#{manterFormaAquisicaoBean.desabilitarTabela}"
+							 	value="#{manterFormaAquisicaoBean.formaAquisicao.solucoesEducacional}"
+							 	tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+							 	id="tblSolucaoEducacional" paginator="true" rows="10"
+							 	paginatorPosition="bottom"
+								paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							 	emptyMessage="Nenhum parâmetro adicionado">
+
+							<p:column headerText="Descrição" sortBy="#{se.nome}"
+							 	styleClass="text-center">
+				             	#{se.nome}
+				       		</p:column>
+
+							<p:column headerText="Quantidade" sortBy="#{se.quantidade}"
+							 	styleClass="text-center">
+							 	<h:outputText value="#{func:formatBr(se.quantidade, 2)}" />
+				        	</p:column>
+
+							<p:column headerText="Editar"
+							  	styleClass="text-center width-col-peq">
+								<p:commandLink oncomplete="jQuery('#modalSolucoesEducacionais').modal('show');" update=":form_modalSolucoesEducacionais" process="@this"
+								 	action="#{manterFormaAquisicaoBean.editarSolucaoEducacional()}">
+									<i class="fa fa-pencil-square-o"></i>
+									<f:param name="cid" value="#{manterFormaAquisicaoBean.conversation.id}" />
+									<f:setPropertyActionListener value="#{se}" target="#{manterFormaAquisicaoBean.solucaoEducacional}" />
+								</p:commandLink>
+							</p:column>
+
+							<p:column headerText="Excluir"
+							  	styleClass="text-center width-col-peq">
+								<p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirSolucaoEducacional').modal('show');" process="@this">
+									<i class="fa fa-trash-o"></i>
+									<f:setPropertyActionListener target="#{manterFormaAquisicaoBean.solucaoEducacional}" value="#{se}" />
+									<f:param name="cid" value="#{manterFormaAquisicaoBean.conversation.id}" />
+								</p:commandLink> 
+							</p:column>
+						</p:dataTable>
+                       </div>
+                     </div>
+                 </div>
+        
+        		<div class="row marginT15px">
+            		<div class="col-xs-8">
+                		<p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+            		</div>
+            		<div class="col-xs-8">
+            			<p:commandLink value="Inserir Parâmetro" styleClass="btn btn-azul floatR"
+            						   rendered="#{empty manterFormaAquisicaoBean.formaAquisicao.id}"
+									   actionListener="#{manterFormaAquisicaoBean.salvarFormaAquisicao()}"
+									   update="form_forma_Aquisicao" />
+									   
+						<p:commandLink value="Salvar Parâmetro" styleClass="btn btn-azul floatR"
+									rendered="#{not empty manterFormaAquisicaoBean.formaAquisicao.id}"
+									   actionListener="#{manterFormaAquisicaoBean.salvarFormaAquisicao()}"
+									   update="form_forma_Aquisicao" />
+            		</div>
+        		</div>
+        		
+        		<div class="row marginT30px">
+            		<div class="col-xs-16">
+                		<p class="titulo-sem-marcador">Configurações Salvas</p>
+            		</div>
+        		</div>
+        		
+        		
+        		<div class="row marginT20px">
+            	  <div class="col-xs-16">
+					<p:dataTable var="fa" 
+							 value="#{manterFormaAquisicaoBean.listFormasAquisicoes}"
+							 tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+							 id="tblFormasAquisicaoAdicionados" paginator="true" rows="10"
+							 paginatorPosition="bottom"
+							 paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+							 emptyMessage="Nenhum parâmetro adicionado">
+
+						<p:column headerText="Nome" sortBy="#{fa.nome}"
+							 styleClass="text-center">
+				             #{fa.nome}
+				       	</p:column>
+
+						<p:column headerText="Categoria" sortBy=" #{fa.categoria.descricao} "
+							 styleClass="text-center">
+				           	 #{fa.categoria.nome} 
+				        </p:column>
+						        
+						<p:column headerText="Abrangência" sortBy="#{fa.abrangencia.value}"
+							 styleClass="text-center">
+				           	 #{fa.abrangencia.value} 
+				        </p:column>
+						        
+						<p:column headerText="Status" sortBy="#{fa.status.value}"
+							 styleClass="text-center">
+				           	 #{fa.status.value} 
+				        </p:column>
+
+						<p:column headerText="Editar"
+							  styleClass="text-center width-col-peq">
+							<p:commandLink update=":form_forma_Aquisicao" process="@this" actionListener="#{manterFormaAquisicaoBean.bloquearImputTextCargaHoraria(fa)}">
+								<i class="fa fa-pencil-square-o"></i>
+								<f:param name="cid" value="#{manterFormaAquisicaoBean.conversation.id}" />
+								<f:setPropertyActionListener value="#{fa}" target="#{manterFormaAquisicaoBean.formaAquisicao}" /> 
+							</p:commandLink>
+						</p:column>
+
+						<p:column headerText="Excluir"
+							  styleClass="text-center width-col-peq">
+							<p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirFormaAquisicao').modal('show');" process="@this">
+								<i class="fa fa-trash-o"></i>
+								<f:setPropertyActionListener target="#{manterFormaAquisicaoBean.formaAquisicao}" value="#{fa}" />
+								<f:param name="cid" value="#{manterFormaAquisicaoBean.conversation.id}" />
+							</p:commandLink> 
+						</p:column>
+					</p:dataTable>
+            	</div>
+        	</div>
+	</h:form>
+     </div>
+	
+	 <div class="modal fade" id="modalSolucoesEducacionais" tabindex="-1" role="dialog" aria-labelledby="modalSolucoesEducacionais" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+	             <h:form id="form_modalSolucoesEducacionais">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                        
+                        <ui:fragment rendered="#{empty manterFormaAquisicaoBean.solucaoEducacional.id}">
+                        	<h4 class="modal-title">Inserir Solução Educacional</h4>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{not empty manterFormaAquisicaoBean.solucaoEducacional.id}">
+                        	<h4 class="modal-title">Alterar Solução Educacional</h4>
+                        </ui:fragment>
+                    </div>
+                    <div class="modal-body">
+                    	<p:messages for="form_modalSolucoesEducacionais" autoUpdate="true"/>
+                        <div class="row">
+                            <div class="col-xs-16">
+                                <label for="nomeSolucao">Nome da Solução*</label><br/>
+                				<p:inputText label="Nome da Solução" id="nomeSolucao" value="#{manterFormaAquisicaoBean.solucaoEducacional.nome}" required="true" styleClass="form-control" />
+                				<p:message for="form_modalSolucoesEducacionais:nomeSolucao"/>
+                            </div>
+                        </div>
+                        <div class="row marginT15px">
+                            <div class="col-xs-8">
+                                <label for="quantidadeModal">Quantidade*</label><br/>
+                				<p:inputText label="Quantidade" id="quantidadeModal" value="#{manterFormaAquisicaoBean.solucaoEducacional.quantidade}" required="true" styleClass="form-control" />
+                				<p:message for="form_modalSolucoesEducacionais:quantidadeModal"/>
+                            </div>
+                            <div class="col-xs-8">
+                                <label for="medidaBase">Medida Base</label><br/>
+                				<p:inputText label="Medida Base" id="medidaBase" value="#{manterFormaAquisicaoBean.solucaoEducacional.medidaBase}" disabled="true" styleClass="form-control" />
+                				<p:message for="medidaBase"/>
+                            </div>
+                        </div>
+                        <div class="row marginT15px">
+                            <div class="col-xs-16">
+                                <label for="statusSolucao">Status</label><br/>
+								<h:selectOneMenu label="Status" id="statusSolucao" value="#{manterFormaAquisicaoBean.solucaoEducacional.status}"  styleClass="form-control">
+									<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+									<f:selectItems value="#{manterFormaAquisicaoBean.listStatus}" var="sts"  
+       									itemValue="#{sts}" itemLabel="#{sts.value}"/>
+								</h:selectOneMenu>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                            </div>
+                            <div class="col-xs-8">
+	                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                <p:commandLink styleClass="btn btn-primary" value="Incluir" rendered="#{empty manterFormaAquisicaoBean.solucaoEducacional.id}"
+                                	actionListener="#{manterFormaAquisicaoBean.adicionarSolucaoEducacional()}" 
+                                	update=":form_forma_Aquisicao:tblSolucaoEducacional, form_modalSolucoesEducacionais"
+                                	oncomplete="fecharModalSolucaoEducacional(args);">
+                                	<f:param name="cid" value="#{manterFormaAquisicaoBean.conversation.id}"/>
+                               </p:commandLink>
+                               
+                               <p:commandLink styleClass="btn btn-primary" value="Salvar" rendered="#{not empty manterFormaAquisicaoBean.solucaoEducacional.id}"
+                                	update=":form_forma_Aquisicao:tblSolucaoEducacional, form_modalSolucoesEducacionais"
+                                	oncomplete="fecharModalSolucaoEducacional(args);">
+                                	<f:param name="cid" value="#{manterFormaAquisicaoBean.conversation.id}"/>
+                               </p:commandLink>
+                           </div>
+                     </div>
+                 </div>
+              </h:form>
+             </div>
+         </div>
+    </div>
+ 
+	
+	<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+		modalTitulo="ATENÇÃO"
+		simAction="#{manterFormaAquisicaoBean.excluirFormaAquisicao()}"
+		modalMensagem="O parâmetro será excluído. Deseja continuar?"
+		onComplete="$('#modalConfirmacaoExcluirFormaAquisicao').modal('toggle')"
+		modalId="modalConfirmacaoExcluirFormaAquisicao"
+		update=":form_forma_Aquisicao" />
+		
+	<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+		modalTitulo="ATENÇÃO"
+		simAction="#{manterFormaAquisicaoBean.excluirSolucaoEducacional()}"
+		modalMensagem="O parâmetro será excluído. Deseja continuar?"
+		onComplete="$('#modalConfirmacaoExcluirSolucaoEducacional').modal('toggle')"
+		modalId="modalConfirmacaoExcluirSolucaoEducacional"
+		update=":form_forma_Aquisicao:tblSolucaoEducacional" />
+
+	<script type="text/javascript">
+		function fecharModalSolucaoEducacional(args){
+   			if(!args.validationFailed){
+    			jQuery('#modalSolucoesEducacionais').modal('hide');
+    		}  
+    	}
+	</script>
+
+	</ui:define>
+</ui:composition>

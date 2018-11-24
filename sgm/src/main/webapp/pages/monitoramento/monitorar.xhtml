@@ -1,0 +1,468 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+	<ui:define name="link_anterior">
+		<h:commandLink styleClass="voltar">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}"/></li>
+		<li><h:commandLink action="/pages/monitoramento/listar.xhtml" value="Monitoramento de Metas" /></li>
+		<li><a href="#">Monitorando Meta</a></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		#{monitoramentoBean.init()}
+		<p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<p class="titulo-sem-marcador">Monitoramento de Metas</p>
+				</div>
+			</div>
+
+			<h:form id="form_monitorar_meta" styleClass="form-horizontal">
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Código</label>
+								<p>#{monitoramentoBean.meta.codigo}</p>
+							</div>
+							<div class="col-xs-8">
+								<label>Status</label>
+								<p>#{monitoramentoBean.meta.statusAtual.value}</p>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Unidade Vinculada</label>
+								<p>#{monitoramentoBean.meta.unidade.descricao}</p>
+							</div>
+							<div class="col-xs-8">
+								<label>Nome do Colaborador</label>
+								<p>#{monitoramentoBean.meta.colaborador.nome}</p>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Resultados Esperados</label>
+								<p>#{monitoramentoBean.meta.resultadosEsperados}</p>
+							</div>
+							<div class="col-xs-8">
+								<label>Evidência de Entrega</label>
+								<p>#{monitoramentoBean.meta.evidenciaEntrega}</p>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Quantidade Prevista*</label>
+								<p>#{monitoramentoBean.meta.quantidadePrevista}</p>
+							</div>
+							<div class="col-xs-8">
+								<label>Unidade de Medida*</label>
+								<p>#{monitoramentoBean.meta.unidadeMedida}</p>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Tipo de Dado*</label>
+								<p>#{monitoramentoBean.meta.tipoDado.value}</p>
+							</div>
+							<div class="col-xs-8">
+								<label>Forma de Cálculo*</label>
+								<p>#{monitoramentoBean.meta.formaCalculo.value}</p>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Prazo de Conclusão*</label>
+								<p>#{monitoramentoBean.meta.mesConclusao.value}</p>
+							</div>
+							<div class="col-xs-8">
+								<label>Indicador Associado*</label>
+								<p>#{monitoramentoBean.meta.indicador.nome}</p>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label>Observação e Justificativa</label>
+								<p>#{monitoramentoBean.meta.justificativa}</p>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Vínculo com o Projeto </label>
+								<ol>
+									<ui:repeat var="proj"
+										value="#{monitoramentoBean.meta.projetosVinculados}">
+										<li>#{proj.nome}</li>
+									</ui:repeat>
+								</ol>
+							</div>
+							<div class="col-xs-8">
+								<label>Unidade</label>
+								<ol>
+									<ui:repeat var="un"
+										value="#{monitoramentoBean.meta.unidadesVinculadas}">
+										<li>#{un.descricao}</li>
+									</ui:repeat>
+								</ol>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label>Marco Crítico</label>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<table class="table table-striped table-bordered">
+									<thead class="bgCorPadraoFraco">
+										<tr>
+											<th class="width-col-peq">#</th>
+											<th>Quantidade</th>
+											<th>Evidência de Entrega</th>
+											<th>Prazo de Conclusão</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ui:repeat var="mc"
+											value="#{monitoramentoBean.meta.marcosCriticos}"
+											varStatus="status">
+											<tr>
+												<td>#{status.index+1}</td>
+												<td>#{mc.quantidade}</td>
+												<td>#{mc.evidenciaEntrega}</td>
+												<td><h:outputText value="#{mc.prazoConclusao.value}" /></td>
+											</tr>
+										</ui:repeat>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label>Observações</label>
+							</div>
+						</div>
+
+						<div class="form-group marginT10px">
+							<div class="col-xs-16">
+								<div class="panel-group" id="accordion">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h5 class="panel-title">
+												<a data-toggle="collapse" data-parent="#accordion"
+													href="#collapseOne"> <i class="fa fa-plus-square-o"></i>
+													Observações (Gerente, Comitê e UGP) <ui:fragment
+														rendered="#{not empty monitoramentoBean.meta.observacoes}">
+														<span class="atencao">(Você possue observações)</span>
+													</ui:fragment>
+												</a>
+											</h5>
+										</div>
+
+										<div id="collapseOne"
+											class="panel-collapse collapse-in collapse">
+											<div class="panel-body">
+												<h:panelGroup id="pnlObservacoes">
+													<h4 class="marginT20px">Observações do Gerente</h4>
+													<ui:fragment
+														rendered="#{not empty monitoramentoBean.meta.getObservacoesByTipo('G','ROLE_COLABORADOR')}">
+														<ui:repeat
+															value="#{monitoramentoBean.meta.getObservacoesByTipo('G','ROLE_COLABORADOR')}"
+															var="obs" varStatus="status">
+															<span class="hora">( <h:outputText
+																	value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="dd/MM/yyyy" />
+																</h:outputText> as <h:outputText value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="HH:mm:ss" />
+																</h:outputText> )
+															</span> -
+	                                                        	#{obs.descricao}
+	                                                        	<div
+																class="destaque-desempenho marginT15px">
+																<div class="resposta-obs marginT15px">
+																	<span class="hora">( <h:outputText
+																			value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="dd/MM/yyyy" />
+																		</h:outputText> as <h:outputText value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="HH:mm:ss" />
+																		</h:outputText> )
+																	</span> - #{obs.resposta}
+																</div>
+															</div>
+														</ui:repeat>
+													</ui:fragment>
+													<h:outputText value="Sem Observações"
+														rendered="#{empty monitoramentoBean.meta.getObservacoesByTipo('G','ROLE_COLABORADOR')}" />
+
+													<h4 class="marginT20px">Observações do Comitê</h4>
+													<ui:fragment
+														rendered="#{not empty monitoramentoBean.meta.getObservacoesByTipo('C','ROLE_COLABORADOR')}">
+														<ui:repeat
+															value="#{monitoramentoBean.meta.getObservacoesByTipo('C','ROLE_COLABORADOR')}"
+															var="obs" varStatus="status">
+															<span class="hora">( <h:outputText
+																	value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="dd/MM/yyyy" />
+																</h:outputText> as <h:outputText value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="HH:mm:ss" />
+																</h:outputText> )
+															</span> -
+	                                                        	#{obs.descricao}
+	                                                        	<div
+																class="destaque-desempenho marginT15px">
+																<div class="resposta-obs marginT15px">
+																	<span class="hora">( <h:outputText
+																			value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="dd/MM/yyyy" />
+																		</h:outputText> as <h:outputText value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="HH:mm:ss" />
+																		</h:outputText> )
+																	</span> - #{obs.resposta}
+																</div>
+															</div>
+														</ui:repeat>
+													</ui:fragment>
+													<h:outputText value="Sem Observações"
+														rendered="#{empty monitoramentoBean.meta.getObservacoesByTipo('C','ROLE_COLABORADOR')}" />
+
+													<h4 class="marginT20px">Observações UGP</h4>
+													<ui:fragment
+														rendered="#{not empty monitoramentoBean.meta.getObservacoesByTipo('U','ROLE_COLABORADOR')}">
+														<ui:repeat
+															value="#{monitoramentoBean.meta.getObservacoesByTipo('U','ROLE_COLABORADOR')}"
+															var="obs" varStatus="status">
+															<span class="hora">( <h:outputText
+																	value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="dd/MM/yyyy" />
+																</h:outputText> as <h:outputText value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="HH:mm:ss" />
+																</h:outputText> )
+															</span> -
+	                                                        	#{obs.descricao}
+	                                                        	<div
+																class="destaque-desempenho marginT15px">
+																<div class="resposta-obs marginT15px">
+																	<span class="hora">( <h:outputText
+																			value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="dd/MM/yyyy" />
+																		</h:outputText> as <h:outputText value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="HH:mm:ss" />
+																		</h:outputText> )
+																	</span> - #{obs.resposta}
+																</div>
+															</div>
+														</ui:repeat>
+													</ui:fragment>
+													<h:outputText value="Sem Observações"
+														rendered="#{empty monitoramentoBean.meta.getObservacoesByTipo('U','ROLE_COLABORADOR')}" />
+												</h:panelGroup>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label>Calendário de Entregas</label>
+								<table class="table table-striped table-bordered marginT10px">
+									<thead class="bgCorPadraoFraco">
+										<tr>
+											<ui:repeat var="ent"
+												value="#{monitoramentoBean.meta.entregas}">
+												<th>#{ent.mes.value}</th>
+											</ui:repeat>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<ui:repeat var="ent" value="#{monitoramentoBean.meta.entregas}">
+												<td>
+													<pe:inputNumber value="#{ent.valor}"
+														placeholder="0,00" title="#{ent.mes.value}" id="valor"
+														label="Quantidade de Marcos Críticos"
+														decimalPlaces="2" minValue="0" maxValue="999"
+														converter="javax.faces.BigDecimal"
+														styleClass="form-control2 text-center">
+														<p:ajax event="change" process="@this"/>
+													</pe:inputNumber>
+												</td>
+											</ui:repeat>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Resumo da Execução da Meta</label>
+								<p:commandLink styleClass="btn btn-azul marginL10px" 
+									update="pnlResumoExecucao" value="Atualizar">
+									<f:param name="cid" value="#{monitoramentoBean.conversation.id}"/>	
+								</p:commandLink>
+								<h:panelGroup id="pnlResumoExecucao">
+								<table class="table table-striped table-bordered marginT10px">
+									<thead class="bgCorPadraoFraco">
+										<tr>
+											<th>Previsto</th>
+											<th>Realizado</th>
+											<th>Percentual de Execução</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>#{monitoramentoBean.meta.quantidadePrevista}</td>
+											<td>#{monitoramentoBean.meta.valorRealizado}</td>
+											<td>
+												<div class="dd">
+													<span style="display: block; height: 0px;">#{monitoramentoBean.meta.porcentagemConclusao}%</span>
+													<div class="progresso" style="width: #{monitoramentoBean.meta.porcentagemConclusao}%;"></div>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								</h:panelGroup>
+							</div>
+							<div class="col-xs-8">
+								<label>Anexos <p:commandLink
+										oncomplete="jQuery('#uploadAnexo').modal('show');"
+										value="Selecionar Arquivo" styleClass="btn btn-default"
+										process="@this" />
+								</label>
+								<p:dataTable var="anexo"
+									value="#{monitoramentoBean.meta.anexosEvidenciaEntrega}"
+									tableStyleClass="table table-striped table-bordered bgCorPadraoFraco marginT15px"
+									rowIndexVar="index" id="tbl_anexos"
+									emptyMessage="Nenhuma evidência anexada">
+
+									<p:column headerText="Arquivo" styleClass="text-center">
+										<h:outputText value="#{anexo.nome}" />
+									</p:column>
+
+									<p:column headerText="Tipo" styleClass="text-center">
+										<h:outputText value="#{anexo.tipo}" />
+									</p:column>
+
+									<p:column headerText="Visualizar"
+										styleClass="text-center width-col-peq">
+										<p:commandLink styleClass="btn btn-mini" id="downloadLink"
+											process="@this"
+											oncomplete="jQuery('#form-download-link\\:downloadLink').click();">
+											<i class="fa fa-eye"></i>
+											<f:setPropertyActionListener
+												target="#{monitoramentoBean.indiceAnexo}" value="#{index}" />
+											<f:param name="cid"
+												value="#{monitoramentoBean.conversation.id}" />
+										</p:commandLink>
+									</p:column>
+
+									<p:column headerText="Apagar"
+										styleClass="text-center width-col-peq">
+										<p:commandLink styleClass="btn btn-mini"
+											oncomplete="jQuery('#modalApagarAnexo').modal('show');"
+											process="@this">
+											<i class="fa fa-trash-o"></i>
+											<f:param name="cid"
+												value="#{monitoramentoBean.conversation.id}" />
+											<f:setPropertyActionListener
+												target="#{monitoramentoBean.indiceAnexo}" value="#{index}" />
+										</p:commandLink>
+									</p:column>
+								</p:dataTable>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label>Status de Execução da Meta*</label>
+								<h:selectOneMenu id="statusExecucaoMeta"
+									value="#{monitoramentoBean.meta.statusExecucaoMeta}"
+									styleClass="form-control" required="true"
+									label="Status de Execução da Meta">
+									<f:selectItem itemLabel="Selecione" />
+									<f:selectItems value="#{monitoramentoBean.statusExecucaoMeta}"
+										var="tl" itemLabel="#{tl.value}" itemValue="#{tl}" />
+								</h:selectOneMenu>
+								<p:message for="statusExecucaoMeta" />
+							</div>
+							<div class="col-xs-8">
+								<label>Local de Armazenamento da Evidência da Entrega</label>
+								<p:inputTextarea id="evidenciaEntrega"
+									styleClass="form-control marginT10px"
+									placeholder="Local de Armazenamento da Evidência de Entrega"
+									rows="3" label="Local de Armazenamento da Evidência da Entrega"
+									value="#{monitoramentoBean.meta.localArmazenamentoEvidenciaEntrega}">
+								</p:inputTextarea>
+								<p:message for="evidenciaEntrega" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label>Observação do monitoramento</label>
+								<p:inputTextarea id="observacaoMonitoramento"
+									styleClass="form-control marginT10px"
+									placeholder="Observação do monitoramento*" rows="3"
+									label="Local de Armazenamento da Evidência da Entrega"
+									value="#{monitoramentoBean.meta.observacaoMonitoramento}">
+								</p:inputTextarea>
+								<p:message for="observacaoMonitoramento" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-8 col-xs-offset-8">
+								<h:commandLink styleClass="btn btn-azul floatR marginL10px"
+									action="#{monitoramentoBean.salvar()}" value="Salvar" />
+									
+								<h:commandLink styleClass="btn btn-azul floatR"
+									action="#{appBean.back()}" value="Voltar" immediate="true" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
+		</div>
+
+		<sebrae:upload modalId="uploadAnexo" listener="uploadArquivo"
+			modalTitulo="Enviar Anexo" bean="#{monitoramentoBean}"
+			onComplete="jQuery('#uploadAnexo').modal('hide');"
+			update=":form_monitorar_meta:tbl_anexos" />
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{monitoramentoBean.excluirArquivo()}"
+			modalMensagem="Deseja realmente excluir este anexo?"
+			onComplete="$('#modalApagarAnexo').modal('hide')"
+			modalId="modalApagarAnexo" update=":form_monitorar_meta:tbl_anexos" />
+
+		<h:form id="form-download-link">
+			<p:commandLink id="downloadLink" ajax="false" style="display:none;">
+				<f:param name="cid" value="#{monitoramentoBean.conversation.id}" />
+				<p:fileDownload value="#{monitoramentoBean.arquivo}" />
+			</p:commandLink>
+		</h:form>
+	</ui:define>
+</ui:composition>

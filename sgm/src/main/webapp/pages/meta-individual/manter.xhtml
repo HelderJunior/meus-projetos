@@ -1,0 +1,1264 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	template="/layout/default.xhtml">
+
+	<ui:define name="link_anterior">
+		<h:commandLink action="#{appBean.back()}">
+			<i class="fa fa-arrow-left" data-toggle="tooltip"
+				title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+
+	<ui:define name="breadcrumb">
+		<li><a href="#{facesContext.externalContext.requestContextPath}">#{appBean.nomeBreadcrumbinicial}</a>
+		</li>
+		<li><h:commandLink action="/pages/meta-individual/listar.xhtml"
+				value="Desempenho Individual" /></li>
+		<li><ui:fragment
+				rendered="#{manterMetaIndividualBean.meta.id eq null}">
+				<a href="#">Inserir</a>
+			</ui:fragment> <ui:fragment rendered="#{manterMetaEIndividualBean.meta.id ne null}">
+				<a href="#">Editar</a>
+			</ui:fragment></li>
+	</ui:define>
+
+	<ui:define name="corpo">
+		 #{manterMetaIndividualBean.init()}
+		 
+		 <p:messages autoUpdate="true" globalOnly="true" />
+
+		<div class="content">
+			<div class="row marginT30px">
+				<div class="col-xs-16">
+					<ui:fragment rendered="#{manterMetaIndividualBean.meta.id eq null}">
+						<p class="titulo-sem-marcador">Inserir Meta de Desempenho Individual</p>
+					</ui:fragment>
+					<ui:fragment
+						rendered="#{manterMetaIndividualBean.meta.id ne null and not manterMetaIndividualBean.visualizando}">
+						<p class="titulo-sem-marcador">Editar Meta de Desempenho Individual</p>
+					</ui:fragment>
+					<ui:fragment
+						rendered="#{manterMetaIndividualBean.meta.id ne null and manterMetaIndividualBean.visualizando}">
+						<p class="titulo-sem-marcador">Visualizar Meta de Desempenho Individual</p>
+					</ui:fragment>
+				</div>
+			</div>
+			<h:form styleClass="form-horizontal" role="form"
+				id="form-inserir-meta-individual">
+				<div class="row marginT20px">
+					<div class="col-xs-16">
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label for="codigo">Código</label>
+								<p:inputText disabled="true" id="codigo"
+									value="#{manterMetaIndividualBean.meta.codigo}"
+									styleClass="form-control" />
+							</div>
+							<div class="col-xs-8">
+								<label for="indicadorAssociado">Indicador Associado</label>
+								<h:selectOneMenu id="indicadorAssociado"
+									value="#{manterMetaIndividualBean.meta.indicador}"
+									styleClass="form-control" data-toggle="tooltip"
+									title="Indicador associado" converter="IndicadorConverter"
+									label="Indicador Associado" 
+									disabled="#{manterMetaIndividualBean.visualizando}">
+									<f:selectItem itemLabel="Selecione o Indicador" />
+									<f:selectItems value="#{manterMetaIndividualBean.indicadores}"
+										var="i" itemLabel="#{i.nome}" itemValue="#{i}" />
+								</h:selectOneMenu>
+								<p:message for="indicadorAssociado" />
+								<!-- <div class="col-xs-8">
+                                        <label for="status">Status</label>
+                                        <p:inputText disabled="true" id="status" value="#{manterMetaIndividualBean.meta.statusAtual.value}" styleClass="form-control"/>
+                                    </div> -->
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label for="unidadeVinculada">Unidade Vinculada</label>
+								<p:inputText disabled="true" id="unidadeVinculada"
+									value="#{manterMetaIndividualBean.meta.unidade.unidadePK.uf}"
+									styleClass="form-control" />
+							</div>
+							<div class="col-xs-8">
+								<label for="nomeDoColaborador">Nome do Colaborador</label>
+								<p:inputText disabled="true" id="nomeDoColaborador"
+									value="#{manterMetaIndividualBean.meta.colaborador.nome}"
+									styleClass="form-control" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label for="resultadosEsperados">Resultados Esperados(Descrição)*</label>
+								<p:commandLink
+									rendered="#{not empty manterMetaIndividualBean.meta.getObservacoesCampoByCampo('RE')}"
+									styleClass="text-obs"
+									oncomplete="jQuery('#modalObs').modal('show');" process="@this"
+									update=":form_obs_campo">
+									<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener
+										value="#{'RE'}"
+										target="#{manterMetaIndividualBean.tipoCampoObservacao}" />
+									<f:param name="cid"
+										value="#{manterMetaIndividualBean.conversation.id}" />
+								</p:commandLink>
+								<p:inputTextarea rows="3" styleClass="form-control"
+									id="resultadosEsperados" placeholder="Resultados Esperados"
+									value="#{manterMetaIndividualBean.meta.resultadosEsperados}"
+									label="Resultados Esperados" required="true"
+									disabled="#{manterMetaIndividualBean.visualizando}" />
+								<p:message for="resultadosEsperados" />
+							</div>
+							<div class="col-xs-8">
+								<label for="evidenciaDeEntrega">Evidência de Entrega*</label>
+								<p:commandLink
+									rendered="#{not empty manterMetaIndividualBean.meta.getObservacoesCampoByCampo('EE')}"
+									styleClass="text-obs"
+									oncomplete="jQuery('#modalObs').modal('show');" process="@this"
+									update=":form_obs_campo">
+									<i class="fa fa-info-circle obs-icon"></i> observação
+                                        	<f:setPropertyActionListener
+										value="#{'EE'}"
+										target="#{manterMetaIndividualBean.tipoCampoObservacao}" />
+									<f:param name="cid"
+										value="#{manterMetaIndividualBean.conversation.id}" />
+								</p:commandLink>
+								<p:inputTextarea id="evidenciaDeEntrega"
+									label="Evidência de Entrega" required="true" rows="3"
+									styleClass="form-control" placeholder="Evidência de Entrega"
+									value="#{manterMetaIndividualBean.meta.evidenciaEntrega}"
+									data-toggle="tooltip"
+									title="Tipo de evidência ou critério de cálculo que demonstra a forma pela qual a meta será apurada. É necessário descrever de forma específica as características da entrega a ser feita, necessárias para que a meta seja considerada alcançada."
+									disabled="#{manterMetaIndividualBean.visualizando}" />
+								<p:message for="evidenciaDeEntrega" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label for="quantidadePrevista">Quantidade Prevista*</label>
+								<pe:inputNumber
+									value="#{manterMetaIndividualBean.meta.quantidadePrevista}"
+									placeholder="Quantidade Prevista" id="quantidadePrevista"
+									label="Quantidade Prevista" required="true" decimalPlaces="0"
+									styleClass="form-control2"
+									disabled="#{manterMetaIndividualBean.visualizando}" />
+								<p:message for="quantidadePrevista" />
+							</div>
+							<div class="col-xs-8">
+								<label for="unidadeDeMedida">Unidade de Medida*</label>
+								<p:inputText id="unidadeDeMedida"
+									value="#{manterMetaIndividualBean.meta.unidadeMedida}"
+									styleClass="form-control" placeholder="Unidade de Medida"
+									data-toggle="tooltip"
+									title="Métrica ou grandeza que será utilizada para mensuração (R$, numero de unidades, % de satisfação)"
+									label="Unidade de Medida" required="true"
+									disabled="#{manterMetaIndividualBean.visualizando}" />
+								<p:message for="unidadeDeMedida" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label for="tipoDeDado">Tipo de Dado*</label>
+								<h:selectOneMenu id="tipoDeDado"
+									value="#{manterMetaIndividualBean.meta.tipoDado}"
+									styleClass="form-control" data-toggle="tooltip"
+									title="É a expressão do valor previsto em formato de número percentual, inteiro ou decimal."
+									label="Tipo de Dado" required="true"
+									disabled="#{manterMetaIndividualBean.visualizando}">
+									<f:selectItem itemLabel="Selecione" />
+									<f:selectItems value="#{manterMetaIndividualBean.tiposDado}"
+										var="td" itemLabel="#{td.value}" itemValue="#{td}" />
+								</h:selectOneMenu>
+								<p:message for="tipoDeDado" />
+							</div>
+							<div class="col-xs-8">
+								<label for="formaDeCalculo">Forma de Cálculo*</label>
+								<h:selectOneMenu id="formaDeCalculo"
+									value="#{manterMetaIndividualBean.meta.formaCalculo}"
+									styleClass="form-control" data-toggle="tooltip"
+									title="As metas apresentam três formas para contabilização: Cumulativo, Não  cumulativo e Média. "
+									label="Forma de Cálculo" required="true"
+									disabled="#{manterMetaIndividualBean.visualizando}">
+									<f:selectItem itemLabel="Selecione" />
+									<f:selectItems
+										value="#{manterMetaIndividualBean.formasCalculo}" var="fc"
+										itemLabel="#{fc.value}" itemValue="#{fc}" />
+								</h:selectOneMenu>
+								<p:message for="formaDeCalculo" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-8">
+								<label for="prazoDeConclusao">Prazo de Conclusão*</label>
+								<h:selectOneMenu id="prazoDeConclusao"
+									value="#{manterMetaIndividualBean.meta.mesConclusao}"
+									styleClass="form-control" data-toggle="tooltip"
+									title="Mês/ano considerado para o alcance da meta"
+									label="Prazo de Conclusão" required="true"
+									disabled="#{manterMetaIndividualBean.visualizando}">
+									<f:selectItem itemLabel="Selecione" />
+									<f:selectItems value="#{manterMetaIndividualBean.meses}"
+										var="m" itemLabel="#{m.value}" itemValue="#{m}" />
+								</h:selectOneMenu>
+								<p:message for="prazoDeConclusao" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label for="observacaoEJustificativa">Observação e
+									Justificativa</label>
+								<p:inputTextarea id="observacaoEJustificativa" rows="3"
+									styleClass="form-control"
+									placeholder="Observação e Justificativa"
+									value="#{manterMetaIndividualBean.meta.justificativa}"
+									data-toggle="tooltip"
+									title="Descrever neste campo todas as observações que considerar pertinente"
+									label="Observação e Justificativa"
+									disabled="#{manterMetaIndividualBean.visualizando}" />
+								<p:message for="observacaoEJustificativa" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label for="btModalVinculoComProjeto">Vínculo com o
+									Projeto </label>
+								<p:commandLink id="btModalVinculoComProjeto"
+									styleClass="btn btn-azul marginL15px" value="Adicionar"
+									onsuccess="jQuery('#modalVinculoComProjeto').modal('show');"
+									actionListener="#{manterMetaIndividualBean.prepararModalVincularProjetos()}"
+									update=":formProjetosVincular" process="@this"
+									rendered="#{not manterMetaIndividualBean.visualizando}">
+									<f:param name="cid"
+										value="#{manterMetaIndividualBean.conversation.id}" />
+								</p:commandLink>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<div class="titulo-tabela bgCorPadrao cinzaFonte">Projetos
+									Vinculados</div>
+								<p:dataTable var="p"
+									value="#{manterMetaIndividualBean.meta.projetosVinculados}"
+									tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+									id="tblProjetosVinculados" paginator="false"
+									paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+									emptyMessage="Nenum projeto vinculado" rowIndexVar="index">
+
+									<p:column headerText="Projeto" styleClass="text-center">
+										           #{p.nome}
+										        </p:column>
+
+									<p:column headerText="Editar"
+										styleClass="text-center width-col-peq"
+										rendered="#{not manterMetaIndividualBean.visualizando}">
+										<p:commandLink
+											actionListener="#{manterMetaIndividualBean.prepararModalVincularProjetosEditar()}"
+											oncomplete="jQuery('#modalVinculoComProjeto').modal('show');"
+											update=":formProjetosVincular" process="@this">
+											<i class="fa fa-pencil-square-o"></i>
+											<f:param name="cid"
+												value="#{manterMetaIndividualBean.conversation.id}" />
+										</p:commandLink>
+									</p:column>
+
+									<p:column headerText="Apagar"
+										styleClass="text-center width-col-peq"
+										rendered="#{not manterMetaIndividualBean.visualizando}">
+										<p:commandLink
+											oncomplete="jQuery('#modalConfirmacaoProjeto').modal('show');"
+											process="@this">
+											<i class="fa fa-trash-o"></i>
+											<f:param name="cid"
+												value="#{manterMetaIndividualBean.conversation.id}" />
+											<f:setPropertyActionListener
+												target="#{manterMetaIndividualBean.projetoSelecionado}"
+												value="#{p}" />
+										</p:commandLink>
+									</p:column>
+								</p:dataTable>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label for="btmodalUnidadesAssociadas">Unidades
+									Associadas</label>
+								<p:commandLink id="btmodalUnidadesAssociadas"
+									styleClass="btn btn-azul marginL15px" value="Adicionar"
+									onsuccess="jQuery('#modalUnidadesAssociadas').modal('show');"
+									actionListener="#{manterMetaIndividualBean.prepararModalVincularUnidades()}"
+									update=":formUnidadesVincular" process="@this"
+									rendered="#{not manterMetaIndividualBean.visualizando}" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-16">
+								<div class="titulo-tabela bgCorPadrao cinzaFonte">Unidades
+									Associadas</div>
+								<p:dataTable var="p"
+									value="#{manterMetaIndividualBean.meta.unidadesVinculadas}"
+									tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+									id="tblUnidadesVinculadas"
+									paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+									emptyMessage="Nenhuma unidade vinculada" rowIndexVar="index">
+
+									<p:column headerText="Unidades Associadas"
+										styleClass="text-center">
+										            #{p.descricao}
+										        </p:column>
+
+									<p:column headerText="Editar"
+										styleClass="text-center width-col-peq"
+										rendered="#{not manterMetaIndividualBean.visualizando}">
+										<p:commandLink
+											actionListener="#{manterMetaIndividualBean.prepararModalVincularUnidadesEditar()}"
+											oncomplete="jQuery('#modalUnidadesAssociadas').modal('show');"
+											update=":formUnidadesVincular" process="@this">
+											<i class="fa fa-pencil-square-o"></i>
+											<f:param name="cid"
+												value="#{manterMetaIndividualBean.conversation.id}" />
+										</p:commandLink>
+									</p:column>
+
+									<p:column headerText="Apagar"
+										styleClass="text-center width-col-peq"
+										rendered="#{not manterMetaIndividualBean.visualizando}">
+										<p:commandLink
+											oncomplete="jQuery('#modalConfirmacaoUnidade').modal('show');"
+											process="@this">
+											<i class="fa fa-trash-o"></i>
+											<f:param name="cid"
+												value="#{manterMetaIndividualBean.conversation.id}" />
+											<f:setPropertyActionListener value="#{p}"
+												target="#{manterMetaIndividualBean.unidadeSelecionada}" />
+										</p:commandLink>
+									</p:column>
+								</p:dataTable>
+							</div>
+						</div>
+
+						<ui:fragment
+							rendered="#{manterMetaIndividualBean.podeInserirMarcoCriticoCicloAtual}">
+							<div class="form-group">
+								<div class="col-xs-16">
+									<label for="btmodalMarcoCritico">Marco Crítico</label>
+									<p:commandLink id="btmodalMarcoCritico"
+										styleClass="btn btn-azul marginL15px" value="Adicionar"
+										onsuccess="jQuery('#modalMarcoCritico').modal('show');"
+										onclick="PrimeFaces.zindex = 1055;"
+										actionListener="#{manterMetaIndividualBean.prepararAdicionarMarcoCritico()}"
+										update=":formMarcoCritico" process="@this"
+										rendered="#{not manterMetaIndividualBean.visualizando}" />
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-xs-16">
+									<div
+										class="titulo-tabela bgCorPadrao cinzaFonte bgCorPadraoFraco">Marcos
+										Críticos</div>
+									<p:dataTable var="mc"
+										value="#{manterMetaIndividualBean.meta.marcosCriticos}"
+										tableStyleClass="table table-striped table-bordered bgCorPadraoFraco"
+										id="tblMarcosCriticosVinculados"
+										paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+										emptyMessage="Nenhum marco crítico vinculado"
+										rowIndexVar="index">
+
+										<p:column headerText="#"
+											styleClass="text-center width-col-peq">
+											            #{index+1}
+											        </p:column>
+
+										<p:column headerText="Quantidade" styleClass="text-center">
+											<h:outputText value="#{mc.quantidade}" />
+										</p:column>
+
+										<p:column headerText="Evidência de Entrega"
+											styleClass="text-center">
+											<h:outputText value="#{mc.evidenciaEntrega}" />
+										</p:column>
+
+										<p:column headerText="Prazo de Conclusão"
+											styleClass="text-center">
+											<h:outputText value="#{mc.prazoConclusao.value}" />
+										</p:column>
+
+										<p:column headerText="Editar"
+											styleClass="text-center width-col-peq"
+											rendered="#{not manterMetaIndividualBean.visualizando}">
+											<p:commandLink
+												oncomplete="jQuery('#modalMarcoCritico').modal('show');"
+												update=":formMarcoCritico" process="@this"
+												action="#{manterMetaIndividualBean.prepararEdicaoMarcoCritico()}">
+												<i class="fa fa-pencil-square-o"></i>
+												<f:param name="cid"
+													value="#{manterMetaIndividualBean.conversation.id}" />
+												<f:setPropertyActionListener value="#{mc}"
+													target="#{manterMetaIndividualBean.marcoCriticoSelecionado}" />
+											</p:commandLink>
+										</p:column>
+
+										<p:column headerText="Apagar"
+											styleClass="text-center width-col-peq"
+											rendered="#{not manterMetaIndividualBean.visualizando}">
+											<p:commandLink
+												oncomplete="jQuery('#modalConfirmacaoMarcoCritico').modal('show');"
+												process="@this">
+												<i class="fa fa-trash-o"></i>
+												<f:param name="cid"
+													value="#{manterMetaIndividualBean.conversation.id}" />
+												<f:setPropertyActionListener
+													target="#{manterMetaIndividualBean.marcoCriticoSelecionado}"
+													value="#{mc}" />
+											</p:commandLink>
+										</p:column>
+									</p:dataTable>
+								</div>
+							</div>
+						</ui:fragment>
+
+
+						<div class="form-group">
+							<div class="col-xs-16">
+								<label>Observações</label>
+							</div>
+						</div>
+
+						<div class="form-group marginT10px">
+							<div class="col-xs-16">
+								<div class="panel-group" id="accordion">
+									<div class="panel panel-default">
+
+										<div class="panel-heading">
+											<h5 class="panel-title">
+												<a data-toggle="collapse" data-parent="#accordion"
+													href="#collapseOne"> <i class="fa fa-plus-square-o"></i>
+													Observações (Gerente, Comitê, Monitoramento e UGP) <ui:fragment
+														rendered="#{not empty manterMetaIndividualBean.meta.observacoes}">
+														<span class="atencao">(Você possue observações)</span>
+													</ui:fragment>
+												</a>
+											</h5>
+										</div>
+
+										<div id="collapseOne"
+											class="panel-collapse collapse-in collapse">
+											<div class="panel-body">
+												<h:panelGroup id="pnlObservacoes">
+													<h4 class="marginT20px">Observações do Gerente</h4>
+													<ui:fragment
+														rendered="#{not empty manterMetaIndividualBean.observacoesGerente}">
+														<ui:repeat
+															value="#{manterMetaIndividualBean.observacoesGerente}"
+															var="obs" varStatus="status">
+															<span class="hora">( <h:outputText
+																	value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="dd/MM/yyyy" />
+																</h:outputText> as <h:outputText value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="HH:mm:ss" />
+																</h:outputText> )
+															</span> -
+	                                                        	#{obs.descricao}
+	                                                        	<div
+																class="destaque-desempenho marginT15px">
+
+																<ui:fragment
+																	rendered="#{not manterMetaIndividualBean.visualizando and empty obs.resposta}">
+			                                                            Adicionar resposta
+			                                                            <p:commandLink
+																		styleClass="btn btn-azul floatR"
+																		oncomplete="jQuery('#modalAddObs').modal('show');"
+																		value="Adicionar" update=":formObsResposta">
+																		<f:setPropertyActionListener value="#{obs}"
+																			target="#{manterMetaIndividualBean.observacaoSelecionada}" />
+																	</p:commandLink>
+																</ui:fragment>
+
+																<div class="resposta-obs marginT15px">
+																	<span class="hora">( <h:outputText
+																			value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="dd/MM/yyyy" />
+																		</h:outputText> as <h:outputText value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="HH:mm:ss" />
+																		</h:outputText> )
+																	</span> - #{obs.resposta}
+																</div>
+															</div>
+														</ui:repeat>
+													</ui:fragment>
+													<h:outputText value="Sem Observações"
+														rendered="#{empty manterMetaIndividualBean.observacoesGerente}" />
+
+													<h4 class="marginT20px">Observações do Comitê</h4>
+													<ui:fragment
+														rendered="#{not empty manterMetaIndividualBean.observacoesComite}">
+														<ui:repeat
+															value="#{manterMetaIndividualBean.observacoesComite}"
+															var="obs" varStatus="status">
+															<span class="hora">( <h:outputText
+																	value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="dd/MM/yyyy" />
+																</h:outputText> as <h:outputText value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="HH:mm:ss" />
+																</h:outputText> )
+															</span> -
+	                                                        	#{obs.descricao}
+	                                                        	<div
+																class="destaque-desempenho marginT15px">
+																<ui:fragment
+																	rendered="#{not manterMetaIndividualBean.visualizando and empty obs.resposta}">
+		                                                            	Adicionar resposta
+			                                                            <p:commandLink
+																		styleClass="btn btn-azul floatR"
+																		oncomplete="jQuery('#modalAddObs').modal('show');"
+																		value="Adicionar" update=":formObsResposta">
+																		<f:setPropertyActionListener value="#{obs}"
+																			target="#{manterMetaIndividualBean.observacaoSelecionada}" />
+																	</p:commandLink>
+																</ui:fragment>
+																<div class="resposta-obs marginT15px">
+																	<span class="hora">( <h:outputText
+																			value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="dd/MM/yyyy" />
+																		</h:outputText> as <h:outputText value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="HH:mm:ss" />
+																		</h:outputText> )
+																	</span> - #{obs.resposta}
+																</div>
+															</div>
+														</ui:repeat>
+													</ui:fragment>
+													<h:outputText value="Sem Observações"
+														rendered="#{empty manterMetaIndividualBean.observacoesComite}" />
+														
+													<h4 class="marginT20px">Observações do Monitoramento</h4>
+													<ui:fragment
+														rendered="#{not empty manterMetaIndividualBean.observacoesMonitoramento}">
+														<ui:repeat
+															value="#{manterMetaIndividualBean.observacoesMonitoramento}"
+															var="obs" varStatus="status">
+															<span class="hora">( <h:outputText
+																	value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="dd/MM/yyyy" />
+																</h:outputText> as <h:outputText value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="HH:mm:ss" />
+																</h:outputText> )
+															</span> -
+	                                                        	#{obs.descricao}
+	                                                        	<div
+																class="destaque-desempenho marginT15px">
+																<ui:fragment
+																	rendered="#{not manterMetaIndividualBean.visualizando and empty obs.resposta}">
+		                                                            	Adicionar resposta
+			                                                            <p:commandLink
+																		styleClass="btn btn-azul floatR"
+																		oncomplete="jQuery('#modalAddObs').modal('show');"
+																		value="Adicionar" update=":formObsResposta">
+																		<f:setPropertyActionListener value="#{obs}"
+																			target="#{manterMetaIndividualBean.observacaoSelecionada}" />
+																	</p:commandLink>
+																</ui:fragment>
+																<div class="resposta-obs marginT15px">
+																	<span class="hora">( <h:outputText
+																			value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="dd/MM/yyyy" />
+																		</h:outputText> as <h:outputText value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="HH:mm:ss" />
+																		</h:outputText> )
+																	</span> - #{obs.resposta}
+																</div>
+															</div>
+														</ui:repeat>
+													</ui:fragment>
+													<h:outputText value="Sem Observações"
+														rendered="#{empty manterMetaIndividualBean.observacoesMonitoramento}" />
+
+													<h4 class="marginT20px">Observações UGP</h4>
+													<ui:fragment
+														rendered="#{not empty manterMetaIndividualBean.observacoesUGP}">
+														<ui:repeat
+															value="#{manterMetaIndividualBean.observacoesUGP}"
+															var="obs" varStatus="status">
+															<span class="hora">( <h:outputText
+																	value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="dd/MM/yyyy" />
+																</h:outputText> as <h:outputText value="#{obs.dataHora}">
+																	<f:convertDateTime pattern="HH:mm:ss" />
+																</h:outputText> )
+															</span> -
+	                                                        	#{obs.descricao}
+	                                                        	<div
+																class="destaque-desempenho marginT15px">
+																<ui:fragment
+																	rendered="#{not manterMetaIndividualBean.visualizando and empty obs.resposta}">
+			                                                            Adicionar resposta
+			                                                            <p:commandLink
+																		styleClass="btn btn-azul floatR"
+																		oncomplete="jQuery('#modalAddObs').modal('show');"
+																		value="Adicionar" update=":formObsResposta">
+																		<f:setPropertyActionListener value="#{obs}"
+																			target="#{manterMetaIndividualBean.observacaoSelecionada}" />
+																	</p:commandLink>
+																</ui:fragment>
+																<div class="resposta-obs marginT15px">
+																	<span class="hora">( <h:outputText
+																			value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="dd/MM/yyyy" />
+																		</h:outputText> as <h:outputText value="#{obs.dataHoraResposta}">
+																			<f:convertDateTime pattern="HH:mm:ss" />
+																		</h:outputText> )
+																	</span> - #{obs.resposta}
+																</div>
+															</div>
+														</ui:repeat>
+													</ui:fragment>
+													<h:outputText value="Sem Observações"
+														rendered="#{empty manterMetaIndividualBean.observacoesUGP}" />
+												</h:panelGroup>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<ui:fragment
+							rendered="#{not empty manterMetaIndividualBean.meta.id}">
+							<div class="form-group marginT10px">
+								<div class="col-xs-16">
+									<label> <p:commandLink process="@this"
+											oncomplete="jQuery('#modalLog').modal('show');"
+											actionListener="#{manterMetaIndividualBean.obterRegistrosLog()}"
+											update=":form_registros_log">
+	                                            	Visualizar LOG de alterações <i
+												class="fa fa-search azul"></i>
+										</p:commandLink>
+									</label>
+								</div>
+							</div>
+						</ui:fragment>
+
+						<div class="form-group">
+							<div class="col-xs-4">
+								<p class="campos-obrigatorios text-left">*Campos
+									Obrigatórios</p>
+							</div>
+							<div class="col-xs-12">
+								<h:commandLink action="#{manterMetaIndividualBean.excluir()}"
+									value="Excluir Meta"
+									styleClass="btn btn-azul floatR marginL10px"
+									rendered="#{not manterMetaIndividualBean.visualizando and not manterMetaIndividualBean.verificarStatusByFase()
+												and manterMetaIndividualBean.meta.id ne null}" />
+
+								<h:commandLink action="#{manterMetaIndividualBean.salvarMeta()}"
+									value="Salvar e Continuar Pendente"
+									styleClass="btn btn-azul floatR marginL10px"
+									rendered="#{not manterMetaIndividualBean.visualizando}" />
+
+								<h:commandLink
+									action="#{manterMetaIndividualBean.enviarAprovacao()}"
+									value="Enviar para Aprovação" 
+									styleClass="btn btn-azul floatR marginL10px"
+									rendered="#{not manterMetaIndividualBean.visualizando}"/>
+									<!-- rendered="#{not manterMetaIndividualBean.visualizando and manterMetaIndividualBean.meta.getStatusByFase('P') eq 'PA' or manterMetaIndividualBean.meta.getStatusByFase('P') eq 'SA'}"/> -->
+									
+								<h:commandLink action="#{manterMetaIndividualBean.cancelarMeta()}" value="Cancelar Meta" 
+									styleClass="btn btn-azul floatR marginL10px" 
+                                    rendered="#{not manterMetaIndividualBean.visualizando and  manterMetaIndividualBean.verificarStatusByFase()}"/>
+
+								<h:commandLink value="Cancelar" styleClass="btn btn-azul floatR"
+									action="#{appBean.back}" immediate="true"
+									rendered="#{not manterMetaIndividualBean.visualizando}" />
+
+								<ui:fragment rendered="#{manterMetaIndividualBean.visualizando}">
+									<button class="btn btn-azul floatR marginL10px" type="submit"
+										onclick="printByClass('content');">Imprimir</button>
+								</ui:fragment>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
+		</div>
+
+
+		<div class="modal fade" id="modalVinculoComProjeto" tabindex="-1"
+			role="dialog" aria-labelledby="modalVinculoComProjeto"
+			aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<h:form id="formProjetosVincular">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">
+								<span aria-hidden="true">×</span><span class="sr-only">Close</span>
+							</button>
+							<h4 class="modal-title">Adicionar Vínculo a Projeto</h4>
+						</div>
+						<div class="modal-body">
+							<p:messages for="formProjetosVincular" autoUpdate="true" />
+							<div class="row marginT10px">
+								<div class="col-xs-16">
+									<p:selectManyMenu id="listaProjetosVincular"
+											value="#{manterMetaIndividualBean.projetosSelecionadosVincular}"
+											converter="ProjetoConverter" var="lpv" filter="true"
+											filterMatchMode="contains" showCheckbox="true"
+											styleClass="ui-selectlistbox-item input_100P"
+											style="width: 100% !important"
+											ondblclick="jQuery('.btn_add_unidades').click();">
+											<f:selectItems
+												value="#{manterMetaIndividualBean.projetosVincular}" var="pv"
+												itemLabel="#{pv.nome}" itemValue="#{pv}" />
+											<p:column>
+												<h:outputText value=" #{lpv.nome}" style="float:left;white-space:nowrap;text-align:left;" />
+											</p:column>
+										</p:selectManyMenu>
+									<p:message for="listaProjetosVincular" />
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<div class="row">
+								<div class="col-xs-8">
+									<p class="campos-obrigatorios text-left"></p>
+								</div>
+								<div class="col-xs-8">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Cancelar</button>
+									<p:commandLink styleClass="btn btn-primary" value="Incluir"
+										actionListener="#{manterMetaIndividualBean.vincularProjetos()}"
+										update=":form-inserir-meta-individual:tblProjetosVinculados"
+										oncomplete="jQuery('#modalVinculoComProjeto').modal('hide');">
+										<f:param name="cid"
+											value="#{manterMetaIndividualBean.conversation.id}" />
+									</p:commandLink>
+								</div>
+							</div>
+						</div>
+					</h:form>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalUnidadesAssociadas" tabindex="-1"
+			role="dialog" aria-labelledby="modalUnidadesAssociadas"
+			aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<h:form id="formUnidadesVincular">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">
+								<span aria-hidden="true">×</span><span class="sr-only">Close</span>
+							</button>
+							<h4 class="modal-title">Adicionar Unidade Associada</h4>
+						</div>
+						<div class="modal-body">
+							<p:messages for="formUnidadesVincular" autoUpdate="true" />
+							<div class="row">
+	                    		<div class="col-xs-8">
+	                    			<p:commandButton value="Selecionar Todos" id="btnSelecionarTodos" 
+	                    				onclick="selecioanarTodosLista();" styleClass="btn"/>  
+	                    		</div>
+	                    		<div class="col-xs-8">
+	                    			<h:selectOneMenu id="uf" value="#{manterMetaIndividualBean.ufUnidades}" 
+										styleClass="form-control" label="UF">
+										<f:selectItem itemLabel="Filtro por UF"/>
+										<f:selectItems value="#{appBean.ufs}" var="uf" itemLabel="#{uf}" itemValue="#{uf}"/>
+										<p:ajax event="change" update="nomeBusca" process="@this" 
+											listener="#{manterMetaIndividualBean.alterouUfFiltroUnidade()}"/>
+									</h:selectOneMenu> 
+	                    		</div>
+	                    	</div>
+							<div class="row marginT05px">
+								<div class="col-xs-16">
+									<p:selectManyMenu id="nomeBusca"
+										value="#{manterMetaIndividualBean.unidadesSelecionadasVincular}"
+										converter="UnidadeAutocompleteConverter" var="t" filter="true"
+										filterMatchMode="contains" showCheckbox="true"
+										styleClass="ui-selectlistbox-item input_100P"
+										style="width: 100% !important"
+										ondblclick="jQuery('.btn_add_unidades').click();">
+										<f:selectItems
+											value="#{manterMetaIndividualBean.unidadesVincular}" var="uv"
+											itemLabel=" #{uv.descricaoComCodigo}" itemValue="#{uv}" />
+										<p:column>
+											<h:outputText value=" #{t.descricaoComCodigo}" style="float:left;white-space:nowrap;text-align:left;" />
+										</p:column>
+									</p:selectManyMenu>
+									<p:message for="nomeBusca" />
+
+									<SCRIPT type="text/javascript">
+										function selecioanarTodosLista(){
+											if(jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').size() > 200){
+												$('#modalConfirmacaoSelecaoLista').modal('show');
+											}else{
+												 jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();
+											}
+										}
+		                             </SCRIPT>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<div class="row">
+								<div class="col-xs-8">
+									<p class="campos-obrigatorios text-left"></p>
+								</div>
+								<div class="col-xs-8">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Cancelar</button>
+									<p:commandLink styleClass="btn btn-primary btn_add_unidades" value="Incluir"
+										actionListener="#{manterMetaIndividualBean.vincularUnidades()}"
+										update=":form-inserir-meta-individual:tblUnidadesVinculadas"
+										oncomplete="jQuery('#modalUnidadesAssociadas').modal('hide');">
+										<f:param name="cid"
+											value="#{manterMetaIndividualBean.conversation.id}" />
+									</p:commandLink>
+								</div>
+							</div>
+						</div>
+					</h:form>
+				</div>
+			</div>
+		</div>
+		
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" isAjax="true" simAction="#{appBean.back()}"
+			modalMensagem="Existe uma quantidade muito grande de itens a serem selecionados, é recomendável filtrar os items parar evitar o travamento do seu navegador, tem certeza que deseja executar esta ação?" onClick="jQuery('.ui-selectlistbox-list .ui-chkbox-box :visible').click();$('#modalConfirmacaoSelecaoLista').modal('hide');return false;"
+			modalId="modalConfirmacaoSelecaoLista"/>
+
+		<ui:fragment
+			rendered="#{manterMetaIndividualBean.podeInserirMarcoCriticoCicloAtual}">
+			<div class="modal fade" id="modalMarcoCritico" tabindex="-1"
+				role="dialog" aria-labelledby="modalMarcoCritico" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<h:form id="formMarcoCritico">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<span aria-hidden="true">×</span><span class="sr-only">Close</span>
+								</button>
+								<ui:fragment
+									rendered="#{not manterMetaIndividualBean.marcoCriticoSelecionado.editando}">
+									<h4 class="modal-title">Adicionar Marco Crítico</h4>
+								</ui:fragment>
+								<ui:fragment
+									rendered="#{manterMetaIndividualBean.marcoCriticoSelecionado.editando}">
+									<h4 class="modal-title">Alterar Marco Crítico</h4>
+								</ui:fragment>
+							</div>
+							<div class="modal-body">
+								<p:messages for="formMarcoCritico" autoUpdate="true" />
+								<div class="row">
+									<div class="col-xs-8">
+										<label for="quantidade">Quantidade*</label>
+										<pe:inputNumber
+											value="#{manterMetaIndividualBean.marcoCriticoSelecionado.quantidade}"
+											placeholder="Quantidade" id="quantidade" label="Quantidade" converter="javax.faces.Integer"
+											required="true" decimalPlaces="0" converterMessage="Número inválido" />
+										<p:message for="formMarcoCritico:quantidade" />
+									</div>
+									<div class="col-xs-8">
+										<label for="prazoDeConclusaoModal">Prazo de Conclusão*</label>
+										<h:selectOneMenu id="prazoDeConclusaoModal"
+											value="#{manterMetaIndividualBean.marcoCriticoSelecionado.prazoConclusao}"
+											styleClass="form-control" data-toggle="tooltip"
+											title="Mês/ano considerado para o alcance da meta"
+											label="Prazo de Conclusão" required="true">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems value="#{manterMetaIndividualBean.meses}"
+												var="m" itemLabel="#{m.value}" itemValue="#{m}" />
+										</h:selectOneMenu>
+										<p:message for="formMarcoCritico:prazoDeConclusaoModal" />
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-16">
+										<label for="evidenciaDeEntregaModal">Evidência de
+											Entrega*</label>
+										<p:inputTextarea id="evidenciaDeEntregaModal"
+											value="#{manterMetaIndividualBean.marcoCriticoSelecionado.evidenciaEntrega}"
+											styleClass="form-control" rows="3"
+											placeholder="Evidência de Entrega*"
+											label="Evidência de Entrega" required="true" />
+										<p:message for="evidenciaDeEntregaModal" />
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<div class="row">
+									<div class="col-xs-8">
+										<p class="campos-obrigatorios text-left">*Campos
+											Obrigatórios</p>
+									</div>
+									<div class="col-xs-8">
+										<button type="button" class="btn btn-default"
+											data-dismiss="modal">Cancelar</button>
+
+										<p:commandLink styleClass="btn btn-primary" value="Incluir" 
+											rendered="#{not manterMetaIndividualBean.marcoCriticoSelecionado.editando}"
+											actionListener="#{manterMetaIndividualBean.adicionarMarcoCritico()}"
+											update=":form-inserir-meta-individual:tblMarcosCriticosVinculados, formMarcoCritico"
+											oncomplete="fecharModalMarcoCritico();">
+											<f:param name="cid"
+												value="#{manterMetaIndividualBean.conversation.id}" />
+										</p:commandLink>
+
+										<p:commandLink styleClass="btn btn-primary" value="Salvar"
+											rendered="#{manterMetaIndividualBean.marcoCriticoSelecionado.editando}"
+											actionListener="#{manterMetaIndividualBean.salvarMarcoCritico()}"
+											update=":form-inserir-meta-individual:tblMarcosCriticosVinculados, formMarcoCritico"
+											oncomplete="fecharModalMarcoCritico();">
+											<f:param name="cid"
+												value="#{manterMetaIndividualBean.conversation.id}" />
+										</p:commandLink>
+									</div>
+
+									<h:panelGroup id="panelMessages">
+										<script type="text/javascript">
+									var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+									function fecharModalMarcoCritico(){
+										if(!maximunSeverity){
+											jQuery('#modalMarcoCritico').modal('hide');
+										}
+									}
+                            	</script>
+									</h:panelGroup>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+			</div>
+		</ui:fragment>
+
+		<div class="modal fade" id="modalAddObs" tabindex="-1" role="dialog"
+			aria-labelledby="modalAddObs" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<h:form id="formObsResposta">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">
+								<span aria-hidden="true">×</span><span class="sr-only">Close</span>
+							</button>
+							<h4 class="modal-title">Escreva sua resposta</h4>
+						</div>
+						<div class="modal-body">
+							<p:messages for="formObsResposta" />
+							<div class="row">
+								<div class="col-xs-16">
+									<p:inputTextarea id="resposta" rows="3"
+										styleClass="form-control" placeholder="Resposta*"
+										value="#{manterMetaIndividualBean.observacaoSelecionada.resposta}"
+										required="true" label="Resposta" />
+									<p:message for="resposta" />
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<div class="row">
+								<div class="col-xs-8">
+									<p class="campos-obrigatorios text-left">*Campos
+										Obrigatórios</p>
+								</div>
+								<div class="col-xs-8">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Cancelar</button>
+									<p:commandLink styleClass="btn btn-primary" value="Salvar"
+										actionListener="#{manterMetaIndividualBean.enviarResposta()}"
+										update=":formObsResposta,:form-inserir-meta-individual"
+										oncomplete="fecharPnlObservacao();" />
+								</div>
+							</div>
+						</div>
+						<h:panelGroup id="panelMessages">
+							<script type="text/javascript">
+                          		var maximunSeverity = '#{facesContext.maximumSeverity.ordinal}';
+								function fecharPnlObservacao(){
+									if(!maximunSeverity || maximunSeverity != '2'){
+										jQuery('#modalAddObs').modal('hide');
+									}
+								}
+								
+								function fecharModalLog() {
+									$("#modalLog").hide();
+								}
+                          	</script>
+						</h:panelGroup>
+					</h:form>
+				</div>
+			</div>
+		</div>
+
+
+	
+		<div class="modal fade" id="modalLog" tabindex="-1" role="dialog"
+			aria-labelledby="modalLog" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+				
+				 <p:panel id="printModalLog">
+				 
+					<h:form id="form_registros_log">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">
+								<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+							</button>
+							<h4 class="modal-title">Visualizando LOG</h4>
+						</div>
+						<div class="modal-body">
+							<ui:repeat var="audit"
+								value="#{manterMetaIndividualBean.registrosLog}"
+								varStatus="status">
+								<div class="row marginT20px">
+									<div class="col-xs-16">
+										<table class="table table-bordered log">
+											<tbody>
+												<tr>
+													<td class="tituloLog">Código da Meta</td>
+													<td class="repostaLog">#{audit[0].codigo}</td>
+												</tr>
+												<tr>
+													<td class="tituloLog">Tipo de Meta</td>
+													<td class="repostaLog">#{audit[0].tipo.value}</td>
+												</tr>
+												<tr>
+													<td class="tituloLog">Nome do Usuário</td>
+													<td class="repostaLog">#{audit[0].colaborador.nome}</td>
+												</tr>
+												<tr>
+													<td class="tituloLog">CPF</td>
+													<td class="repostaLog">#{audit[1].usuario}</td>
+												</tr>
+												<tr>
+													<td class="tituloLog">Data do Log</td>
+													<td class="repostaLog"><h:outputText
+															value="#{audit[1].dataAlteracao}">
+															<f:convertDateTime pattern="dd/MM/yyyy" />
+														</h:outputText></td>
+												</tr>
+												<tr>
+													<td class="tituloLog">Hora do Log</td>
+													<td class="repostaLog"><h:outputText
+															value="#{audit[1].dataAlteracao}">
+															<f:convertDateTime pattern="HH:mm" />
+														</h:outputText></td>
+												</tr>
+												<tr>
+													<td class="tituloLog">Operação</td>
+													<td class="repostaLog"><h:outputText
+															value="#{audit[1].tipoLog.value}" /></td>
+												</tr>
+												<tr>
+													<td class="tituloLog">Dados Antigos</td>
+													<td class="repostaLog"><ui:fragment
+															rendered="#{status.index lt (manterMetaIndividualBean.registrosLog.size() -1)}">
+		                                        		Descrição: #{manterMetaIndividualBean.registrosLog.get(status.index+1)[0].resultadosEsperados}
+		                                        	</ui:fragment></td>
+												</tr>
+												<tr>
+													<td class="tituloLog">Dados Atuais</td>
+													<td>Descrição: #{audit[0].resultadosEsperados}</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</ui:repeat>
+						</div>
+						<div class="row">
+							<div class="col-xs-16">
+								<hr />
+							</div>
+						</div>
+					</h:form>
+					
+					</p:panel>
+					
+					<div class="modal-footer">
+						<div class="row">
+							<div class="col-xs-8 col-xs-offset-8">
+								<button type="button" class="btn btn-azul" data-dismiss="modal">Fechar</button>
+								<p:commandLink styleClass="btn btn-azul marginL15px" value="Imprimir" onclick="fecharModalLog()">
+				                    <p:printer target="printModalLog"/>
+				                </p:commandLink>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalObs" tabindex="-1" role="dialog"
+			aria-labelledby="modalObs" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<h:form id="form_obs_campo">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">
+								<span aria-hidden="true">x</span><span class="sr-only">Close</span>
+							</button>
+							<h4 class="modal-title">Observações do Campo</h4>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-xs-16">
+									<label for="quantidade">Observação Gerente*</label>
+									<ui:fragment
+										rendered="#{not empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('G',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<ui:repeat
+											value="#{manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('G',manterMetaIndividualBean.tipoCampoObservacao)}"
+											var="obs" varStatus="status">
+											<p>
+												<span class="hora">( <h:outputText
+														value="#{obs.dataHora}">
+														<f:convertDateTime pattern="dd/MM/yyyy" />
+													</h:outputText> as <h:outputText value="#{obs.dataHora}">
+														<f:convertDateTime pattern="HH:mm:ss" />
+													</h:outputText> )
+												</span> - #{obs.descricao}
+											</p>
+										</ui:repeat>
+									</ui:fragment>
+									<ui:fragment
+										rendered="#{empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('G',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<p>Sem observações!</p>
+									</ui:fragment>
+									<hr />
+									<label for="quantidade">Observação Comitê*</label>
+									<ui:fragment
+										rendered="#{not empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('C',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<ui:repeat
+											value="#{manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('C',manterMetaIndividualBean.tipoCampoObservacao)}"
+											var="obs" varStatus="status">
+											<p>
+												<span class="hora">( <h:outputText
+														value="#{obs.dataHora}">
+														<f:convertDateTime pattern="dd/MM/yyyy" />
+													</h:outputText> as <h:outputText value="#{obs.dataHora}">
+														<f:convertDateTime pattern="HH:mm:ss" />
+													</h:outputText> )
+												</span> - #{obs.descricao}
+											</p>
+										</ui:repeat>
+									</ui:fragment>
+									
+									<ui:fragment
+										rendered="#{empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('M',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<p>Sem observações!</p>
+									</ui:fragment>
+									<hr />
+									<label for="quantidade">Observação Monitoramento*</label>
+									<ui:fragment
+										rendered="#{not empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('M',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<ui:repeat
+											value="#{manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('M',manterMetaIndividualBean.tipoCampoObservacao)}"
+											var="obs" varStatus="status">
+											<p>
+												<span class="hora">( <h:outputText
+														value="#{obs.dataHora}">
+														<f:convertDateTime pattern="dd/MM/yyyy" />
+													</h:outputText> as <h:outputText value="#{obs.dataHora}">
+														<f:convertDateTime pattern="HH:mm:ss" />
+													</h:outputText> )
+												</span> - #{obs.descricao}
+											</p>
+										</ui:repeat>
+									</ui:fragment>
+									
+									<ui:fragment
+										rendered="#{empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('C',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<p>Sem observações!</p>
+									</ui:fragment>
+									<hr />
+									<label for="quantidade">Observação UGP*</label>
+									<ui:fragment
+										rendered="#{not empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('U',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<ui:repeat
+											value="#{manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('U',manterMetaIndividualBean.tipoCampoObservacao)}"
+											var="obs" varStatus="status">
+											<p>
+												<span class="hora">( <h:outputText
+														value="#{obs.dataHora}">
+														<f:convertDateTime pattern="dd/MM/yyyy" />
+													</h:outputText> as <h:outputText value="#{obs.dataHora}">
+														<f:convertDateTime pattern="HH:mm:ss" />
+													</h:outputText> )
+												</span> - #{obs.descricao}
+											</p>
+										</ui:repeat>
+									</ui:fragment>
+									<ui:fragment
+										rendered="#{empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('U',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<p>Sem observações!</p>
+									</ui:fragment>
+									<hr />
+									<label for="quantidade">Observação Auditor*</label>
+									<ui:fragment
+										rendered="#{not empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('A',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<ui:repeat
+											value="#{manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('A',manterMetaIndividualBean.tipoCampoObservacao)}"
+											var="obs" varStatus="status">
+											<p>
+												<span class="hora">( <h:outputText
+														value="#{obs.dataHora}">
+														<f:convertDateTime pattern="dd/MM/yyyy" />
+													</h:outputText> as <h:outputText value="#{obs.dataHora}">
+														<f:convertDateTime pattern="HH:mm:ss" />
+													</h:outputText> )
+												</span> - #{obs.descricao}
+											</p>
+										</ui:repeat>
+									</ui:fragment>
+									<ui:fragment
+										rendered="#{empty manterMetaIndividualBean.meta.getObservacoesCampoByTipoAndCampo('A',manterMetaIndividualBean.tipoCampoObservacao)}">
+										<p>Sem observações!</p>
+									</ui:fragment>
+									<hr />
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<div class="row">
+								<div class="col-xs-8 col-xs-offset-8">
+									<button type="button" class="btn btn-azul floatR"
+										data-dismiss="modal">Fechar</button>
+								</div>
+							</div>
+						</div>
+					</h:form>
+				</div>
+			</div>
+		</div>
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{manterMetaIndividualBean.excluirProjeto()}"
+			update=":form-inserir-meta-individual:tblProjetosVinculados"
+			modalMensagem="O projeto será desvinculado da meta. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoProjeto').modal('toggle')"
+			modalId="modalConfirmacaoProjeto" />
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{manterMetaIndividualBean.excluirUnidade()}"
+			update=":form-inserir-meta-individual:tblUnidadesVinculadas"
+			modalMensagem="A unidade será desassociada da meta. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoUnidade').modal('toggle')"
+			modalId="modalConfirmacaoUnidade" />
+
+		<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim"
+			modalTitulo="ATENÇÃO"
+			simAction="#{manterMetaIndividualBean.excluirMarcoCritico()}"
+			update=":form-inserir-meta-individual:tblMarcosCriticosVinculados"
+			modalMensagem="O Marco Crítico será excluido. Deseja continuar?"
+			onComplete="$('#modalConfirmacaoMarcoCritico').modal('toggle')"
+			modalId="modalConfirmacaoMarcoCritico" />
+
+	</ui:define>
+</ui:composition>

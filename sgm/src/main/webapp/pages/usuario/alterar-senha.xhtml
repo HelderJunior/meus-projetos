@@ -1,0 +1,82 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="#{appBean.back()}">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<a href="#">Alterar Senha</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+		#{alterarSenhaBean.init()}
+		
+		<p:messages autoUpdate="true" globalOnly="true" />
+		
+		<div class="content">
+              <div class="row marginT30px">
+                  <div class="col-xs-16">
+                      <p class="titulo-sem-marcador">Alterar Senha</p>
+                  </div>
+              </div>
+              <div class="row marginT20px">
+                  <div class="col-xs-16">
+                  		<h:form styleClass="form-horizontal" role="form" id="form-alterar-senha">
+                          <div class="form-group">
+                              <div class="col-xs-8">
+                                  <label for="senhaAtual">Senha atual*</label>
+                                  <p:password id="senhaAtual" value="#{alterarSenhaBean.senhaAtual}" placeholder="Senha Atual" styleClass="form-control"
+                                  required="true" label="Senha Atual" maxlength="8"/>
+                                  <p:message for="senhaAtual"/>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <div class="col-xs-8">
+                                  <label for="novaSenha">Nova senha*</label>
+                                  <p:password id="novaSenha" value="#{alterarSenhaBean.novaSenha}" styleClass="form-control" 
+                                  	match="novaSenhaConfirmacao" label="Nova Senha" placeholder="Nova Senha" required="true" 
+                                  	maxlength="8"/>
+                                  <p:message for="novaSenha"/>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <div class="col-xs-8">
+                                  <label for="confirmarNovaSenha">Confirmar nova senha*</label>
+                                  <p:password id="novaSenhaConfirmacao" value="#{alterarSenhaBean.confirmarNovaSenha}" styleClass="form-control" 
+                                  label="Confirmar nova senha" placeholder="Confirmar nova senha" required="true" 
+                                  maxlength="8"/>
+                                  <p:message for="novaSenhaConfirmacao"/>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <div class="col-xs-5">
+                                  <p class="campos-obrigatorios">*Campos Obrigatórios</p>
+                              </div>
+                              <div class="col-xs-3">
+                              	<h:commandLink styleClass="btn btn-azul floatR marginL10px" action="#{alterarSenhaBean.salvarNovaSenha()}" value="Salvar">
+                              		<f:param name="cid" value="#{alterarSenhaBean.conversation.id}"/>
+                              	</h:commandLink>
+                              	<h:commandLink styleClass="btn btn-azul floatR" action="/pages/index.xhtml" value="Cancelar" immediate="true"/>
+                              </div>
+                          </div>
+                      </h:form>
+                  </div>
+              </div>
+          </div>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,413 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:sebrae="http://java.sun.com/jsf/composite/sebrae">
+	
+	<ui:define name="link_anterior">
+		<h:commandLink action="/pages/index.xhtml">
+			<i class="fa fa-arrow-left" data-toggle="tooltip" title="Voltar para Página Anterior"></i>
+		</h:commandLink>
+	</ui:define>
+	
+	<ui:define name="breadcrumb">
+		<li>
+			<h:commandLink action="/pages/index.xhtml" value="#{appBean.nomeBreadcrumbinicial}" />
+		</li>   
+		<li>
+			<a href="#">Tabelas Auxiliares</a>
+		</li>
+	</ui:define>
+	
+	<ui:define name="corpo">
+	 #{manterCategoriaBean.init()}
+	 #{manterValidacaoBean.init()}
+	 #{manterObjetivoEstrategicoBean.init()}
+	 
+		<p:messages autoUpdate="true" globalOnly="true" />
+                <div class="content">
+                    <div class="row marginT30px">
+                        <div class="col-xs-16">
+                            <p class="titulo-sem-marcador">Tabelas Auxiliares</p>
+                        </div>
+                    </div>
+                    <div class="row marginT30px">
+                        <div class="col-xs-16 tabs-padrao">
+                            <ul class="nav nav-tabs tab-insercao tabs" role="tablist">
+                                <li class="active"><a href="#auxiliaresCategorias">Categorias</a></li>
+                                <li><a href="#auxiliaresValidacao">Validação</a></li>
+                                <li><a href="#auxiliaresObjetivos">Objetivos Estratégicos</a></li>
+                            </ul>
+                            <div class="tab-content">
+                              <div id="auxiliaresCategorias" class="tab-pane active">
+                              	<h:form id="form-categorias"> 
+                                    <div class="row marginT15px">
+                                        <div class="col-xs-8">
+                                            <label for="nomeCategoria">Nome*</label> <br></br>
+                                            <p:inputText id="nomeCategoria" label="Nome" value="#{manterCategoriaBean.categoria.nome}" required="true" styleClass="form-control" size="63"/>
+                                            <p:message for="nomeCategoria"/>
+                                        </div>
+                                        <div class="col-xs-8">
+                                            <label for="codigoCategoria">Código da Categoria</label><br></br>
+                                            <p:inputText id="codigoCategoria" value="#{manterCategoriaBean.categoria.id}" styleClass="form-control text-cente" disabled="true" size="63"/>
+                                        </div>
+                                    </div>
+								<div class="row marginT15px">
+									<div class="col-xs-8">
+										<label for="descricaoCategoria">Descrição*</label><br></br>
+										<p:inputTextarea id="descricaoCategoria"
+											value="#{manterCategoriaBean.categoria.descricao}"
+											styleClass="form-control" rows="3" required="true" label="Descrição"/>
+										<p:message for="descricaoCategoria"/>
+									</div>
+									<div class="col-xs-8">
+										<label for="abrangenciaCategoria">Abrangência*</label><br></br>
+										<h:selectOneMenu id="abrangenciaCategoria" value="#{manterCategoriaBean.categoria.abrangencia}" 
+											styleClass="form-control" required="true" label="Abrangência">
+											<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+											<f:selectItems value="#{manterCategoriaBean.abrangencias}" var="abran"  
+       														 itemValue="#{abran}" itemLabel="#{abran.value}"/>
+										</h:selectOneMenu>
+										<p:message for="abrangenciaCategoria"/>
+									</div>
+								</div>
+								<div class="row marginT15px">
+									<div class="col-xs-8">
+										<label for="statusCategoria">Status*</label><br></br>
+										<h:selectOneMenu id="statusCategoria" value="#{manterCategoriaBean.categoria.status}" styleClass="form-control"
+											required="true" label="Status">
+											<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+											<f:selectItems value="#{manterCategoriaBean.listStatus}" var="st"  
+       														 itemValue="#{st}" itemLabel="#{st.value}"/>
+										</h:selectOneMenu>
+										<p:message for="statusCategoria"/>
+									</div>
+									<div class="col-xs-8">
+                                            <label for="ufCategoria">UF da Abrangência</label><br></br>
+                                            <p:inputText id="ufCategoria" value="#{appBean.ufSelecionada}" 
+                                            	disabled="true" styleClass="form-control text-center" size="63"/>
+                                        </div>
+                                    </div>
+                                    <div class="row marginT15px">
+                                        <div class="col-xs-8">
+                                            <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                                        </div>
+                                        <div class="col-xs-8">
+											<p:commandLink value="Inserir Parâmetro"
+												styleClass="btn btn-azul floatR"
+												actionListener="#{manterCategoriaBean.salvarCategoria()}"
+												update=":form-categorias"
+												rendered="#{not manterCategoriaBean.visualizando and empty manterCategoriaBean.categoria.id}" />
+					
+											<p:commandLink value="Salvar Parâmetro"
+												styleClass="btn btn-azul floatR"
+												actionListener="#{manterCategoriaBean.salvarCategoria()}"
+												update=":form-categorias"
+												rendered="#{not manterCategoriaBean.visualizando and not empty manterCategoriaBean.categoria.id}" />
+					
+											<p:commandLink value="Cancelar" styleClass="btn btn-azul floatR"
+												actionListener="#{manterCategoriaBean.cancelarVisualizacao()}"
+												update=":form-categorias"
+												rendered="#{manterCategoriaBean.visualizando}" />
+                                        </div>
+                                    </div>
+                                    <div class="row marginT30px">
+                                        <div class="col-xs-16">
+                                            <p class="titulo-sem-marcador">Configurações Salvas</p>
+                                        </div>
+                                    </div>
+								<div class="row marginT15px">
+									<div class="col-xs-16">
+										<p:dataTable var="cat"
+											value="#{manterCategoriaBean.listCategorias}"
+											tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+											id="tblCategoriasAdicionados" paginator="true" rows="10"
+											paginatorPosition="bottom"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhum parâmetro adicionado">
+
+											<p:column headerText="Nome da Categoria" styleClass="text-center" sortBy="#{cat.nome}">
+						            			#{cat.nome}
+						       				 </p:column> 
+
+											<p:column headerText="Abrangência" styleClass="text-center" sortBy="#{cat.abrangencia.value}">
+						           				#{cat.abrangencia.value}
+						        			</p:column>
+
+											<p:column headerText="UF da Abrangência" styleClass="text-center" sortBy="#{cat.uf}">
+						            			#{cat.uf}
+						        			</p:column>
+						        			
+						        			<p:column headerText="Status" styleClass="text-center" sortBy="#{cat.status.value}">
+						            			 #{cat.status.value} 
+						        			</p:column>
+
+												<p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+													<p:commandLink actionListener="#{manterCategoriaBean.visualizarCategoria()}" update=":form-categorias" process="@this">
+														<i class="fa fa-eye"></i>
+														<f:setPropertyActionListener target="#{manterCategoriaBean.categoria}" value="#{cat}" />
+														<f:param name="cid" value="#{manterCategoriaBean.conversation.id}"/>
+													</p:commandLink>
+												</p:column>
+
+												<p:column headerText="Editar" styleClass="text-center width-col-peq" rendered="#{not manterCategoriaBean.visualizando}">
+													<p:commandLink update=":form-categorias" process="@this">
+														<i class="fa fa-pencil-square-o"></i>
+														<f:setPropertyActionListener target="#{manterCategoriaBean.categoria}" value="#{cat}"/>
+														<f:param name="cid" value="#{manterCategoriaBean.conversation.id}"/> 
+													</p:commandLink>
+												</p:column>
+
+												<p:column headerText="Excluir" styleClass="text-center width-col-peq" rendered="#{not manterCategoriaBean.visualizando}">
+													<p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirCategoria').modal('show');" process="@this">
+														<i class="fa fa-trash-o"></i>
+														<f:setPropertyActionListener target="#{manterCategoriaBean.categoria}" value="#{cat}"/>
+													 	<f:param name="cid" value="#{manterCategoriaBean.conversation.id}" /> 
+													</p:commandLink>
+												</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+							</h:form> 
+								 <sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{manterCategoriaBean.excluirCategoria()}"
+									modalMensagem="O parâmetro será excluído. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirCategoria').modal('hide')"
+									modalId="modalConfirmacaoExcluirCategoria" update=":form-categorias"/> 
+							</div>
+                                <div id="auxiliaresValidacao" class="tab-pane">
+                                	<h:form id="form-validacoes"> 
+                                    <div class="row marginT15px">
+                                        <div class="col-xs-8">
+                                            <label for="nomeValidacao">Nome*</label><br></br>
+                                            <p:inputText id="nomeValicao" value="#{manterValidacaoBean.validacao.nome}" 
+                                            	styleClass="form-control" size="63" required="true" label="Nome"/>
+                                            <p:message for="nomeValicao"/>
+                                        </div>
+                                        <div class="col-xs-8">
+                                            <label for="codigoValidacao">Código da Validação</label><br></br>
+                                            <p:inputText id="codigoValidacao" value="#{manterValidacaoBean.validacao.id}" 
+                                            	disabled="true" styleClass="form-control" size="63"/>
+                                        </div>
+                                    </div>
+                                    <div class="row marginT15px">
+                                        <div class="col-xs-8">
+                                            <label for="descricaoValidacao">Descrição*</label><br></br>
+                                            <p:inputTextarea id="descricaoValidacao" required="true"
+                                            label="Descrição"
+											value="#{manterValidacaoBean.validacao.descricao}"
+											styleClass="form-control" rows="3" />
+											<p:message for="descricaoValidacao"/>
+                                        </div>
+									    <div class="col-xs-8">
+										    <label for="statusValidacao">Status*</label><br></br>
+										   <h:selectOneMenu id="statusValidacao" value="#{manterValidacaoBean.validacao.status}" 
+										   		styleClass="form-control" required="true" label="Status">
+												<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+												<f:selectItems value="#{manterValidacaoBean.listStatus}" var="st"  
+       														 itemValue="#{st}" itemLabel="#{st.value}"/>
+										   </h:selectOneMenu>
+										   <p:message for="statusValidacao"/>
+									   </div>
+								  </div>
+                                    <div class="row marginT15px">
+                                        <div class="col-xs-8">
+                                            <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                                        </div>
+                                        <div class="col-xs-8">
+											<p:commandLink value="Inserir Parâmetro"
+												styleClass="btn btn-azul floatR"
+												actionListener="#{manterValidacaoBean.salvarValidacao()}"
+												update=":form-validacoes"
+												rendered="#{not manterValidacaoBean.visualizando and empty manterValidacaoBean.validacao.id}"/>
+					
+											<p:commandLink value="Salvar Parâmetro"
+												styleClass="btn btn-azul floatR"
+												actionListener="#{manterValidacaoBean.salvarValidacao()}"
+												update=":form-validacoes"
+												rendered="#{not manterValidacaoBean.visualizando and not empty manterValidacaoBean.validacao.id}"/>
+					
+											<p:commandLink value="Cancelar" styleClass="btn btn-azul floatR"
+												actionListener="#{manterValidacaoBean.cancelarVisualizacao()}"
+												update=":form-validacoes"
+												rendered="#{manterValidacaoBean.visualizando}"/>
+                                        </div>
+                                    </div>
+                                    <div class="row marginT30px">
+                                        <div class="col-xs-16">
+                                            <p class="titulo-sem-marcador">Configurações Salvas</p>
+                                        </div>
+                                    </div>
+								<div class="row marginT15px">
+									<div class="col-xs-16">
+										<p:dataTable var="v"
+											value="#{manterValidacaoBean.listValidacoes}"
+											tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+											id="tblValidacoesAdicionados" paginator="true" rows="10"
+											paginatorPosition="bottom"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhum parâmetro adicionado">
+
+											<p:column headerText="Nome da Validação" sortBy="#{v.nome}"
+												styleClass="text-center">
+						            			#{v.nome}
+						       				 </p:column>
+
+											<p:column headerText="Status da Validação" sortBy="#{v.status.value}"
+												styleClass="text-center">
+						           				#{v.status.value} 
+						        			</p:column>
+						        			
+						        			<p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+													<p:commandLink actionListener="#{manterValidacaoBean.visualizarValidacao()}" update=":form-validacoes" process="@this">
+														<i class="fa fa-eye"></i>
+														<f:setPropertyActionListener target="#{manterValidacaoBean.validacao}" value="#{v}" />
+														<f:param name="cid" value="#{manterValidacaoBean.conversation.id}"/>
+													</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Editar" styleClass="text-center width-col-peq" rendered="#{not manterValidacaoBean.visualizando}">
+												<p:commandLink  update=":form-validacoes" process="@this">
+													<i class="fa fa-pencil-square-o"></i>
+													<f:setPropertyActionListener target="#{manterValidacaoBean.validacao}" value="#{v}"/>
+													<f:param name="cid" value="#{manterValidacaoBean.conversation.id}"/> 
+												</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Excluir" styleClass="text-center width-col-peq"
+												rendered="#{not manterValidacaoBean.visualizando}">
+												<p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirValidacao').modal('show');" process="@this">
+													<i class="fa fa-trash-o"></i>
+													<f:setPropertyActionListener target="#{manterValidacaoBean.validacao}" value="#{v}"/>
+													 <f:param name="cid" value="#{manterValidacaoBean.conversation.id}" /> 
+												</p:commandLink>
+											</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+							</h:form>
+							<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{manterValidacaoBean.excluirValidacao()}"
+									modalMensagem="O parâmetro será excluído. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirValidacao').modal('hide')"
+									modalId="modalConfirmacaoExcluirValidacao" update=":form-validacoes"/>
+							</div>
+                                <div id="auxiliaresObjetivos" class="tab-pane">
+                                	<h:form id="form-auxObjetivos"> 
+                                    <div class="row marginT15px">
+                                        <div class="col-xs-8">
+                                            <label for="nomeObjetivos">Nome*</label><br></br>
+                                            <p:inputText id="nomeObjetivos" value="#{manterObjetivoEstrategicoBean.objetivoEstrategico.nome}" 
+                                            	styleClass="form-control" size="63" required="true" label="Nome"/>
+                                            <p:message for="nomeObjetivos"/>
+                                        </div>
+                                        <div class="col-xs-8">
+                                            <label for="codigoObjetivos">Código do Objetivo</label><br></br>
+                                            <p:inputText id="codigoObjetivos" value="#{manterObjetivoEstrategicoBean.objetivoEstrategico.id}" 
+                                            	disabled="true" styleClass="form-control" size="63"/>
+                                        </div>
+                                    </div>
+                                   <div class="row marginT15px">
+                                      <div class="col-xs-8">
+                                           <label for="descricaoObjetivos">Descrição*</label><br></br>
+                                           <p:inputTextarea id="descricaoObjetivos" required="true" label="Descrição"
+											value="#{manterObjetivoEstrategicoBean.objetivoEstrategico.descricao}"
+											styleClass="form-control" rows="3" />
+										   <p:message for="descricaoObjetivos"/>
+                                      </div>
+                                      <div class="col-xs-8">
+                                         <label for="statusObjetivo">Status*</label><br></br>
+										 <h:selectOneMenu id="statusObjetivo" value="#{manterObjetivoEstrategicoBean.objetivoEstrategico.status}" 
+											styleClass="form-control" required="true" label="Status">
+												<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
+												<f:selectItems value="#{manterObjetivoEstrategicoBean.listStatus}" var="st"  
+       														 itemValue="#{st}" itemLabel="#{st.value}"/>
+										 </h:selectOneMenu>
+										 <p:message for="statusObjetivo"/>
+									 </div>
+                                    </div>
+                                    <div class="row marginT15px">
+                                        <div class="col-xs-8">
+                                            <p class="campos-obrigatorios text-left">*Campos Obrigatórios</p>
+                                        </div>
+                                        <div class="col-xs-8">
+											<p:commandLink value="Inserir Parâmetro"
+												styleClass="btn btn-azul floatR"
+												actionListener="#{manterObjetivoEstrategicoBean.salvarOjetivoEstrategico()}"
+												update=":form-auxObjetivos"
+												rendered="#{not manterObjetivoEstrategicoBean.visualizando and empty manterObjetivoEstrategicoBean.objetivoEstrategico.id}"/>
+					
+											<p:commandLink value="Salvar Parâmetro"
+												styleClass="btn btn-azul floatR"
+												actionListener="#{manterObjetivoEstrategicoBean.salvarOjetivoEstrategico()}"
+												update=":form-auxObjetivos"
+												rendered="#{not manterObjetivoEstrategicoBean.visualizando and not empty manterObjetivoEstrategicoBean.objetivoEstrategico.id}"/>
+					
+											<p:commandLink value="Cancelar" styleClass="btn btn-azul floatR"
+												actionListener="#{manterObjetivoEstrategicoBean.cancelarVisualizacao()}"
+												update=":form-auxObjetivos"
+												rendered="#{manterObjetivoEstrategicoBean.visualizando}"/>
+                                        </div>
+                                    </div>
+                                    <div class="row marginT30px">
+                                        <div class="col-xs-16">
+                                            <p class="titulo-sem-marcador">Configurações Salvas</p>
+                                        </div>
+                                    </div>
+                                    <div class="row marginT15px">
+                                        <div class="col-xs-16">
+                                            <p:dataTable var="obj"
+											value="#{manterObjetivoEstrategicoBean.listObjetivosEstrategicos}"
+											tableStyleClass="table table-striped table-bordered bg_cor_padrao_fraco"
+											id="tblObetivosAdicionados" paginator="true" rows="10"
+											paginatorPosition="bottom"
+											paginatorTemplate="{PreviousPageLink} {PageLinks} {NextPageLink}"
+											emptyMessage="Nenhum parâmetro adicionado">
+
+											<p:column headerText="Nome do Objetivo" styleClass="text-center" sortBy="#{obj.nome}">
+						            			#{obj.nome}
+						       				 </p:column>
+
+											<p:column headerText="Status do Objetivo" sortBy="#{obj.status.value}"
+												styleClass="text-center">
+						           				 #{obj.status.value} 
+						        			</p:column>
+						        			
+						        			<p:column headerText="Visualizar" styleClass="text-center width-col-peq">
+													<p:commandLink actionListener="#{manterObjetivoEstrategicoBean.visualizarOjetivoEstrategico()}" update=":form-auxObjetivos" process="@this">
+														<i class="fa fa-eye"></i>
+														<f:setPropertyActionListener target="#{manterObjetivoEstrategicoBean.objetivoEstrategico}" value="#{obj}" />
+														<f:param name="cid" value="#{manterObjetivoEstrategicoBean.conversation.id}"/>
+													</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Editar" styleClass="text-center width-col-peq" rendered="#{not manterObjetivoEstrategicoBean.visualizando}">
+												<p:commandLink  update=":form-auxObjetivos" process="@this">
+													<i class="fa fa-pencil-square-o"></i>
+													<f:setPropertyActionListener target="#{manterObjetivoEstrategicoBean.objetivoEstrategico}" value="#{obj}"/>
+													<f:param name="cid" value="#{manterObjetivoEstrategicoBean.conversation.id}"/> 
+												</p:commandLink>
+											</p:column>
+
+											<p:column headerText="Excluir" styleClass="text-center width-col-peq"
+												rendered="#{not manterObjetivoEstrategicoBean.visualizando}">
+												<p:commandLink oncomplete="jQuery('#modalConfirmacaoExcluirObjetivos').modal('show');" process="@this">
+													<i class="fa fa-trash-o"></i>
+													<f:setPropertyActionListener target="#{manterObjetivoEstrategicoBean.objetivoEstrategico}" value="#{obj}"/>
+													 <f:param name="cid" value="#{manterObjetivoEstrategicoBean.conversation.id}" /> 
+												</p:commandLink>
+											</p:column>
+										</p:dataTable>
+                                        </div>
+                                    </div>
+                 					</h:form>
+                 					<sebrae:confirmacao naoTitulo="Não" simTitulo="Sim" modalTitulo="ATENÇÃO" simAction="#{manterObjetivoEstrategicoBean.excluirOjetivoEstrategico()}"
+										modalMensagem="O parâmetro será excluído. Deseja continuar?" onComplete="$('#modalConfirmacaoExcluirObjetivos').modal('hide')"
+										modalId="modalConfirmacaoExcluirObjetivos" update=":form-auxObjetivos"/> 
+                                </div>
+                            </div>
+                          </div>
+                      </div>
+                   </div>
+		</ui:define>
+</ui:composition>

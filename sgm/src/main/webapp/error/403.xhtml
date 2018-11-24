@@ -1,0 +1,19 @@
+<ui:composition template="/layout/default.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+	<ui:define name="corpo">
+	    <div id="adl" class="clearfix">   	
+                <p class="tituloPagina">Sem Acesso</p>
+                <div class="tela-sucesso">
+                   <p>Você não possui acesso ao recurso solicitado.</p>
+                   <div class="botoes-navegacao">
+                       <a class="btn" href="#{facesContext.externalContext.requestContextPath}" title="Voltar">Voltar</a>
+                   </div>            
+                </div>
+            </div>
+	</ui:define>
+</ui:composition>
